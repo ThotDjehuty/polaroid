@@ -35,13 +35,13 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo build --release --target-dir /build/target && \
     cp /build/target/release/polaroid-grpc /polaroid-grpc
 
-# Runtime stage - minimal image
-FROM debian:bookworm-slim
+# Runtime stage - must match builder's GLIBC version
+FROM debian:trixie-slim
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    libssl3 ca-certificates && \
+    libssl3 ca-certificates netcat-openbsd && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
