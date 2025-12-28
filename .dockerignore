@@ -1,0 +1,52 @@
+# Rust build artifacts (MASSIVE - exclude to speed up context transfer)
+target/
+**/target/
+
+# Cargo lock for libraries (included in release builds)
+!Cargo.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Test files
+tests/
+**/tests/
+
+# Examples
+examples/
+**/examples/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+!Dockerfile
+
+# Misc
+*.log
+.DS_Store
