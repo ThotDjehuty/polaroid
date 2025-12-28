@@ -1,7 +1,7 @@
 use dashmap::DashMap;
 use polars::prelude::*;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use uuid::Uuid;
 use tracing::{debug, info, warn};
 
@@ -14,11 +14,11 @@ pub struct DataFrameHandleInfo {
     pub dataframe: Arc<DataFrame>,
     pub created_at: Instant,
     pub last_accessed: Instant,
-    pub ttl: Duration,
+    pub ttl: std::time::Duration,
 }
 
 impl DataFrameHandleInfo {
-    fn new(dataframe: DataFrame, ttl: Duration) -> Self {
+    fn new(dataframe: DataFrame, ttl: std::time::Duration) -> Self {
         let now = Instant::now();
         Self {
             handle: Uuid::new_v4().to_string(),
@@ -41,11 +41,11 @@ impl DataFrameHandleInfo {
 /// Manages DataFrame handles with TTL and reference counting
 pub struct HandleManager {
     handles: DashMap<String, DataFrameHandleInfo>,
-    default_ttl: Duration,
+    default_ttl: std::time::Duration,
 }
 
 impl HandleManager {
-    pub fn new(default_ttl: Duration) -> Self {
+    pub fn new(default_ttl: std::time::Duration) -> Self {
         Self {
             handles: DashMap::new(),
             default_ttl,
@@ -142,7 +142,7 @@ impl HandleManager {
 
 impl Default for HandleManager {
     fn default() -> Self {
-        Self::new(Duration::from_secs(3600)) // 1 hour default TTL
+        Self::new(std::time::Duration::from_secs(3600)) // 1 hour default TTL
     }
 }
 
@@ -203,10 +203,10 @@ mod tests {
     
     #[test]
     fn test_handle_expiration() {
-        let manager = HandleManager::new(Duration::from_millis(100));
+        let manager = HandleManager::new(std::time::Duration::from_millis(100));
         let handle = manager.create_handle(create_test_df());
         
-        std::thread::sleep(Duration::from_millis(150));
+        std::thread::sleep(std::time::Duration::from_millis(150));
         let result = manager.get_dataframe(&handle);
         
         assert!(matches!(result, Err(PolaroidError::HandleExpired(_))));
