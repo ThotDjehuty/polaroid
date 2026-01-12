@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/*",
+  "polaroid-grpc",
+  "polaroid-sources",
+  "polaroid-distributed",
+]
+default-members = [
+  "crates/*",
+  "polaroid-grpc",
+  "polaroid-sources",
+  "polaroid-distributed",
+]
+
+[workspace.package]
+version = "0.52.0"
+authors = ["Ritchie Vink <ritchie46@gmail.com>"]
+edition = "2024"
+homepage = "https://www.pola.rs/"
+license = "MIT"
+repository = "https://github.com/pola-rs/polars"

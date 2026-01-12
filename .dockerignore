@@ -2,9 +2,6 @@
 target/
 **/target/
 
-# Cargo lock for libraries (included in release builds)
-!Cargo.lock
-
 # IDE files
 .vscode/
 .idea/
@@ -15,11 +12,6 @@ target/
 # Git
 .git/
 .gitignore
-
-# Documentation
-docs/
-*.md
-!README.md
 
 # Python cache
 __pycache__/
@@ -45,7 +37,7 @@ examples/
 # Docker
 docker-compose*.yml
 Dockerfile*
-!Dockerfile
+!Dockerfile.polaroid
 
 # Misc
 *.log

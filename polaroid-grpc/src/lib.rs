@@ -1,7 +1,8 @@
 pub mod handles;
 pub mod service;
 pub mod error;
-pub mod optimizations;
+// Temporarily disable optimizations module until Polars 0.52 API compatibility is fixed
+// pub mod optimizations;
 
 // Generated proto code
 pub mod proto {
