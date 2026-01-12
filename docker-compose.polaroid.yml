@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  polaroid-grpc:
+    build:
+      context: .
+      dockerfile: Dockerfile.polaroid
+    container_name: polaroid-grpc
+    ports:
+      - "50051:50051"
+    environment:
+      - RUST_LOG=info
+      - RUST_BACKTRACE=1
+    volumes:
+      # Mount test data directory
+      - /tmp:/tmp:ro
+    networks:
+      - polaroid-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 50051 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  polaroid-net:
+    driver: bridge
+
