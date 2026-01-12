@@ -20,10 +20,12 @@ RUN cargo build --release --bin polaroid-grpc
 # Runtime stage
 FROM debian:bookworm-slim
 
-# Install runtime dependencies
+# Install runtime dependencies including Python (required by pyo3)
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     netcat-openbsd \
+    python3 \
+    libpython3.11 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

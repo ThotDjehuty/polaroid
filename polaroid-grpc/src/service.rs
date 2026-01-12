@@ -50,6 +50,74 @@ impl PolaroidDataFrameService {
         // For now, return empty vec as IPC serialization needs different approach
         Ok(Vec::new())
     }
+    
+    /// Fetch data from REST API and convert to DataFrame
+    async fn fetch_rest_api_data(req: RestApiRequest) -> std::result::Result<DataFrame, Status> {
+        // Build HTTP client
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(30))
+            .build()
+            .map_err(|e| Status::internal(format!("Failed to create HTTP client: {}", e)))?;
+        
+        // Build request
+        let mut request_builder = match req.method.to_lowercase().as_str() {
+            "get" | "" => client.get(&req.url),
+            "post" => client.post(&req.url),
+            "put" => client.put(&req.url),
+            _ => return Err(Status::invalid_argument(format!("Unsupported HTTP method: {}", req.method))),
+        };
+        
+        // Add headers
+        for (key, value) in req.headers.iter() {
+            request_builder = request_builder.header(key, value);
+        }
+        
+        // Add body for POST/PUT
+        if let Some(body) = req.body {
+            request_builder = request_builder.body(body);
+        }
+        
+        // Execute request
+        let response = request_builder
+            .send()
+            .await
+            .map_err(|e| Status::internal(format!("HTTP request failed: {}", e)))?;
+        
+        // Check status
+        if !response.status().is_success() {
+            return Err(Status::internal(format!("HTTP error: {}", response.status())));
+        }
+        
+        // Parse JSON response
+        let json_text = response
+            .text()
+            .await
+            .map_err(|e| Status::internal(format!("Failed to read response body: {}", e)))?;
+        
+        // Convert JSON to DataFrame using Polars
+        let df = polars::io::json::JsonReader::new(std::io::Cursor::new(json_text.as_bytes()))
+            .finish()
+            .map_err(|e| Status::internal(format!("Failed to parse JSON to DataFrame: {}", e)))?;
+        
+        Ok(df)
+    }
+    
+    /// Convert DataFrame to Arrow IPC batches for streaming
+    fn dataframe_to_arrow_batches_simple(df: &DataFrame) -> Result<Vec<ArrowBatch>> {
+        // For simplicity, convert entire DataFrame to single batch
+        // In production, this should chunk large DataFrames
+        let mut buffer = Vec::new();
+        
+        // Write DataFrame as Arrow IPC
+        polars::io::ipc::IpcWriter::new(&mut buffer)
+            .finish(&mut df.clone())
+            .map_err(|e| PolaroidError::Polars(e))?;
+        
+        Ok(vec![ArrowBatch {
+            arrow_ipc: buffer,
+            error: None,
+        }])
+    }
 }
 
 #[tonic::async_trait]
@@ -267,8 +335,36 @@ impl DataFrameService for PolaroidDataFrameService {
         Err(Status::unimplemented("stream_web_socket"))
     }
     
-    async fn stream_rest_api(&self, _req: Request<RestApiRequest>) -> std::result::Result<Response<Self::StreamRestApiStream>, Status> {
-        Err(Status::unimplemented("stream_rest_api"))
+    async fn stream_rest_api(&self, req: Request<RestApiRequest>) -> std::result::Result<Response<Self::StreamRestApiStream>, Status> {
+        let req = req.into_inner();
+        info!("StreamRestApi request: url={}", req.url);
+        
+        let (tx, rx) = tokio::sync::mpsc::channel(100);
+        
+        tokio::spawn(async move {
+            match Self::fetch_rest_api_data(req).await {
+                Ok(df) => {
+                    // Convert DataFrame to Arrow IPC batches
+                    match Self::dataframe_to_arrow_batches_simple(&df) {
+                        Ok(batches) => {
+                            for batch in batches {
+                                if tx.send(Ok(batch)).await.is_err() {
+                                    break;
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            let _ = tx.send(Err(Status::internal(format!("Arrow conversion failed: {}", e)))).await;
+                        }
+                    }
+                }
+                Err(e) => {
+                    let _ = tx.send(Err(e)).await;
+                }
+            }
+        });
+        
+        Ok(Response::new(ReceiverStream::new(rx)))
     }
     
     async fn stream_grpc(&self, _req: Request<GrpcStreamRequest>) -> std::result::Result<Response<Self::StreamGrpcStream>, Status> {
@@ -277,6 +373,25 @@ impl DataFrameService for PolaroidDataFrameService {
     
     async fn stream_message_queue(&self, _req: Request<MessageQueueRequest>) -> std::result::Result<Response<Self::StreamMessageQueueStream>, Status> {
         Err(Status::unimplemented("stream_message_queue"))
+    }
+    
+    async fn read_rest_api(
+        &self,
+        request: Request<RestApiRequest>,
+    ) -> std::result::Result<Response<DataFrameHandle>, Status> {
+        let req = request.into_inner();
+        info!("ReadRestApi request: url={}", req.url);
+        
+        // Fetch data from REST API
+        let df = Self::fetch_rest_api_data(req).await?;
+        
+        // Create handle for the DataFrame
+        let handle = self.handle_manager.create_handle(df);
+        
+        Ok(Response::new(DataFrameHandle {
+            handle,
+            error: None,
+        }))
     }
     
     async fn with_column(&self, _req: Request<WithColumnRequest>) -> std::result::Result<Response<DataFrameHandle>, Status> {

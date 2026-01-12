@@ -12,6 +12,9 @@ service DataFrameService {
     // Read from CSV with schema inference
     rpc ReadCsv(ReadCsvRequest) returns (DataFrameHandle);
     
+    // Read from REST API (simplified version - returns handle directly)
+    rpc ReadRestApi(RestApiRequest) returns (DataFrameHandle);
+    
     // Write DataFrame to Parquet
     rpc WriteParquet(WriteParquetRequest) returns (WriteResponse);
     

@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import polaroid_pb2 as polaroid__pb2
+import polaroid_pb2 as polaroid__pb2
 
 GRPC_GENERATED_VERSION = '1.76.0'
 GRPC_VERSION = grpc.__version__
@@ -44,6 +44,11 @@ class DataFrameServiceStub(object):
         self.ReadCsv = channel.unary_unary(
                 '/polaroid.v1.DataFrameService/ReadCsv',
                 request_serializer=polaroid__pb2.ReadCsvRequest.SerializeToString,
+                response_deserializer=polaroid__pb2.DataFrameHandle.FromString,
+                _registered_method=True)
+        self.ReadRestApi = channel.unary_unary(
+                '/polaroid.v1.DataFrameService/ReadRestApi',
+                request_serializer=polaroid__pb2.RestApiRequest.SerializeToString,
                 response_deserializer=polaroid__pb2.DataFrameHandle.FromString,
                 _registered_method=True)
         self.WriteParquet = channel.unary_unary(
@@ -292,6 +297,13 @@ class DataFrameServiceServicer(object):
 
     def ReadCsv(self, request, context):
         """Read from CSV with schema inference
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ReadRestApi(self, request, context):
+        """Read from REST API (simplified version - returns handle directly)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -623,6 +635,11 @@ def add_DataFrameServiceServicer_to_server(servicer, server):
                     request_deserializer=polaroid__pb2.ReadCsvRequest.FromString,
                     response_serializer=polaroid__pb2.DataFrameHandle.SerializeToString,
             ),
+            'ReadRestApi': grpc.unary_unary_rpc_method_handler(
+                    servicer.ReadRestApi,
+                    request_deserializer=polaroid__pb2.RestApiRequest.FromString,
+                    response_serializer=polaroid__pb2.DataFrameHandle.SerializeToString,
+            ),
             'WriteParquet': grpc.unary_unary_rpc_method_handler(
                     servicer.WriteParquet,
                     request_deserializer=polaroid__pb2.WriteParquetRequest.FromString,
@@ -909,6 +926,33 @@ class DataFrameService(object):
             target,
             '/polaroid.v1.DataFrameService/ReadCsv',
             polaroid__pb2.ReadCsvRequest.SerializeToString,
+            polaroid__pb2.DataFrameHandle.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ReadRestApi(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/polaroid.v1.DataFrameService/ReadRestApi',
+            polaroid__pb2.RestApiRequest.SerializeToString,
             polaroid__pb2.DataFrameHandle.FromString,
             options,
             channel_credentials,

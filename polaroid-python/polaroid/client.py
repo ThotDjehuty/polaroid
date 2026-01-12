@@ -98,6 +98,49 @@ class PolaroidClient:
         
         return DataFrame(self, response.handle)
     
+    def read_rest_api(
+        self,
+        url: str,
+        method: str = "GET",
+        headers: Optional[dict] = None,
+        body: Optional[str] = None,
+    ) -> "DataFrame":
+        """Read data from a REST API endpoint.
+        
+        Fetches JSON data from a REST API and converts it to a DataFrame.
+        Useful for loading data from web services like Yahoo Finance, Alpha Vantage, etc.
+        
+        Args:
+            url: REST API endpoint URL
+            method: HTTP method (GET, POST, PUT)
+            headers: Optional HTTP headers
+            body: Optional request body (for POST/PUT)
+        
+        Returns:
+            DataFrame handle
+        
+        Example:
+            >>> import polaroid as pld
+            >>> pld.connect("localhost:50051")
+            >>> # Fetch stock data from Yahoo Finance
+            >>> url = "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d&range=5d"
+            >>> df = pld.read_rest_api(url, headers={"User-Agent": "Mozilla/5.0"})
+            >>> print(df.shape())
+        """
+        request = polaroid_pb2.RestApiRequest(
+            url=url,
+            method=method or "GET",
+            headers=headers or {},
+            body=body,
+        )
+        
+        response = self.stub.ReadRestApi(request, timeout=config.timeout)
+        
+        if response.error:
+            raise RuntimeError(f"Server error: {response.error}")
+        
+        return DataFrame(self, response.handle)
+    
     def write_parquet(self, handle: str, path: str, **kwargs) -> None:
         """Write DataFrame to Parquet file.
         
