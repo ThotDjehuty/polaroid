@@ -366,10 +366,12 @@ This project follows the [Contributor Covenant Code of Conduct](https://www.cont
 
 ## 📚 Documentation
 
-- **Quick Reference**: Common operations cheat sheet (coming soon)
-- **API Documentation**: Full Rust and Python APIs (coming soon)
-- **Migration Guide**: Moving from Polars to Polaroid (coming soon)
-- **Architecture Guide**: Deep dive into design decisions (coming soon)
+- **[Quick Reference](docs/QUICK_REFERENCE.md)**: Common operations cheat sheet
+- **[API Documentation](docs/API_DOCUMENTATION.md)**: Full Rust and Python APIs
+- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Moving from Polars to Polaroid
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: Deep dive into design decisions
+- **[Advanced Async Operations](docs/ADVANCED_ASYNC.md)**: Concurrent and streaming patterns
+- **[Performance Comparison](docs/PERFORMANCE_COMPARISON.md)**: Benchmarks and optimization tips
 
 ## 🙏 Acknowledgments
 
