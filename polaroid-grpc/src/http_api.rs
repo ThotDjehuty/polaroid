@@ -247,3 +247,239 @@ fn anyvalue_to_json(v: &AnyValue) -> Value {
         _ => json!(v.to_string()),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body::Body;
+    use axum::http::{Request, StatusCode as HttpStatus};
+    use http_body_util::BodyExt;
+    use parking_lot::Mutex;
+    use serde_json::Value;
+    use std::net::SocketAddr;
+    use tokio::net::TcpListener;
+    use tower::ServiceExt;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    async fn body_to_json(resp: axum::response::Response) -> Value {
+        let status = resp.status();
+        assert!(status.is_success(), "expected success, got {status}");
+        let collected = resp.into_body().collect().await.unwrap();
+        let bytes = collected.to_bytes();
+        serde_json::from_slice(&bytes).unwrap()
+    }
+
+    async fn body_to_bytes(resp: axum::response::Response) -> (HttpStatus, Vec<u8>) {
+        let status = resp.status();
+        let collected = resp.into_body().collect().await.unwrap();
+        (status, collected.to_bytes().to_vec())
+    }
+
+    #[tokio::test]
+    async fn ping_ok() {
+        let hm = Arc::new(HandleManager::default());
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let resp = app
+            .oneshot(Request::builder().uri("/ping").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        let (status, bytes) = body_to_bytes(resp).await;
+        assert_eq!(status, HttpStatus::OK);
+        assert_eq!(String::from_utf8(bytes).unwrap(), "ok");
+    }
+
+    #[tokio::test]
+    async fn exec_requires_handle_or_query() {
+        let hm = Arc::new(HandleManager::default());
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let resp = app
+            .oneshot(Request::builder().uri("/exec").body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        let (status, bytes) = body_to_bytes(resp).await;
+        assert_eq!(status, HttpStatus::BAD_REQUEST);
+        let json: Value = serde_json::from_slice(&bytes).unwrap();
+        assert!(json.get("error").is_some());
+    }
+
+    #[tokio::test]
+    async fn exec_rejects_unsupported_format() {
+        let hm = Arc::new(HandleManager::default());
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let resp = app
+            .oneshot(
+                Request::builder()
+                    .uri("/exec?fmt=csv&handle=abc")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        let (status, bytes) = body_to_bytes(resp).await;
+        assert_eq!(status, HttpStatus::BAD_REQUEST);
+        let json: Value = serde_json::from_slice(&bytes).unwrap();
+        assert!(json["error"].as_str().unwrap().contains("fmt=json"));
+    }
+
+    #[tokio::test]
+    async fn exec_handle_mode_returns_questdb_like_json_with_limit() {
+        let hm = Arc::new(HandleManager::default());
+        let df = df! {
+            "b" => &[true, false, true],
+            "i" => &[1i64, 2i64, 3i64],
+            "s" => &["x", "y", "z"],
+        }
+        .unwrap();
+        let handle = hm.create_handle(df);
+
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let uri = format!("/exec?handle={handle}&limit=2");
+        let resp = app
+            .oneshot(Request::builder().uri(uri).body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        let json = body_to_json(resp).await;
+        assert_eq!(json["count"].as_u64().unwrap(), 2);
+
+        let cols = json["columns"].as_array().unwrap();
+        assert_eq!(cols.len(), 3);
+        let col_types = cols
+            .iter()
+            .map(|c| c["type"].as_str().unwrap().to_string())
+            .collect::<Vec<_>>();
+
+        // Ensure we emit stable, QuestDB-like type names.
+        assert!(col_types.contains(&"BOOLEAN".to_string()));
+        assert!(col_types.contains(&"LONG".to_string()));
+        assert!(col_types.contains(&"STRING".to_string()));
+
+        let dataset = json["dataset"].as_array().unwrap();
+        assert_eq!(dataset.len(), 2);
+        assert_eq!(dataset[0].as_array().unwrap().len(), 3);
+    }
+
+    #[tokio::test]
+    async fn exec_handle_missing_is_404() {
+        let hm = Arc::new(HandleManager::default());
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let resp = app
+            .oneshot(
+                Request::builder()
+                    .uri("/exec?handle=does-not-exist")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        let (status, bytes) = body_to_bytes(resp).await;
+        assert_eq!(status, HttpStatus::NOT_FOUND);
+        let json: Value = serde_json::from_slice(&bytes).unwrap();
+        assert!(json.get("error").is_some());
+    }
+
+    #[tokio::test]
+    async fn exec_query_mode_requires_questdb_env() {
+        let _guard = ENV_LOCK.lock();
+        std::env::remove_var("POLAROID_QUESTDB_HTTP_URL");
+        std::env::remove_var("QUESTDB_HTTP_URL");
+
+        let hm = Arc::new(HandleManager::default());
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let resp = app
+            .oneshot(
+                Request::builder()
+                    .uri("/exec?query=select%201")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        let (status, bytes) = body_to_bytes(resp).await;
+        assert_eq!(status, HttpStatus::PRECONDITION_FAILED);
+        let json: Value = serde_json::from_slice(&bytes).unwrap();
+        assert!(json["error"].as_str().unwrap().contains("QuestDB"));
+    }
+
+    async fn spawn_mock_questdb() -> (String, tokio::task::JoinHandle<()>) {
+        async fn mock_exec(Query(q): Query<std::collections::HashMap<String, String>>) -> impl IntoResponse {
+            let query = q.get("query").cloned().unwrap_or_default();
+            let fmt = q.get("fmt").cloned().unwrap_or_default();
+
+            (
+                HttpStatus::OK,
+                Json(json!({
+                    "query": query,
+                    "fmt": fmt,
+                    "columns": [{"name": "x", "type": "INT"}],
+                    "dataset": [[1]],
+                    "count": 1
+                })),
+            )
+        }
+
+        let app = Router::new().route("/exec", get(mock_exec));
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr: SocketAddr = listener.local_addr().unwrap();
+        let base = format!("http://{}", addr);
+
+        let handle = tokio::spawn(async move {
+            axum::serve(listener, app).await.unwrap();
+        });
+
+        (base, handle)
+    }
+
+    #[tokio::test]
+    async fn exec_query_mode_proxies_to_questdb() {
+        let _guard = ENV_LOCK.lock();
+        let (base, server) = spawn_mock_questdb().await;
+        std::env::set_var("POLAROID_QUESTDB_HTTP_URL", &base);
+
+        let hm = Arc::new(HandleManager::default());
+        let app = router(HttpApiState {
+            handle_manager: hm,
+        });
+
+        let resp = app
+            .oneshot(
+                Request::builder()
+                    .uri("/exec?query=select%2042")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        let json = body_to_json(resp).await;
+        assert_eq!(json["query"].as_str().unwrap(), "select 42");
+        assert_eq!(json["fmt"].as_str().unwrap(), "json");
+
+        std::env::remove_var("POLAROID_QUESTDB_HTTP_URL");
+        server.abort();
+    }
+}

@@ -3,6 +3,7 @@
 *.pyd
 *.pdb
 *.ipynb
+!notebooks/*.ipynb
 .ENV
 .env
 .ipynb_checkpoints/

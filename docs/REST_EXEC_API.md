@@ -16,6 +16,13 @@ Environment variables:
 - `POLAROID_QUESTDB_HTTP_URL` (optional): e.g. `http://questdb:9000`
   - if set, Polaroid will proxy `/exec?query=...` to QuestDB
 
+Start the server (gRPC + HTTP in the same process):
+
+```bash
+cd polaroid
+cargo run -p polaroid-grpc
+```
+
 ## Endpoints
 
 ### `GET /ping`
@@ -41,6 +48,23 @@ Notes:
 - `fmt=json` is currently required.
 - `limit` defaults to `1000`.
 
+Example (curl):
+
+```bash
+curl "http://localhost:9000/exec?handle=$HANDLE&fmt=json&limit=100"
+```
+
+Example response shape:
+
+```json
+{
+  "query": "handle:<handle>",
+  "columns": [{"name": "col", "type": "LONG"}],
+  "dataset": [[1], [2]],
+  "count": 2
+}
+```
+
 #### 2) QuestDB proxy mode (SQL)
 
 Request:
@@ -52,6 +76,29 @@ Behavior:
 
 If QuestDB is not configured:
 - returns `412 Failed Precondition` with a hint to set `POLAROID_QUESTDB_HTTP_URL`.
+
+Example (curl):
+
+```bash
+export POLAROID_QUESTDB_HTTP_URL="http://localhost:9000"   # or your QuestDB host
+curl "http://localhost:9000/exec?query=select%201&fmt=json"
+```
+
+Example (Python):
+
+```python
+import os
+import requests
+
+base = os.environ.get("POLAROID_HTTP_URL", "http://localhost:9000")
+
+print(requests.get(f"{base}/ping").text)
+
+# QuestDB proxy mode (requires POLAROID_QUESTDB_HTTP_URL/QUESTDB_HTTP_URL set)
+r = requests.get(f"{base}/exec", params={"query": "select 42", "fmt": "json"})
+print(r.status_code)
+print(r.text)
+```
 
 ## Roadmap
 
