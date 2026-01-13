@@ -5,7 +5,6 @@ use std::time::Duration;
 use tracing::{debug, info};
 use polars::prelude::*;
 use polars_utils::plpath::PlPath;
-use std::io::Cursor;
 
 use crate::proto::{
     data_frame_service_server::DataFrameService,
@@ -41,16 +40,13 @@ impl PolaroidDataFrameService {
     
     /// Convert Polars DataFrame to Arrow IPC bytes
     fn dataframe_to_arrow_ipc(df: &DataFrame) -> Result<Vec<u8>> {
-        let buffer = Cursor::new(Vec::new());
-        let df_clone = df.clone();
-        
-        // Use ParquetWriter with IPC format
-        let parquet_writer = ParquetWriter::new(buffer);
-        parquet_writer.finish(&mut df_clone.clone())
-            .map_err(|e| PolaroidError::Polars(e))?;
-        
-        // For now, return empty vec as IPC serialization needs different approach
-        Ok(Vec::new())
+        let mut buffer = Vec::new();
+
+        polars::io::ipc::IpcWriter::new(&mut buffer)
+            .finish(&mut df.clone())
+            .map_err(PolaroidError::Polars)?;
+
+        Ok(buffer)
     }
     
     /// Fetch data from REST API and convert to DataFrame
@@ -96,11 +92,16 @@ impl PolaroidDataFrameService {
             .await
             .map_err(|e| Status::internal(format!("Failed to read response body: {}", e)))?;
         
-        // Convert JSON to DataFrame using Polars
-        let df = polars::io::json::JsonReader::new(std::io::Cursor::new(json_text.as_bytes()))
-            .finish()
-            .map_err(|e| Status::internal(format!("Failed to parse JSON to DataFrame: {}", e)))?;
-        
+        // Convert JSON to DataFrame using Polars (blocking)
+        let json_bytes = json_text.into_bytes();
+        let df = tokio::task::spawn_blocking(move || {
+            polars::io::json::JsonReader::new(std::io::Cursor::new(json_bytes))
+                .finish()
+                .map_err(|e| Status::internal(format!("Failed to parse JSON to DataFrame: {}", e)))
+        })
+        .await
+        .map_err(|e| Status::internal(format!("JSON parse task failed: {}", e)))??;
+
         Ok(df)
     }
     
@@ -138,31 +139,41 @@ impl DataFrameService for PolaroidDataFrameService {
     ) -> std::result::Result<Response<DataFrameHandle>, Status> {
         let req = request.into_inner();
         info!("ReadParquet request: path={}", req.path);
-        
-        let mut args = ScanArgsParquet::default();
-        args.parallel = if req.parallel { ParallelStrategy::Auto } else { ParallelStrategy::None };
-        
-        let path = PlPath::new(&req.path);
-        let mut lf = LazyFrame::scan_parquet(path, args)
-            .map_err(|e| Status::internal(format!("Failed to scan parquet: {}", e)))?;
-        
-        // Apply projection pushdown
-        if !req.columns.is_empty() {
-            lf = lf.select(&req.columns.iter().map(|s| col(s)).collect::<Vec<_>>());
-        }
-        
-        // Apply row limit
-        if let Some(n_rows) = req.n_rows {
-            if n_rows > 0 {
-                lf = lf.limit(n_rows as IdxSize);
+
+        let handle_manager = self.handle_manager();
+        let handle = tokio::task::spawn_blocking(move || {
+            let mut args = ScanArgsParquet::default();
+            args.parallel = if req.parallel {
+                ParallelStrategy::Auto
+            } else {
+                ParallelStrategy::None
+            };
+
+            let path = PlPath::new(&req.path);
+            let mut lf = LazyFrame::scan_parquet(path, args)
+                .map_err(|e| Status::internal(format!("Failed to scan parquet: {}", e)))?;
+
+            // Apply projection pushdown
+            if !req.columns.is_empty() {
+                lf = lf.select(&req.columns.iter().map(|s| col(s)).collect::<Vec<_>>());
             }
-        }
-        
-        // Collect DataFrame
-        let df = lf.collect()
-            .map_err(|e| Status::internal(format!("Failed to collect: {}", e)))?;
-        
-        let handle = self.handle_manager.create_handle(df);
+
+            // Apply row limit
+            if let Some(n_rows) = req.n_rows {
+                if n_rows > 0 {
+                    lf = lf.limit(n_rows as IdxSize);
+                }
+            }
+
+            // Collect DataFrame
+            let df = lf
+                .collect()
+                .map_err(|e| Status::internal(format!("Failed to collect: {}", e)))?;
+
+            Ok::<_, Status>(handle_manager.create_handle(df))
+        })
+        .await
+        .map_err(|e| Status::internal(format!("ReadParquet task failed: {}", e)))??;
         
         Ok(Response::new(DataFrameHandle {
             handle,
@@ -177,21 +188,27 @@ impl DataFrameService for PolaroidDataFrameService {
     ) -> std::result::Result<Response<WriteResponse>, Status> {
         let req = request.into_inner();
         info!("WriteParquet request: handle={}, path={}", req.handle, req.path);
-        
-        let df = self.handle_manager.get_dataframe(&req.handle)
-            .map_err(|e| Status::from(e))?;
-        
-        let mut file = std::fs::File::create(&req.path)
-            .map_err(|e| Status::internal(format!("Failed to create file: {}", e)))?;
-        
-        ParquetWriter::new(&mut file)
-            .finish(&mut (*df).clone())
-            .map_err(|e| Status::internal(format!("Failed to write parquet: {}", e)))?;
-        
+
+        let handle_manager = self.handle_manager();
+        let rows_written = tokio::task::spawn_blocking(move || {
+            let df = handle_manager.get_dataframe(&req.handle).map_err(Status::from)?;
+
+            let mut file = std::fs::File::create(&req.path)
+                .map_err(|e| Status::internal(format!("Failed to create file: {}", e)))?;
+
+            ParquetWriter::new(&mut file)
+                .finish(&mut (*df).clone())
+                .map_err(|e| Status::internal(format!("Failed to write parquet: {}", e)))?;
+
+            Ok::<_, Status>(df.height() as i64)
+        })
+        .await
+        .map_err(|e| Status::internal(format!("WriteParquet task failed: {}", e)))??;
+
         Ok(Response::new(WriteResponse {
             success: true,
             error: None,
-            rows_written: Some(df.height() as i64),
+            rows_written: Some(rows_written),
         }))
     }
     
