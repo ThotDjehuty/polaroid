@@ -100,7 +100,8 @@ pub fn multi_frequency_resample(
         return Err(TimeSeriesError::EmptyDataFrame);
     }
 
-    if !df.get_column_names().contains(&config.time_col.as_str()) {
+    let col_names = df.get_column_names();
+    if !col_names.iter().any(|c| c.as_str() == config.time_col.as_str()) {
         return Err(TimeSeriesError::MissingColumn(config.time_col.clone()));
     }
 
@@ -108,7 +109,7 @@ pub fn multi_frequency_resample(
     let lf = df.clone().lazy();
 
     // Parse frequency
-    let duration = parse_frequency(&config.frequency)?;
+    let _duration = parse_frequency(&config.frequency)?;
 
     // Build aggregation expressions
     let mut agg_exprs = Vec::new();
@@ -129,7 +130,7 @@ pub fn multi_frequency_resample(
         agg_exprs.push(expr);
     }
 
-    // Apply group_by with dynamic time window
+    // Apply group_by_dynamic with time window
     let result = lf
         .sort([&config.time_col], Default::default())
         .group_by_dynamic(
@@ -139,6 +140,8 @@ pub fn multi_frequency_resample(
                 every: Duration::parse(&config.frequency),
                 period: Duration::parse(&config.frequency),
                 offset: Duration::parse("0s"),
+                closed_window: ClosedWindow::Left,
+                label: Label::DataPoint,
                 ..Default::default()
             },
         )

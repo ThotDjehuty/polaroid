@@ -14,7 +14,8 @@ name = "polars_timeseries"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-polars = { version = "0.45", features = ["lazy", "temporal", "dtype-full", "performant"] }
+polars = { version = "0.45", features = ["lazy", "temporal", "dtype-full", "performant", "rolling_window", "dynamic_group_by", "cum_agg"] }
+polars-ops = "0.45"
 thiserror = "2.0"
 chrono = "0.4"
 parking_lot = "0.12"

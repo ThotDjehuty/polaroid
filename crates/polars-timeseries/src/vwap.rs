@@ -6,6 +6,7 @@
 //! Formula: VWAP = Σ(Price × Volume) / Σ(Volume)
 
 use polars::prelude::*;
+use polars_ops::series::cum_sum;
 use crate::error::{TimeSeriesError, TimeSeriesResult};
 
 /// Calculate VWAP for a DataFrame
@@ -42,13 +43,14 @@ pub fn vwap(
     volume_col: &str,
 ) -> TimeSeriesResult<DataFrame> {
     // Validate columns exist
-    if !df.get_column_names().contains(&time_col) {
+    let col_names = df.get_column_names();
+    if !col_names.iter().any(|c| c.as_str() == time_col) {
         return Err(TimeSeriesError::MissingColumn(time_col.to_string()));
     }
-    if !df.get_column_names().contains(&price_col) {
+    if !col_names.iter().any(|c| c.as_str() == price_col) {
         return Err(TimeSeriesError::MissingColumn(price_col.to_string()));
     }
-    if !df.get_column_names().contains(&volume_col) {
+    if !col_names.iter().any(|c| c.as_str() == volume_col) {
         return Err(TimeSeriesError::MissingColumn(volume_col.to_string()));
     }
 
@@ -57,15 +59,15 @@ pub fn vwap(
     }
 
     // Calculate VWAP: cumsum(price * volume) / cumsum(volume)
-    let price = df.column(price_col)?;
-    let volume = df.column(volume_col)?;
+    let price = df.column(price_col)?.as_materialized_series().clone();
+    let volume = df.column(volume_col)?.as_materialized_series().clone();
 
     // price * volume
-    let pv = (price * volume)?;
+    let pv = (&price * &volume)?;
     
-    // Cumulative sums
-    let cum_pv = pv.cum_sum(false)?;
-    let cum_volume = volume.cum_sum(false)?;
+    // Cumulative sums using polars_ops function
+    let cum_pv = cum_sum(&pv, false)?;
+    let cum_volume = cum_sum(&volume, false)?;
 
     // VWAP = cum_pv / cum_volume
     let vwap_series = (&cum_pv / &cum_volume)?;
@@ -100,7 +102,6 @@ pub fn vwap(
 /// ```
 pub fn vwap_lazy(
     lf: LazyFrame,
-    time_col: &str,
     price_col: &str,
     volume_col: &str,
 ) -> TimeSeriesResult<LazyFrame> {
@@ -108,7 +109,7 @@ pub fn vwap_lazy(
         // Calculate VWAP
         (col(price_col) * col(volume_col))
             .cum_sum(false)
-            .truediv(col(volume_col).cum_sum(false))
+            / col(volume_col).cum_sum(false)
             .alias("vwap"),
     ]);
 
@@ -120,12 +121,12 @@ pub fn vwap_lazy(
 /// Typical price is often used instead of close price for VWAP calculation:
 /// Typical Price = (High + Low + Close) / 3
 pub fn typical_price(df: &DataFrame) -> TimeSeriesResult<Series> {
-    let high = df.column("high")?;
-    let low = df.column("low")?;
-    let close = df.column("close")?;
+    let high = df.column("high")?.as_materialized_series().clone();
+    let low = df.column("low")?.as_materialized_series().clone();
+    let close = df.column("close")?.as_materialized_series().clone();
 
-    let typical = ((high + low)? + close)? / 3.0;
-    Ok(typical.with_name("typical_price".into()))
+    let typical_series = ((high.clone() + low.clone())? + close.clone())? / 3.0;
+    Ok(typical_series.with_name("typical_price".into()))
 }
 
 #[cfg(test)]

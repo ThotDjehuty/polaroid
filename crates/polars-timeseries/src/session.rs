@@ -105,22 +105,23 @@ pub fn split_by_session(
         return Err(TimeSeriesError::EmptyDataFrame);
     }
 
-    if !df.get_column_names().contains(&config.time_col.as_str()) {
+    let col_names = df.get_column_names();
+    if !col_names.iter().any(|c| c.as_str() == config.time_col.as_str()) {
         return Err(TimeSeriesError::MissingColumn(config.time_col.clone()));
     }
 
     let mut result = HashMap::new();
 
-    // Extract time column
-    let time_col = df.column(&config.time_col)?;
+    // Extract time column as Series
+    let time_col = df.column(&config.time_col)?.as_materialized_series().clone();
 
     // For each session, filter data
     for session in &config.sessions {
         // Create filter for this session's time range
-        let mask = create_session_mask(time_col, &session.start, &session.end)?;
+        let mask = create_session_mask(&time_col, &session.start, &session.end)?;
         
         // Filter DataFrame
-        let session_df = df.filter(&mask)?;
+        let session_df = df.filter(&mask.bool()?.clone())?;
         
         result.insert(session.name.clone(), session_df);
     }
@@ -138,8 +139,8 @@ fn create_session_mask(
     // In practice, you'd need to handle the time column type properly
     // (could be DateTime, Timestamp, etc.)
     
-    let start_seconds = start.num_seconds_from_midnight() as i64;
-    let end_seconds = end.num_seconds_from_midnight() as i64;
+    let _start_seconds = start.num_seconds_from_midnight() as i64;
+    let _end_seconds = end.num_seconds_from_midnight() as i64;
 
     // Convert timestamps to time-of-day
     // This depends on the actual time column type

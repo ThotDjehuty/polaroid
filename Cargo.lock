@@ -5986,6 +5986,7 @@ dependencies = [
  "criterion",
  "parking_lot",
  "polars 0.45.1",
+ "polars-ops 0.45.1",
  "pyo3",
  "tempfile",
  "thiserror 2.0.12",
