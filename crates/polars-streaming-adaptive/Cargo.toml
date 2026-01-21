@@ -1,0 +1,50 @@
+[package]
+name = "polars-streaming-adaptive"
+version = "0.1.0"
+edition = "2021"
+authors = ["Melvin Alvarez <melvin@rust-hft-arbitrage-lab.com>"]
+description = "Adaptive streaming for large Parquet files with Polars - optimized for HFT data processing"
+license = "MIT"
+repository = "https://github.com/melvin-alvarez/rust-hft-arbitrage-lab"
+keywords = ["polars", "streaming", "parquet", "hft", "trading"]
+categories = ["data-structures", "finance"]
+
+[lib]
+name = "polars_streaming_adaptive"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+polars = { version = "0.45", features = ["lazy", "parquet", "dtype-full", "performant"] }
+memmap2 = "0.9"
+rayon = "1.10"
+crossbeam-channel = "0.5"
+sysinfo = "0.32"
+parking_lot = "0.12"
+thiserror = "2.0"
+tracing = "0.1"
+glob = "0.3"
+
+# Python bindings (optional) - version must match workspace
+pyo3 = { version = "0.26", features = ["extension-module"], optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+tempfile = "3.13"
+tracing-subscriber = "0.3"
+
+[[bench]]
+name = "streaming_benchmark"
+harness = false
+
+[features]
+default = []
+python = ["pyo3"]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true
+
+[profile.bench]
+inherits = "release"
