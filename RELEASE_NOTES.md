@@ -6,7 +6,7 @@
 
 ### Overview
 
-Polaroid is an enhanced fork of Polars 0.52.0 that adds powerful capabilities for distributed computing, adaptive streaming, financial time series analysis, and enterprise data source integrations. All enhancements are designed to be upstreamed to the main Polars project.
+Polaroid is an independent project based on Polars 0.52.0 that adds powerful capabilities for distributed computing, adaptive streaming, financial time series analysis, and enterprise data source integrations. While we maintain compatibility with Polars, Polaroid is developed and managed independently by ThotDjehuty to explore advanced features that may be upstreamed to Polars in the future.
 
 ### Major New Features
 
@@ -200,10 +200,10 @@ Apache 2.0 (same as Polars)
 
 ### Getting Help
 
-- **Documentation**: https://github.com/your-org/polaroid/wiki
-- **Issues**: https://github.com/your-org/polaroid/issues
-- **Discussions**: https://github.com/your-org/polaroid/discussions
+- **Documentation**: https://github.com/ThotDjehuty/polaroid/wiki
+- **Issues**: https://github.com/ThotDjehuty/polaroid/issues
+- **Discussions**: https://github.com/ThotDjehuty/polaroid/discussions
 
 ---
 
-**Note**: This is a fork intended for upstream contribution. Our goal is to merge all features back into the main Polars project to benefit the entire community.
+**Note**: Polaroid is an independent project that maintains compatibility with Polars. Features are developed with the intention of potentially contributing them upstream to the main Polars project to benefit the entire community.

@@ -476,7 +476,7 @@ This project is a fork of [Polars](https://github.com/pola-rs/polars) and mainta
 
 **Built with** ❤️ **using Rust, gRPC, Arrow, and Functional Programming principles**
 
-[GitHub](https://github.com/EnkiNudimmud/polaroid) | [Issues](https://github.com/EnkiNudimmud/polaroid/issues) | [Discussions](https://github.com/EnkiNudimmud/polaroid/discussions)
+[GitHub](https://github.com/ThotDjehuty/polaroid) | [Issues](https://github.com/ThotDjehuty/polaroid/issues) | [Discussions](https://github.com/ThotDjehuty/polaroid/discussions)
 
 </div>
 

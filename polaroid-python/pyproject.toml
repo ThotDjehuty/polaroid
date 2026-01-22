@@ -41,10 +41,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/EnkiNudimmud/polaroid"
+Homepage = "https://github.com/ThotDjehuty/polaroid"
 Documentation = "https://docs.polaroid.rs"
-Repository = "https://github.com/EnkiNudimmud/polaroid"
-Issues = "https://github.com/EnkiNudimmud/polaroid/issues"
+Repository = "https://github.com/ThotDjehuty/polaroid"
+Issues = "https://github.com/ThotDjehuty/polaroid/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

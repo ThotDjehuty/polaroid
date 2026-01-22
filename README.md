@@ -463,6 +463,6 @@ Original Polars code is also MIT licensed - copyright Ritchie Vink and contribut
 
 **Built with ❤️ using Rust, gRPC, and Apache Arrow**
 
-[GitHub](https://github.com/EnkiNudimmud/polaroid) | [Issues](https://github.com/EnkiNudimmud/polaroid/issues)
+[GitHub](https://github.com/ThotDjehuty/polaroid) | [Issues](https://github.com/ThotDjehuty/polaroid/issues)
 
 </div>
