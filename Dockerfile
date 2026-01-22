@@ -26,6 +26,7 @@ RUN sed -i '/docs\/source\/src\/rust/d' /build/Cargo.toml && \
 # Copy necessary crates and polaroid-grpc
 COPY crates/ /build/crates/
 COPY polaroid-grpc/ /build/polaroid-grpc/
+COPY polaroid-sources/ /build/polaroid-sources/
 COPY proto/ /build/proto/
 
 # Build in release mode with optimizations
