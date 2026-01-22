@@ -8,11 +8,10 @@ use std::sync::Arc;
 use polars::prelude::*;
 
 pub mod csv;
-pub mod cloud;
-pub mod database;
-pub mod filesystem;
 pub mod http;
-pub mod kafka;
+pub mod filesystem;
+pub mod s3;
+pub mod dynamodb;
 
 mod config;
 mod error;
@@ -21,6 +20,11 @@ mod traits;
 pub use config::*;
 pub use error::{SourceError, SourceResult};
 pub use traits::*;
+pub use csv::CsvSource;
+pub use http::HttpSource;
+pub use filesystem::FilesystemSource;
+pub use s3::S3Source;
+pub use dynamodb::DynamoDbSource;
 
 /// Registry for creating sources by type
 pub struct SourceRegistry {
@@ -35,13 +39,13 @@ impl SourceRegistry {
         
         // Register built-in sources
         registry.register("csv", Box::new(csv::CsvSourceFactory));
-        registry.register("filesystem", Box::new(filesystem::FilesystemSourceFactory));
         registry.register("http", Box::new(http::HttpSourceFactory));
-        registry.register("s3", Box::new(cloud::s3::S3SourceFactory));
-        registry.register("azure", Box::new(cloud::azure::AzureSourceFactory));
-        registry.register("gcs", Box::new(cloud::gcs::GcsSourceFactory));
-        registry.register("dynamodb", Box::new(database::dynamodb::DynamoDbSourceFactory));
-        registry.register("kafka", Box::new(kafka::KafkaSourceFactory));
+        registry.register("https", Box::new(http::HttpSourceFactory));
+        registry.register("filesystem", Box::new(filesystem::FilesystemSourceFactory));
+        registry.register("file", Box::new(filesystem::FilesystemSourceFactory));
+        registry.register("s3", Box::new(s3::S3SourceFactory));
+        registry.register("dynamodb", Box::new(dynamodb::DynamoDbSourceFactory));
+        registry.register("dynamo", Box::new(dynamodb::DynamoDbSourceFactory));
         
         registry
     }
