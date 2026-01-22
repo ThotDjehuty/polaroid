@@ -131,6 +131,8 @@ pub fn _polars_runtime(py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(_ir_nodes))?;
     // Expr objects
     m.add_wrapped(wrap_pymodule!(_expr_nodes))?;
+    // Monads
+    m.add_wrapped(wrap_pymodule!(crate::monads::monads))?;
 
     // Functions - eager
     m.add_wrapped(wrap_pyfunction!(functions::concat_df))

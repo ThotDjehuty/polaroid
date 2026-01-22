@@ -35,6 +35,7 @@ pub mod io;
 pub mod lazyframe;
 pub mod lazygroupby;
 pub mod map;
+pub mod monads;
 
 #[cfg(feature = "object")]
 pub mod object;
