@@ -100,7 +100,7 @@ jobs:
   python-safety:
     name: Python Safety Check
     runs-on: ubuntu-latest
-    if: hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != ''
+    if: ${{ hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
