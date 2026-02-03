@@ -11,7 +11,7 @@ pub mod http_api;
 
 // Generated proto code
 pub mod proto {
-    tonic::include_proto!("polaroid.v1");
+    tonic::include_proto!("polarway.v1");
 }
 
 use service::PolaroidDataFrameService;

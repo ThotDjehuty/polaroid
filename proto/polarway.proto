@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package polaroid.v1;
+package polarway.v1;
 
 // Main DataFrame service - all operations are immutable and return new handles
 service DataFrameService {
