@@ -12,9 +12,8 @@ build:
       # Install Rust toolchain for building storage modules
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     post_install:
-      # Build Rust storage modules documentation
-      - . $HOME/.cargo/env
-      - cd polarway-grpc && cargo doc --no-deps
+      # Build Rust storage modules documentation (combined to preserve env)
+      - . $HOME/.cargo/env && cd polarway-grpc && cargo doc --no-deps
 
 sphinx:
   configuration: docs/source/conf.py
