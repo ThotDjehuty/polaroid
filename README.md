@@ -16,15 +16,81 @@
 
 ## 🎯 What is Polaroid?
 
-Polaroid is a fast DataFrame library built on [Polars](https://github.com/pola-rs/polars), with a **gRPC client-server architecture** for:
+Polaroid is a fast DataFrame library built on [Polars](https://github.com/pola-rs/polars), with a **gRPC client-server architecture** and **hybrid storage layer** for:
 
 - **🌐 Remote Execution**: Process data on powerful servers from any client
 - **📊 Streaming-First**: Handle larger-than-RAM datasets with constant memory usage
 - **🚀 High Performance**: Zero-copy Arrow streaming with async Tokio runtime
 - **📈 Time-Series Native**: Built-in OHLCV resampling and rolling window operations
+- **💾 Hybrid Storage**: Parquet + DuckDB + Cache (18× compression, -20% cost vs QuestDB)
 - **🔌 Network Sources**: Native WebSocket, REST API, and streaming data support
 - **🛡️ Type Safety**: Rust's Result/Option monads for robust error handling
 - **🔄 Language Agnostic**: Any gRPC-capable language (Python, Rust, Go, TypeScript)
+
+## 💾 Storage Layer (NEW in v0.53.0)
+
+Polaroid now includes a **hybrid storage architecture** combining three backends:
+
+```text
+┌─────────────┐
+│   Request   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐  Cache Hit
+│    Cache    │──────────────► Return (fast, ~1ms)
+│ (LRU, RAM)  │
+└──────┬──────┘
+       │ Cache Miss
+       ▼
+┌─────────────┐
+│   Parquet   │  Load & Warm Cache (~50ms)
+│ (Cold, zstd)│──────────────► Return
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   DuckDB    │  SQL Analytics (~45ms)
+│  (Queries)  │
+└─────────────┘
+```
+
+### Benefits
+
+- **18× Compression**: zstd level 19 (vs 1.07× QuestDB)
+- **-20% Cost**: 24 CHF/month vs 30 CHF/month
+- **SQL Analytics**: Complex queries via DuckDB
+- **Smart Caching**: LRU cache for hot data (>85% hit rate)
+
+### Storage Example
+
+```python
+from polaroid import StorageClient
+
+# Connect to storage layer
+client = StorageClient(
+    parquet_path="/data/cold",
+    enable_cache=True,
+    cache_size_gb=2.0
+)
+
+# Store DataFrame with compression
+client.store("trades_20260203", df)
+
+# Smart load (cache → Parquet)
+df = client.load("trades_20260203")
+
+# SQL queries on Parquet
+result = client.query("""
+    SELECT symbol, AVG(price) as avg_price
+    FROM read_parquet('/data/cold/*.parquet')
+    WHERE timestamp > '2026-01-01'
+    GROUP BY symbol
+""")
+```
+
+📚 **Learn More**: [Storage Layer Documentation](docs/source/storage.md)
+
 
 ## � Functional Programming Excellence
 

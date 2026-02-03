@@ -18,6 +18,10 @@ arrow-flight = "53.0"
 arrow-ipc = "53.0"
 parquet = "53.0"
 
+# Storage backends
+lru = "0.12" # LRU cache for hot data
+# duckdb = "0.10" # TODO: Uncomment when implementing DuckDB backend
+
 # gRPC and async
 tonic = "0.11"
 tonic-reflection = "0.11"
@@ -73,6 +77,10 @@ proptest = "1.4"
 mockall = "0.12"
 tower = "0.5"
 http-body-util = "0.1"
+
+[features]
+default = ["storage"]
+storage = [] # Enable storage layer (Parquet + DuckDB + Cache)
 
 [[bin]]
 name = "polaroid-grpc"
