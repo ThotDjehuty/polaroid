@@ -15,7 +15,7 @@ build:
     post_install:
       # Build Rust storage modules documentation
       - source $HOME/.cargo/env
-      - cd polaroid-grpc && cargo doc --no-deps
+      - cd polarway-grpc && cargo doc --no-deps
 
 sphinx:
   configuration: docs/source/conf.py
@@ -28,10 +28,6 @@ formats:
 python:
   install:
     - requirements: docs/requirements.txt
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
 
 # Build HTML and PDF documentation
 # https://docs.readthedocs.io/en/stable/guides/pdf-non-ascii-languages.html
