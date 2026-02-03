@@ -1,4 +1,4 @@
-# 📸 Polaroid
+w# 📸 Polaroid
 
 <div align="center">
 
@@ -386,37 +386,79 @@ result.map(lambda t: print(t)).map_err(lambda e: log_error(e))
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Foundation (Complete)
-- gRPC server with Tonic
-- Basic DataFrame operations (read, write, select, collect)
-- Handle management with TTL
-- Python client library
-- Proto definitions & code generation
+### ✅ Phase 1: Foundation (v0.1 - v0.3) - **COMPLETE**
+- ✅ Core DataFrame operations (select, filter, with_columns)
+- ✅ Aggregations (group_by, sum, mean, etc.)
+- ✅ Basic joins (inner, left, right, outer)
+- ✅ gRPC server with DataFrame handles
+- ✅ Python client library
+- ✅ Async/await support for concurrent operations
+- ✅ Test suite & benchmarks
 
-### 🚧 Phase 2: Core Operations (In Progress)
-- filter, group_by, join, sort, aggregate
-- Expression system (literals, columns, binary ops)
-- Type casting and transformations
+### ✅ Phase 2: Storage & Analytics (v0.4 - v0.53) - **COMPLETE**
+- ✅ Multi-format readers (CSV, JSON, Parquet, Avro)
+- ✅ Schema introspection and validation
+- ✅ **Hybrid Storage Layer** (v0.53.0)
+  - ✅ ParquetBackend with zstd level 19 compression (18× ratio)
+  - ✅ CacheBackend with LRU (2GB default, 85%+ hit rate)
+  - ✅ DuckDBBackend for SQL analytics
+  - ✅ Cost optimization: -20% vs QuestDB (24 CHF vs 30 CHF)
+  - ✅ Smart caching with cache→Parquet fallback
+- ✅ ReadTheDocs documentation setup
 - SQL support via DataFusion
 
-### 📅 Phase 3: Streaming & Lazy
-- Streaming execution for large datasets
+### 📅 Phase 3: Community Contributions (Q1-Q2 2026) - **IN PROGRESS**
+
+#### Apache Arrow-RS Contributions
+Strategic contributions to establish Polaroid in the Arrow ecosystem:
+
+- **P0: Parquet Statistics Optimizer** (5-6 weeks, 85% acceptance prob.)
+  - Issue: [apache/arrow-rs#9296](https://github.com/apache/arrow-rs/issues/9296)
+  - Columnar statistics decoding (vs current Vec-based inefficient structs)
+  - Direct Arrow array construction from Parquet metadata
+  - Integration with DataFusion query optimizer
+  - Target: 2-3× speedup on statistics-heavy queries
+  - **Impact:** Benefits entire Parquet ecosystem (DataFusion, InfluxDB, Ballista)
+
+- **P1: Zero-Copy Array Construction Guide** (2.5 weeks, 75% acceptance prob.)
+  - Issue: [apache/arrow-rs#9061](https://github.com/apache/arrow-rs/issues/9061)
+  - Documentation: Best practices from Polaroid's Polars integration
+  - Helper functions for direct array construction (avoid ArrayData overhead)
+  - Benchmarks demonstrating allocation reduction
+  - **Impact:** Architecture-level improvement for Arrow-RS
+
+- **P2: Avro Cached Decoder** (5-6 weeks, 65% acceptance prob.)
+  - Issue: [apache/arrow-rs#9211](https://github.com/apache/arrow-rs/issues/9211)
+  - Alternative to JIT approach using Polaroid's hybrid cache
+  - LRU-cached pre-decoded batches (vs expensive Avro→Arrow conversion)
+  - Benchmarks: Cache-optimized vs interpreted vs JIT
+  - **Impact:** High-throughput streaming workloads (Kafka, event processing)
+
+**Expected ROI:** High community visibility + rapid adoption (13-15 developer-weeks investment)
+
+See [GITHUB_ISSUES_ANALYSIS.md](GITHUB_ISSUES_ANALYSIS.md) for detailed analysis.
+
+### 📅 Phase 4: Streaming & Lazy (Q3 2026)
+- Streaming execution for larger-than-RAM datasets
 - Lazy evaluation with query optimization
 - Predicate/projection pushdown
 - Partition-aware operations
+- Integration with Polaroid storage layer for transparent spill-to-disk
 
-### 📅 Phase 4: Time-Series
+### 📅 Phase 5: Time-Series Extensions (Q4 2026)
 - TimeSeriesFrame with frequency awareness
-- OHLCV resampling
-- Rolling window operations
+- OHLCV resampling and alignment
+- Rolling window operations with variable windows
 - As-of joins for tick data
-- Financial indicators (SMA, EMA, Bollinger, etc.)
+- Financial indicators (SMA, EMA, Bollinger, VWAP, etc.)
+- Integration with rust-arblab for HFT workflows
 
-### 📅 Phase 5: Network Sources
-- WebSocket streaming
-- REST API loader with pagination
-- Kafka, NATS, Redis Streams
-- gRPC-to-gRPC streaming
+### 📅 Phase 6: Network Sources (2027)
+- WebSocket streaming with reconnection logic
+- REST API loader with pagination and rate limiting
+- Kafka, NATS, Redis Streams integrations
+- gRPC-to-gRPC streaming for distributed pipelines
+- Real-time data ingestion with backpressure handling
 
 ## 🛠️ Development
 
