@@ -1,0 +1,102 @@
+[package]
+name = "polaroid-serverless"
+version = "0.52.0"
+edition = "2021"
+authors = ["HFT Lab Team"]
+license = "MIT"
+description = "Cloud-agnostic serverless wrapper for Polaroid DataFrame engine"
+
+# Mark as standalone (not part of parent workspace)
+[workspace]
+
+# Multiple binaries for different cloud providers
+[[bin]]
+name = "polaroid-http"
+path = "src/http_server.rs"
+
+[[bin]]
+name = "polaroid-azure"
+path = "adapters/azure.rs"
+
+[[bin]]
+name = "polaroid-lambda"
+path = "adapters/aws.rs"
+
+[[bin]]
+name = "polaroid-gcp"
+path = "adapters/gcp.rs"
+
+[[bin]]
+name = "polaroid-cloudflare"
+path = "adapters/cloudflare.rs"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.37", features = ["rt-multi-thread", "macros", "time", "sync", "io-util"] }
+async-trait = "0.1"
+
+# HTTP frameworks (feature-gated for small binaries)
+axum = { version = "0.7", optional = true }
+tower = { version = "0.5", optional = true }
+tower-http = { version = "0.5", optional = true, features = ["cors", "trace"] }
+
+# Cloud-specific (commented out due to dependency conflicts - will be added later)
+# azure-functions = { version = "0.11", optional = true }
+# lambda_http = { version = "0.11", optional = true }
+# lambda_runtime = { version = "0.11", optional = true }
+# actix-web = { version = "4.9", optional = true }
+# worker = { version = "0.3", optional = true }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bytes = "1.10"
+
+# Polaroid core (using 0.37 which is proven stable)
+# Using minimal features for small binary size
+polars = { version = "0.37", default-features = false, features = [
+    "lazy", "parquet", "json", "dtype-datetime", "regex", "describe", "rows"
+] }
+arrow-schema = "52"
+arrow-array = "52"
+parquet = { version = "52", default-features = false, features = ["arrow", "snap"] }
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+
+# REST API client for data fetching
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false, optional = true }
+
+# Concurrent data structures for handle management
+dashmap = "5.5"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# Authentication (JWT)
+jsonwebtoken = { version = "9.2", optional = true }
+
+# Metrics
+prometheus = { version = "0.13", optional = true }
+
+# Utilities
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "2.0"
+anyhow = "1.0"
+url = "2.5"
+
+[features]
+default = ["generic-http", "auth", "metrics", "rest-api"]
+generic-http = ["axum", "tower", "tower-http"]
+auth = ["jsonwebtoken"]
+metrics = ["prometheus"]
+rest-api = ["reqwest"]
+# Cloud-specific features disabled until dependency conflicts resolved
+# azure = ["azure-functions"]
+# aws = ["lambda_http", "lambda_runtime"]
+# gcp = ["actix-web"]
+# cloudflare = ["worker"]
+
+[profile.release]
+opt-level = "z"  # Optimize for size
+lto = true       # Link-time optimization
+codegen-units = 1
+strip = true     # Strip symbols
+panic = "abort"  # Reduce binary size

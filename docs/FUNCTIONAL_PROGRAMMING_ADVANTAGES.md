@@ -8,10 +8,18 @@ Polaroid shines by bringing **Rust's functional programming paradigms** to **Pyt
 
 ### 1. **Monadic Error Handling**
 
-Rust's `Result<T, E>` and `Option<T>` monads are exposed through clean Python APIs:
+Rust's `Result<T, E>` and `Option<T>` monads are exposed through clean Python APIs via PyO3.
+
+**Important**: To use Polaroid's Rust-powered monads in Python:
+```python
+from polars.monads import Result, Option, Thunk
+```
+
+These are **not** pure Python implementations - they are Rust types exposed via PyO3 with zero-cost abstractions.
 
 ```python
 import polaroid as pd
+from polars.monads import Result, Option
 
 # Traditional pandas - exceptions everywhere
 try:
@@ -20,20 +28,25 @@ try:
 except Exception as e:
     print(f"Error: {e}")
 
-# Polaroid - monadic error handling
+# Polaroid - monadic error handling using Rust-powered Result monad
 result = pd.read_csv("might_not_exist.csv")
-match result:
-    case Ok(df):
-        value = df.select("column").first()  # Returns Option<T>
-        match value:
-            case Some(v):
-                print(f"Value: {v}")
-            case None:
-                print("No data")
-    case Err(e):
-        print(f"Error: {e}")
+if result.is_ok():
+    df = result.unwrap()
+    value_opt = df.select("column").first()  # Returns Option<T>
+    if value_opt.is_some():
+        print(f"Value: {value_opt.unwrap()}")
+    else:
+        print("No data")
+else:
+    print(f"Error: {result.err_value()}")
 
-# Or chain operations with .and_then() / .map()
+# Or use pattern matching with match_result
+result.match_result(
+    on_ok=lambda df: print(f"Loaded {df.shape[0]} rows"),
+    on_err=lambda e: print(f"Error: {e}")
+)
+
+# Chain operations with .and_then() / .map()
 result = (
     pd.read_csv("data.csv")
     .and_then(lambda df: df.select("price"))
@@ -116,26 +129,29 @@ Never deal with `NaN`, `None`, or sentinel values again:
 df["price"].fillna(0)  # Silent data corruption
 df["price"].dropna()   # Loses information
 
-# Polaroid - explicit Option<T> monad
-df.select("price").map_opt(
-    some=lambda price: price * 1.1,  # Apply 10% markup
-    none=lambda: 0.0  # Explicit fallback
+# Polaroid - explicit Option<T> monad using Rust-powered monads
+from polars.monads import Option
+
+price_opt = df.select("price").first()
+price_with_markup = price_opt.match_option(
+    on_some=lambda price: price * 1.1,  # Apply 10% markup
+    on_nothing=lambda: 0.0  # Explicit fallback
 )
 
-# Or chain Option operations
+# Or chain Option operations with map and unwrap_or
 price_change = (
     df.select("price").first()  # Option<f64>
-    .and_then(lambda p: df.select("prev_price").first().map(lambda prev: p - prev))
+    .flat_map(lambda p: df.select("prev_price").first().map(lambda prev: p - prev))
     .map(lambda change: change / prev_price)
     .unwrap_or(0.0)
 )
 
-# Pattern match on Option
-match df.select("price").max():
-    case Some(max_price):
-        alert_if_threshold_exceeded(max_price)
-    case None:
-        log_warning("No price data available")
+# Pattern match on Option using match_option
+max_price_opt = df.select("price").max()
+max_price_opt.match_option(
+    on_some=lambda max_price: alert_if_threshold_exceeded(max_price),
+    on_nothing=lambda: log_warning("No price data available")
+)
 ```
 
 ### 5. **Lazy Evaluation with Query Optimization**
@@ -259,15 +275,14 @@ def detect_mean_reversion(symbol: str, window: str = "1h") -> pd.DataFrame:
 # Execute functional pipeline
 btc_signals = detect_mean_reversion("BTC-USD", window="5m")
 
-# Pattern match on results
-for signal in btc_signals.iter_rows():
-    match signal:
-        case (timestamp, price, volume, z_score, "BUY"):
-            print(f"🟢 BUY signal at {timestamp}: price={price}, z={z_score:.2f}")
-        case (timestamp, price, volume, z_score, "SELL"):
-            print(f"🔴 SELL signal at {timestamp}: price={price}, z={z_score:.2f}")
-        case _:
-            pass  # Ignore HOLD signals
+# Process signals with functional iteration
+for row in btc_signals.iter_rows():
+    timestamp, price, volume, z_score, signal = row
+    if signal == "BUY":
+        print(f"🟢 BUY signal at {timestamp}: price={price}, z={z_score:.2f}")
+    elif signal == "SELL":
+        print(f"🔴 SELL signal at {timestamp}: price={price}, z={z_score:.2f}")
+    # Ignore HOLD signals
 ```
 
 ## 🛡️ Safety Guarantees
@@ -282,13 +297,21 @@ df.select("price")  # ✅ Returns DataFrame with schema [("price", Float64)]
 df.select("price").sum()  # ✅ Returns f64
 df.select("symbol").sum()  # ❌ Compile error: cannot sum strings
 
-# Safe casts with Result<T, E>
+# Safe casts with Result<T, E> using Rust-powered Result monad
+from polars.monads import Result
+
 result = df.select("price_str").cast(pl.Float64)
-match result:
-    case Ok(df):
-        print("✅ Cast succeeded")
-    case Err(e):
-        print(f"❌ Cast failed: {e}")
+if result.is_ok():
+    print("✅ Cast succeeded")
+    casted_df = result.unwrap()
+else:
+    print(f"❌ Cast failed: {result.err_value()}")
+
+# Or use match_result for cleaner pattern matching
+result.match_result(
+    on_ok=lambda df: print("✅ Cast succeeded"),
+    on_err=lambda e: print(f"❌ Cast failed: {e}")
+)
 ```
 
 ### No Silent Data Corruption
@@ -298,15 +321,23 @@ match result:
 df["new_col"] = df["price"] / 0  # Creates NaN, continues silently
 df["another"] = df["missing_column"]  # Creates None, continues silently
 
-# Polaroid - explicit error handling
-result = (
-    df.with_column(pl.col("price") / pl.lit(0.0))  # Returns Result<DataFrame, ZeroDivisionError>
-)
-match result:
-    case Ok(df):
-        print("Success")
-    case Err(ZeroDivisionError):
+# Polaroid - explicit error handling using Rust-powered Result monad
+from polars.monads import Result
+
+result = df.with_column(pl.col("price") / pl.lit(0.0))  # Returns Result<DataFrame, Error>
+if result.is_ok():
+    print("Success")
+    result_df = result.unwrap()
+else:
+    error = result.err_value()
+    if "division by zero" in str(error).lower():
         print("Cannot divide by zero")  # Explicit error
+
+# Or use match_result for cleaner handling
+result.match_result(
+    on_ok=lambda df: print("Success"),
+    on_err=lambda e: print(f"Error: {e}")
+)
 
 # Missing columns return Err immediately
 result = df.with_column(pl.col("missing_column"))
@@ -380,10 +411,11 @@ total = (
 
 ### Polaroid-Specific
 
-- [`polaroid::functors`](api/functors.md) - Functor trait implementations
-- [`polaroid::monads`](api/monads.md) - Result/Option Python bindings
-- [`polaroid::streams`](api/streams.md) - Stream processing API
+- [API Reference](API_REFERENCE.md) - Complete API documentation
+- [Architecture](ARCHITECTURE.md) - System design and Rust internals
+- [User Guide](USER_GUIDE.md) - Getting started and tutorials
 - [Examples](../examples/) - Real-world functional pipelines
+- Rust Monads: See `polaroid/crates/polars-python/src/monads.rs` for Result/Option implementation
 
 ## 🚀 Migration from Pandas/Polars
 
@@ -391,10 +423,10 @@ total = (
 
 | Pandas Pattern | Polaroid Functional Pattern |
 |----------------|----------------------------|
-| `df.fillna(0)` | `df.map_opt(none=lambda: 0.0)` |
+| `df.fillna(0)` | `option.match_option(on_some=lambda x: x, on_nothing=lambda: 0.0)` |
 | `df.groupby().apply(fn)` | `df.group_by().map(fn)` |
 | `df.rolling().apply(fn)` | `df.rolling_window(fn=fn)` |
-| `try/except` | `result.match()` or `.and_then()` |
+| `try/except` | `result.match_result()` or `.and_then()` |
 
 ### Polars → Polaroid
 
