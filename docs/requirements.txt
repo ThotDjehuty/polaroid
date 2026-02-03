@@ -4,6 +4,7 @@
 sphinx>=7.2.0
 sphinx-rtd-theme>=2.0.0
 myst-parser>=2.0.0
+linkify-it-py>=2.0.0  # Required for MyST linkify extension
 
 # Extensions
 sphinx-autodoc-typehints>=1.25.0
