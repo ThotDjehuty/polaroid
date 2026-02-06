@@ -1,4 +1,4 @@
-# 📸 Polaroid
+# 📸 Polarway
 
 <div align="center">
 
@@ -14,9 +14,9 @@
 
 ---
 
-## 🎯 What is Polaroid?
+## 🎯 What is Polarway?
 
-Polaroid is a fast DataFrame library built on [Polars](https://github.com/pola-rs/polars), with a **gRPC client-server architecture** for:
+Polarway is a fast DataFrame library built on [Polars](https://github.com/pola-rs/polars), with a **gRPC client-server architecture** for:
 
 - **🌐 Remote Execution**: Process data on powerful servers from any client
 - **📊 Streaming-First**: Handle larger-than-RAM datasets with constant memory usage
@@ -28,10 +28,10 @@ Polaroid is a fast DataFrame library built on [Polars](https://github.com/pola-r
 
 ## 🏗️ How It Works
 
-Unlike Polars which embeds DataFrames in Python via PyO3, Polaroid uses a **handle-based architecture**:
+Unlike Polars which embeds DataFrames in Python via PyO3, Polarway uses a **handle-based architecture**:
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Client receives a HANDLE, not actual data
 df = pd.read_parquet("data.parquet")  # Returns: Handle("uuid-1234")
@@ -75,12 +75,12 @@ result = df2.collect()  # Streams Arrow batches from server
 - 📬 Kafka, NATS, Redis Streams integration
 - 🔄 Real-time data pipelines with backpressure handling
 - ⚡ Sub-millisecond ingestion latency
-- ⚡ **gRPC Streaming**: Chain Polaroid instances across network
+- ⚡ **gRPC Streaming**: Chain Polarway instances across network
 - ⛓️ **Blockchain Integration**: Live mempool monitoring, DEX price feeds
 
 ### Production Features
 
-- 🛡️ **Type-Safe Error Handling**: No panics, only `Result<T, PolaroidError>`
+- 🛡️ **Type-Safe Error Handling**: No panics, only `Result<T, PolarwayError>`
 - 📊 **Query Profiling**: Built-in performance metrics
 - 📈 **Monitoring**: Prometheus metrics, OpenTelemetry tracing
 - 🔐 **Authentication**: Token-based auth for gRPC endpoints
@@ -104,12 +104,12 @@ result = df2.collect()  # Streams Arrow batches from server
 
 ```bash
 # Clone repository
-git clone https://github.com/EnkiNudimmud/polaroid
-cd polaroid
+git clone https://github.com/EnkiNudimmud/polarway
+cd polarway
 
 # Build and run Rust gRPC server
-cargo build --release -p polaroid-grpc
-./target/release/polaroid-grpc
+cargo build --release -p polarway-grpc
+./target/release/polarway-grpc
 
 # Server will start on localhost:50051
 ```
@@ -117,7 +117,7 @@ cargo build --release -p polaroid-grpc
 ### 2. Install Python Client
 
 ```bash
-cd polaroid-python
+cd polarway-python
 
 # Generate protocol buffers
 ./generate_protos.sh
@@ -126,14 +126,14 @@ cd polaroid-python
 pip install -e .
 ```
 
-### 3. Use Polaroid
+### 3. Use Polarway
 
 #### Basic Example (Sync)
 
 ```python
-import polaroid as pd
+import polarway as pd
 
-# Connect to Polaroid server
+# Connect to Polarway server
 client = pd.connect("localhost:50051")
 
 # Read Parquet file with projection pushdown
@@ -157,12 +157,12 @@ prices.write_parquet("output/prices.parquet")
 #### Advanced Example (Async + Monads)
 
 ```python
-from polaroid.async_client import AsyncPolaroidClient, Result
+from polarway.async_client import AsyncPolarwayClient, Result
 
 async def process_files_concurrently():
     """Process 100 files in parallel - 5x faster than Polars"""
     
-    async with AsyncPolaroidClient("localhost:50051") as client:
+    async with AsyncPolarwayClient("localhost:50051") as client:
         # Read 100 files concurrently (Tokio work-stealing)
         results: list[Result] = await client.batch_read([
             f"data/file_{i:03d}.parquet" for i in range(100)
@@ -195,7 +195,7 @@ tables = await process_files_concurrently()
 #### Real-Time WebSocket Streaming
 
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 import websockets
 
 async def stream_market_data():
@@ -203,7 +203,7 @@ async def stream_market_data():
     
     ws_stream = WebSocketDataStream("wss://stream.binance.com/ws/btcusdt@trade")
     
-    async with AsyncPolaroidClient("localhost:50051") as polaroid:
+    async with AsyncPolarwayClient("localhost:50051") as polarway:
         batch = []
         
         async for tick in ws_stream.stream():
@@ -212,8 +212,8 @@ async def stream_market_data():
             # Batch write every 1000 ticks
             if len(batch) >= 1000:
                 # Convert to DataFrame and store
-                df = await polaroid.from_records(batch)
-                await polaroid.write_parquet(df, "s3://crypto-data/btc/")
+                df = await polarway.from_records(batch)
+                await polarway.write_parquet(df, "s3://crypto-data/btc/")
                 batch.clear()
                 
                 print(f"💾 Stored 1000 ticks | Latency: {latency}ms")
@@ -242,17 +242,17 @@ result = df3.collect()  # Streams Arrow IPC batches over gRPC
 #### Rust Server Example
 
 ```rust
-use polaroid_grpc::{PolaroidDataFrameService, DataFrameServiceServer};
+use polarway_grpc::{PolarwayDataFrameService, DataFrameServiceServer};
 use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create service with handle management
-    let service = PolaroidDataFrameService::new();
+    let service = PolarwayDataFrameService::new();
     
     // Start gRPC server on port 50051
     let addr = "[::]:50051".parse()?;
-    println!("🚀 Polaroid gRPC server listening on {}", addr);
+    println!("🚀 Polarway gRPC server listening on {}", addr);
     
     Server::builder()
         .add_service(DataFrameServiceServer::new(service))
@@ -273,10 +273,10 @@ python3 test_phase1.py
 Expected output:
 ```
 ============================================================
-  Polaroid Phase 1: Foundation & gRPC Infrastructure Test
+  Polarway Phase 1: Foundation & gRPC Infrastructure Test
 ============================================================
 
-🚀 Starting polaroid-grpc server...
+🚀 Starting polarway-grpc server...
 ✅ Server started successfully on :50051
 
 ============================================================
@@ -298,8 +298,8 @@ import polars as pl
 df = pl.read_parquet("data.parquet")  # Loads into Python process
 result = df.select(["col1"]).collect()  # RAM limited
 
-# Polaroid - gRPC client-server
-import polaroid as pd
+# Polarway - gRPC client-server
+import polarway as pd
 pd.connect("localhost:50051")  # Connect to server
 df = pd.read_parquet("data.parquet")  # Creates server handle
 result = df.select(["col1"]).collect()  # Streams from server
@@ -316,7 +316,7 @@ result = df.select(["col1"]).collect()  # Streams from server
 
 ### Handle-Based Architecture
 
-Unlike Polars which embeds DataFrames in Python via PyO3, Polaroid keeps DataFrames on the **server**:
+Unlike Polars which embeds DataFrames in Python via PyO3, Polarway keeps DataFrames on the **server**:
 
 ```python
 df = pd.read_parquet("data.parquet")
@@ -362,7 +362,7 @@ No panics, only Results:
 
 ```rust
 // Server-side code
-pub enum PolaroidError {
+pub enum PolarwayError {
     Polars(PolarsError),
     HandleNotFound(String),
     HandleExpired(String),
@@ -370,11 +370,11 @@ pub enum PolaroidError {
     Arrow(String),
 }
 
-// All operations return Result<T, PolaroidError>
+// All operations return Result<T, PolarwayError>
 fn read_parquet(path: &str) -> Result<DataFrame> {
     LazyFrame::scan_parquet(path, Default::default())?
         .collect()
-        .map_err(|e| PolaroidError::Polars(e))
+        .map_err(|e| PolarwayError::Polars(e))
 }
 ```
 
@@ -383,9 +383,9 @@ Python client gets proper exceptions:
 ```python
 try:
     df = pd.read_parquet("missing.parquet")
-except polaroid.FileNotFoundError:
+except polarway.FileNotFoundError:
     print("File not found!")
-except polaroid.InvalidHandleError:
+except polarway.InvalidHandleError:
     print("Handle expired or invalid!")
 ```
 
@@ -441,10 +441,10 @@ cargo build --workspace
 cargo test --workspace
 
 # Run gRPC server in dev mode
-cargo run -p polaroid-grpc
+cargo run -p polarway-grpc
 
 # Generate Python stubs
-cd polaroid-python && ./generate_protos.sh
+cd polarway-python && ./generate_protos.sh
 
 # Format code
 cargo fmt --all
@@ -476,31 +476,31 @@ This project is a fork of [Polars](https://github.com/pola-rs/polars) and mainta
 
 **Built with** ❤️ **using Rust, gRPC, Arrow, and Functional Programming principles**
 
-[GitHub](https://github.com/ThotDjehuty/polaroid) | [Issues](https://github.com/ThotDjehuty/polaroid/issues) | [Discussions](https://github.com/ThotDjehuty/polaroid/discussions)
+[GitHub](https://github.com/ThotDjehuty/polarway) | [Issues](https://github.com/ThotDjehuty/polarway/issues) | [Discussions](https://github.com/ThotDjehuty/polarway/discussions)
 
 </div>
 
 ```bash
 # Using Docker (recommended)
-docker run -d -p 50051:50051 polaroid/server:latest
+docker run -d -p 50051:50051 polarway/server:latest
 
 # Or build from source
-git clone https://github.com/polaroid-rs/polaroid
-cd polaroid/polaroid-grpc
+git clone https://github.com/polarway-rs/polarway
+cd polarway/polarway-grpc
 cargo build --release
-./target/release/polaroid-grpc
+./target/release/polarway-grpc
 ```
 
 ### 2. Install Python Client
 
 ```bash
-pip install polaroid
+pip install polarway
 ```
 
-### 3. Use Polaroid
+### 3. Use Polarway
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Connect to server
 pd.connect("localhost:50051")
@@ -569,7 +569,7 @@ for batch in df.stream_batches(batch_size=1000):
 
 ### Benchmarks (vs Polars)
 
-| Operation | Polars (PyO3) | Polaroid (gRPC) | Overhead |
+| Operation | Polars (PyO3) | Polarway (gRPC) | Overhead |
 |-----------|---------------|-----------------|----------|
 | Read 1GB Parquet | 200ms | 210ms | +5% |
 | Filter 10M rows | 50ms | 55ms | +10% |
@@ -586,38 +586,38 @@ for batch in df.stream_batches(batch_size=1000):
 
 ## 📚 Documentation
 
-- **[Architecture Guide](POLAROID_ARCHITECTURE.md)**: Deep dive into design decisions
+- **[Architecture Guide](POLARWAY_ARCHITECTURE.md)**: Deep dive into design decisions
 - **[Implementation Roadmap](IMPLEMENTATION_ROADMAP.md)**: 24-week development plan
-- **[Migration Guide](MIGRATION_GUIDE.md)**: Migrate from Polars to Polaroid
+- **[Migration Guide](MIGRATION_GUIDE.md)**: Migrate from Polars to Polarway
 - **[Quick Reference](QUICK_REFERENCE.md)**: Cheat sheet for common operations
-- **[API Documentation](https://docs.polaroid.rs)**: Full API reference
+- **[API Documentation](https://docs.polarway.rs)**: Full API reference
 
 ## 🔧 Development
 
 ### Project Structure
 
 ```
-polaroid/
+polarway/
 ├── crates/                      # Original Polars crates
 │   ├── polars/                  # Core Polars
 │   ├── polars-arrow/            # Arrow integration
 │   ├── polars-lazy/             # Lazy evaluation
 │   └── ...
-├── polaroid-grpc/               # NEW: gRPC server
+├── polarway-grpc/               # NEW: gRPC server
 │   ├── src/
 │   │   ├── main.rs             # Server entry point
 │   │   ├── service.rs          # gRPC service impl
 │   │   ├── handles.rs          # Handle management
 │   │   └── proto/              # Generated proto code
 │   └── Cargo.toml
-├── polaroid-python/             # NEW: Python client
-│   ├── polaroid/
+├── polarway-python/             # NEW: Python client
+│   ├── polarway/
 │   │   ├── __init__.py
 │   │   ├── dataframe.py        # DataFrame class
 │   │   └── proto/              # Generated Python stubs
 │   └── pyproject.toml
 ├── proto/                       # Protocol buffers
-│   └── polaroid.proto          # Main service definition
+│   └── polarway.proto          # Main service definition
 └── docs/                        # Documentation
 ```
 
@@ -625,7 +625,7 @@ polaroid/
 
 ```bash
 # Build gRPC server
-cd polaroid-grpc
+cd polarway-grpc
 cargo build --release
 
 # Run tests
@@ -635,7 +635,7 @@ cargo test
 cargo bench
 
 # Install Python client (dev mode)
-cd polaroid-python
+cd polarway-python
 pip install -e .
 
 # Run Python tests
@@ -676,7 +676,7 @@ See [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) for full details.
 
 ## 🤝 Acknowledgments
 
-Polaroid is built on the shoulders of giants:
+Polarway is built on the shoulders of giants:
 
 - **[Polars](https://github.com/pola-rs/polars)**: Fast DataFrame library (original codebase)
 - **[Apache Arrow](https://arrow.apache.org/)**: Columnar format and compute kernels
@@ -686,25 +686,25 @@ Polaroid is built on the shoulders of giants:
 
 ## 📜 License
 
-Polaroid is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
+Polarway is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
 
 Original Polars code is also MIT licensed - copyright Ritchie Vink and contributors.
 
 ## 🔗 Links
 
-- **Website**: https://polaroid.rs
-- **Documentation**: https://docs.polaroid.rs
-- **GitHub**: https://github.com/polaroid-rs/polaroid
-- **Discord**: https://discord.gg/polaroid
-- **PyPI**: https://pypi.org/project/polaroid/
-- **crates.io**: https://crates.io/crates/polaroid-grpc
+- **Website**: https://polarway.rs
+- **Documentation**: https://docs.polarway.rs
+- **GitHub**: https://github.com/polarway-rs/polarway
+- **Discord**: https://discord.gg/polarway
+- **PyPI**: https://pypi.org/project/polarway/
+- **crates.io**: https://crates.io/crates/polarway-grpc
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by the Polaroid community**
+**Made with ❤️ by the Polarway community**
 
-[⭐ Star us on GitHub](https://github.com/polaroid-rs/polaroid)
+[⭐ Star us on GitHub](https://github.com/polarway-rs/polarway)
 
 </div>

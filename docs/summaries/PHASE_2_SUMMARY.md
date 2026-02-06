@@ -2,7 +2,7 @@
 
 ## Overview
 
-Enhanced Polaroid with production-ready async patterns, monadic error handling, real-time streaming capabilities, and comprehensive performance benchmarks demonstrating **2-17x** performance advantages over Polars.
+Enhanced Polarway with production-ready async patterns, monadic error handling, real-time streaming capabilities, and comprehensive performance benchmarks demonstrating **2-17x** performance advantages over Polars.
 
 ---
 
@@ -10,12 +10,12 @@ Enhanced Polaroid with production-ready async patterns, monadic error handling, 
 
 ### 1. Advanced Async Client (Python)
 
-**File**: `polaroid-python/polaroid/async_client.py` (485 lines)
+**File**: `polarway-python/polarway/async_client.py` (485 lines)
 
 **Features**:
 - ✅ `Result<T,E>` monad with Ok/Err variants
 - ✅ `Option<T>` monad for None handling
-- ✅ `AsyncPolaroidClient` with full async/await support
+- ✅ `AsyncPolarwayClient` with full async/await support
 - ✅ Batch operations: `batch_read()`, `batch_collect()`
 - ✅ Streaming: `stream_collect()` AsyncIterator
 - ✅ Graceful shutdown with `_shutdown_event`
@@ -25,7 +25,7 @@ Enhanced Polaroid with production-ready async patterns, monadic error handling, 
 
 **Key Code**:
 ```python
-async with AsyncPolaroidClient("localhost:50051", max_concurrent=50) as client:
+async with AsyncPolarwayClient("localhost:50051", max_concurrent=50) as client:
     # Read 100 files concurrently
     results = await client.batch_read(paths)
     
@@ -112,27 +112,27 @@ class WebSocketDataStream:
 
 ### 4. Performance Benchmarks
 
-**File**: `examples/benchmark_polaroid_vs_polars.ipynb`
+**File**: `examples/benchmark_polarway_vs_polars.ipynb`
 
 **Benchmarks**:
 1. **Batch Read**: 50 files @ 100MB each
    - Polars: 11.5s
-   - Polaroid: 2.8s
+   - Polarway: 2.8s
    - **Speedup: 4.1x**
 
 2. **Memory Efficiency**: 50GB dataset
    - Polars: OOM ❌
-   - Polaroid: 0.5GB ✅
+   - Polarway: 0.5GB ✅
    - **Speedup: ∞**
 
 3. **Concurrent Queries**: 500 simultaneous clients
    - Polars: 70 QPS
-   - Polaroid: 1200 QPS
+   - Polarway: 1200 QPS
    - **Speedup: 17.1x**
 
 4. **WebSocket Streaming**:
    - Polars: N/A
-   - Polaroid: 120k ticks/s @ < 1ms latency
+   - Polarway: 120k ticks/s @ < 1ms latency
 
 **Visualizations**:
 - Throughput comparison charts
@@ -176,7 +176,7 @@ class WebSocketDataStream:
 
 **Key Insights**:
 - Polars: Great for prototyping
-- Polaroid: Built for production
+- Polarway: Built for production
 - 95.6% cost savings at scale
 
 ---
@@ -237,7 +237,7 @@ class Result(Generic[T, E]):
 
 **Architecture**:
 ```
-WebSocket → Tokio mpsc → Polaroid → Parquet
+WebSocket → Tokio mpsc → Polarway → Parquet
    (src)      (channel)   (server)   (storage)
 ```
 
@@ -263,13 +263,13 @@ WebSocket → Tokio mpsc → Polaroid → Parquet
 
 ### Speed Comparison
 
-| Benchmark | Polars | Polaroid | Winner |
+| Benchmark | Polars | Polarway | Winner |
 |-----------|--------|----------|--------|
-| Batch read (50 files) | 11.5s | 2.8s | 🏆 Polaroid (4.1x) |
-| Large dataset (50GB) | OOM ❌ | 0.5GB ✅ | 🏆 Polaroid (∞) |
-| Concurrent queries (100) | 60 QPS | 650 QPS | 🏆 Polaroid (10.8x) |
-| Concurrent queries (500) | 70 QPS | 1200 QPS | 🏆 Polaroid (17.1x) |
-| WebSocket streaming | N/A | 120k/s | 🏆 Polaroid |
+| Batch read (50 files) | 11.5s | 2.8s | 🏆 Polarway (4.1x) |
+| Large dataset (50GB) | OOM ❌ | 0.5GB ✅ | 🏆 Polarway (∞) |
+| Concurrent queries (100) | 60 QPS | 650 QPS | 🏆 Polarway (10.8x) |
+| Concurrent queries (500) | 70 QPS | 1200 QPS | 🏆 Polarway (17.1x) |
+| WebSocket streaming | N/A | 120k/s | 🏆 Polarway |
 | Single file | 0.5s | 0.5s | ⚖️ Tie |
 
 ### Cost Efficiency
@@ -279,7 +279,7 @@ WebSocket → Tokio mpsc → Polaroid → Parquet
 | Solution | AWS Setup | Annual Cost |
 |----------|-----------|-------------|
 | Polars | 100x c6i.2xlarge | $294,912 |
-| Polaroid | 1x c6i.8xlarge | $13,056 |
+| Polarway | 1x c6i.8xlarge | $13,056 |
 | **Savings** | | **$281,856 (95.6%)** |
 
 ---
@@ -304,9 +304,9 @@ WebSocket → Tokio mpsc → Polaroid → Parquet
 ### 1. Concurrent Batch Processing
 
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 
-async with AsyncPolaroidClient("localhost:50051") as client:
+async with AsyncPolarwayClient("localhost:50051") as client:
     # Read 100 files concurrently
     results = await client.batch_read([
         f"data/file_{i:03d}.parquet" for i in range(100)
@@ -322,10 +322,10 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 async def stream_crypto_prices():
     ws = WebSocketDataStream("wss://stream.binance.com")
     
-    async with AsyncPolaroidClient("localhost:50051") as polaroid:
+    async with AsyncPolarwayClient("localhost:50051") as polarway:
         async for tick in ws.stream():
             # Sub-millisecond latency
-            await polaroid.append_record(tick)
+            await polarway.append_record(tick)
 ```
 
 ### 3. Monadic Error Handling
@@ -353,8 +353,8 @@ if processed.is_ok():
 
 ```bash
 # Jupyter notebook benchmarks
-cd polaroid/examples
-jupyter notebook benchmark_polaroid_vs_polars.ipynb
+cd polarway/examples
+jupyter notebook benchmark_polarway_vs_polars.ipynb
 
 # WebSocket streaming test
 python examples/websocket_client.py
@@ -374,7 +374,7 @@ cargo run --example advanced_tokio --release
 
 ## Migration Guide
 
-### From Polars to Polaroid
+### From Polars to Polarway
 
 **Before (Polars)**:
 ```python
@@ -383,19 +383,19 @@ import polars as pl
 dfs = [pl.read_parquet(path) for path in paths]
 ```
 
-**After (Polaroid - Sync)**:
+**After (Polarway - Sync)**:
 ```python
-import polaroid as pd
+import polarway as pd
 
 client = pd.connect("localhost:50051")
 dfs = [pd.read_parquet(path) for path in paths]
 ```
 
-**After (Polaroid - Async)**:
+**After (Polarway - Async)**:
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 
-async with AsyncPolaroidClient("localhost:50051") as client:
+async with AsyncPolarwayClient("localhost:50051") as client:
     results = await client.batch_read(paths)
     dfs = [r.unwrap() for r in results if r.is_ok()]
 ```
@@ -441,7 +441,7 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 
 ## Conclusion
 
-Phase 2 transforms Polaroid from a proof-of-concept into a **production-ready** DataFrame engine that:
+Phase 2 transforms Polarway from a proof-of-concept into a **production-ready** DataFrame engine that:
 
 ✅ **Outperforms** Polars by 2-17x for concurrent workloads  
 ✅ **Handles** datasets larger than RAM with constant memory  
@@ -450,7 +450,7 @@ Phase 2 transforms Polaroid from a proof-of-concept into a **production-ready** 
 ✅ **Costs** 95.6% less to operate at scale  
 ✅ **Provides** type-safe, monadic error handling  
 
-**Recommendation**: Use Polaroid for any production system requiring high concurrency, large datasets, or real-time streaming.
+**Recommendation**: Use Polarway for any production system requiring high concurrency, large datasets, or real-time streaming.
 
 ---
 
@@ -459,7 +459,7 @@ Phase 2 transforms Polaroid from a proof-of-concept into a **production-ready** 
 - **Documentation**: [docs/ADVANCED_ASYNC.md](docs/ADVANCED_ASYNC.md)
 - **Benchmarks**: [docs/PERFORMANCE_COMPARISON.md](docs/PERFORMANCE_COMPARISON.md)
 - **Examples**: [examples/](examples/)
-- **Issues**: [GitHub Issues](https://github.com/ThotDjehuty/polaroid/issues)
+- **Issues**: [GitHub Issues](https://github.com/ThotDjehuty/polarway/issues)
 
 ---
 

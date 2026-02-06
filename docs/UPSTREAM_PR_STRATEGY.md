@@ -1,8 +1,8 @@
-# Pull Request Strategy: Polaroid → Polars Upstream
+# Pull Request Strategy: Polarway → Polars Upstream
 
 ## Overview
 
-This document outlines the strategy for contributing Polaroid enhancements back to the main Polars repository. We're breaking down contributions into logical, reviewable chunks rather than one massive PR.
+This document outlines the strategy for contributing Polarway enhancements back to the main Polars repository. We're breaking down contributions into logical, reviewable chunks rather than one massive PR.
 
 ## PR Sequence
 
@@ -404,7 +404,7 @@ Types: `feat`, `fix`, `docs`, `perf`, `refactor`, `test`, `chore`
 
 ## Conclusion
 
-Polaroid → Polars contribution is a **marathon, not a sprint**. Focus on:
+Polarway → Polars contribution is a **marathon, not a sprint**. Focus on:
 1. PR #2 (Time Series) - quick win, builds trust
 2. PR #1 (Adaptive Streaming) - high value, medium complexity
 3. PR #3 (REST Source) - fills ecosystem gap

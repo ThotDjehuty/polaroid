@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Polaroid will be documented in this file.
+All notable changes to Polarway will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Initial Public Release
 
-First public release of Polaroid - a high-performance DataFrame library with gRPC streaming architecture.
+First public release of Polarway - a high-performance DataFrame library with gRPC streaming architecture.
 
 ### ✨ Features
 
@@ -61,4 +61,4 @@ First public release of Polaroid - a high-performance DataFrame library with gRP
 
 ---
 
-[0.1.0]: https://github.com/EnkiNudimmud/polaroid/releases/tag/v0.1.0
+[0.1.0]: https://github.com/EnkiNudimmud/polarway/releases/tag/v0.1.0

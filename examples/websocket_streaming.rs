@@ -85,8 +85,8 @@ async fn market_data_generator(broadcast_tx: broadcast::Sender<MarketTick>) {
     }
 }
 
-/// Polaroid client consuming WebSocket and building real-time DataFrame
-async fn polaroid_websocket_consumer(
+/// Polarway client consuming WebSocket and building real-time DataFrame
+async fn polarway_websocket_consumer(
     ws_url: &str,
     window_size: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -137,9 +137,9 @@ async fn polaroid_websocket_consumer(
                 tick_count, window.len(), avg_price, total_volume
             );
 
-            // In production: send to Polaroid server for storage/analysis
-            // let df = polaroid_client.from_records(&window)?;
-            // polaroid_client.write_parquet(df, "market_data.parquet")?;
+            // In production: send to Polarway server for storage/analysis
+            // let df = polarway_client.from_records(&window)?;
+            // polarway_client.write_parquet(df, "market_data.parquet")?;
         }
 
         // Latency measurement
@@ -203,7 +203,7 @@ struct SymbolStats {
 /// Real-time blockchain mempool monitoring
 async fn blockchain_mempool_monitor(
     rpc_url: &str,
-    polaroid_handle: String,
+    polarway_handle: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("⛓️  Monitoring blockchain mempool: {}", rpc_url);
 
@@ -233,14 +233,14 @@ async fn blockchain_mempool_monitor(
             pending_txs.len(), tx_count
         );
 
-        // In production: send to Polaroid for real-time analytics
-        // let df = polaroid_client.from_json(&pending_txs)?;
-        // polaroid_client.append(polaroid_handle, df)?;
+        // In production: send to Polarway for real-time analytics
+        // let df = polarway_client.from_json(&pending_txs)?;
+        // polarway_client.append(polarway_handle, df)?;
 
         // Detect arbitrage opportunities
         if tx_count % 1000 == 0 {
             println!("💰 Analyzing for arbitrage...");
-            // Run complex queries on accumulated data via Polaroid
+            // Run complex queries on accumulated data via Polarway
         }
     }
 }
@@ -255,7 +255,7 @@ async fn shutdown_signal() {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("🚀 Polaroid WebSocket Streaming Examples\n");
+    println!("🚀 Polarway WebSocket Streaming Examples\n");
 
     // Create broadcast channel for market data
     let (broadcast_tx, _) = broadcast::channel::<MarketTick>(1000);
@@ -277,9 +277,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Give server time to start
     tokio::time::sleep(Duration::from_secs(1)).await;
 
-    // Spawn Polaroid consumer
+    // Spawn Polarway consumer
     let consumer_handle = tokio::spawn(async move {
-        if let Err(e) = polaroid_websocket_consumer("ws://127.0.0.1:8080", 1000).await {
+        if let Err(e) = polarway_websocket_consumer("ws://127.0.0.1:8080", 1000).await {
             eprintln!("❌ Consumer error: {}", e);
         }
     });
@@ -314,13 +314,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Example: Integrate with Polaroid for persistent storage
+/// Example: Integrate with Polarway for persistent storage
 /// 
 /// ```rust
-/// use polaroid_grpc::client::PolaroidClient;
+/// use polarway_grpc::client::PolarwayClient;
 /// 
 /// async fn store_market_data(ticks: Vec<MarketTick>) -> Result<(), Box<dyn std::error::Error>> {
-///     let client = PolaroidClient::connect("http://localhost:50051").await?;
+///     let client = PolarwayClient::connect("http://localhost:50051").await?;
 ///     
 ///     // Convert to DataFrame
 ///     let df = ticks_to_dataframe(&ticks)?;
@@ -336,7 +336,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// ```
 
 /// Performance characteristics:
-/// - Latency: < 1ms end-to-end (WebSocket → Polaroid)
+/// - Latency: < 1ms end-to-end (WebSocket → Polarway)
 /// - Throughput: 100k+ ticks/second per core
 /// - Memory: O(window_size) - constant memory footprint
 /// - Backpressure: Bounded channels prevent OOM

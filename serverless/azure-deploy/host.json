@@ -10,7 +10,7 @@
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "polaroid-http",
+      "defaultExecutablePath": "polarway-http",
       "workingDirectory": "",
       "arguments": []
     },

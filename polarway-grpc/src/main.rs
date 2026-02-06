@@ -14,7 +14,7 @@ pub mod proto {
     tonic::include_proto!("polarway.v1");
 }
 
-use service::PolaroidDataFrameService;
+use service::PolarwayDataFrameService;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -25,11 +25,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
     
     // Read bind address from environment or default
-    let bind_addr = std::env::var("POLAROID_BIND_ADDRESS")
+    let bind_addr = std::env::var("POLARWAY_BIND_ADDRESS")
         .unwrap_or_else(|_| "0.0.0.0:50051".to_string());
     let addr: SocketAddr = bind_addr.parse()?;
     
-    info!("🎬 Polaroid gRPC Server starting...");
+    info!("🎬 Polarway gRPC Server starting...");
     info!("📍 Binding to: {}", addr);
     info!("🚀 FDAP Stack: Flight-DataFusion-Arrow-Parquet");
     info!("📊 DataFrame operations via gRPC");
@@ -38,10 +38,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("🌐 Network data sources ready");
     
     // Create service
-    let dataframe_service = PolaroidDataFrameService::new();
+    let dataframe_service = PolarwayDataFrameService::new();
 
     // Start HTTP REST API (QuestDB-like)
-    let http_bind_addr = std::env::var("POLAROID_HTTP_BIND_ADDRESS")
+    let http_bind_addr = std::env::var("POLARWAY_HTTP_BIND_ADDRESS")
         .unwrap_or_else(|_| "0.0.0.0:9000".to_string());
     let http_addr: SocketAddr = http_bind_addr.parse()?;
     let http_state = http_api::HttpApiState {

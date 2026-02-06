@@ -15,14 +15,14 @@ use crate::proto::{
     *,
 };
 use crate::handles::HandleManager;
-use crate::error::{PolaroidError, Result};
+use crate::error::{polarwayError, Result};
 use crate::optimizations::{FastArrowSerializer, ParallelFilter, FastGroupBy};
 
-pub struct PolaroidDataFrameService {
+pub struct polarwayDataFrameService {
     handle_manager: Arc<HandleManager>,
 }
 
-impl PolaroidDataFrameService {
+impl polarwayDataFrameService {
     pub fn new() -> Self {
         let handle_manager = Arc::new(HandleManager::default());
         
@@ -51,12 +51,12 @@ impl PolaroidDataFrameService {
         let cursor = Cursor::new(json_str.as_bytes());
         JsonReader::new(cursor)
             .finish()
-            .map_err(|e| PolaroidError::Polars(e))
+            .map_err(|e| polarwayError::Polars(e))
     }
 }
 
 #[tonic::async_trait]
-impl DataFrameService for PolaroidDataFrameService {
+impl DataFrameService for polarwayDataFrameService {
     // Associated types for streaming responses
     type CollectStream = tokio_stream::wrappers::ReceiverStream<std::result::Result<ArrowBatch, Status>>;
     type StreamWebSocketStream = tokio_stream::wrappers::ReceiverStream<std::result::Result<ArrowBatch, Status>>;
@@ -77,7 +77,7 @@ impl DataFrameService for PolaroidDataFrameService {
         let path_buf = std::path::PathBuf::from(req.path);
         let path = PlPath::Local(Arc::from(path_buf.into_boxed_path()));
         let mut lf = LazyFrame::scan_parquet(path, Default::default())
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         // Apply projection pushdown if columns specified
         if !req.columns.is_empty() {
@@ -104,7 +104,7 @@ impl DataFrameService for PolaroidDataFrameService {
         
         // Collect to DataFrame with optimizations
         let df = lf.collect()
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         info!("Loaded DataFrame: shape={:?}, columns={:?}", 
               df.shape(), df.get_column_names());
@@ -132,11 +132,11 @@ impl DataFrameService for PolaroidDataFrameService {
         
         // Write to parquet
         let mut file = std::fs::File::create(&req.path)
-            .map_err(|e| PolaroidError::Io(e))?;
+            .map_err(|e| polarwayError::Io(e))?;
         
         ParquetWriter::new(&mut file)
             .finish(&mut (*df).clone())
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         let rows_written = df.height() as i64;
         info!("Wrote {} rows to {}", rows_written, req.path);
@@ -193,7 +193,7 @@ impl DataFrameService for PolaroidDataFrameService {
         
         // Select columns
         let selected = df.select(&req.columns)
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         // Create new handle
         let handle = self.handle_manager.create_handle(selected);
@@ -228,7 +228,7 @@ impl DataFrameService for PolaroidDataFrameService {
         
         // Convert schema to JSON
         let schema_json = serde_json::to_string(&df.schema())
-            .map_err(|e| PolaroidError::Serialization(e.to_string()))?;
+            .map_err(|e| polarwayError::Serialization(e.to_string()))?;
         
         Ok(Response::new(SchemaResponse {
             schema_json,
@@ -1019,7 +1019,7 @@ impl DataFrameService for PolaroidDataFrameService {
         }
         
         let result_df = lf.collect()
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         let handle = self.handle_manager.create_handle(result_df);
         
@@ -1052,7 +1052,7 @@ impl DataFrameService for PolaroidDataFrameService {
         }
         
         let result_df = lf.collect()
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         let handle = self.handle_manager.create_handle(result_df);
         
@@ -1081,7 +1081,7 @@ impl DataFrameService for PolaroidDataFrameService {
         }
         
         let result_df = lf.collect()
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         let handle = self.handle_manager.create_handle(result_df);
         
@@ -1111,7 +1111,7 @@ impl DataFrameService for PolaroidDataFrameService {
         }
         
         let result_df = lf.collect()
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| polarwayError::Polars(e))?;
         
         let handle = self.handle_manager.create_handle(result_df);
         

@@ -37,7 +37,7 @@ examples/
 # Docker
 docker-compose*.yml
 Dockerfile*
-!Dockerfile.polaroid
+!Dockerfile.polarway
 
 # Misc
 *.log

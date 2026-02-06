@@ -117,7 +117,7 @@ result = filtered.collect()  # Streams Arrow batches via gRPC
 
 ## � Functional Programming Excellence
 
-Polaroid brings **Rust's functional programming elegance** to **Python's data science ecosystem**, making your data pipelines safer and more composable:
+Polarway brings **Rust's functional programming elegance** to **Python's data science ecosystem**, making your data pipelines safer and more composable:
 
 ### Monadic Error Handling
 ```python
@@ -128,7 +128,7 @@ try:
 except Exception as e:
     print(f"Error: {e}")
 
-# Polaroid - explicit Result/Option monads
+# Polarway - explicit Result/Option monads
 result = pd.read_csv("file.csv")
 match result:
     case Ok(df):
@@ -182,10 +182,10 @@ result = (
 
 ## �🏗️ How It Works
 
-Unlike Polars which embeds DataFrames in Python via PyO3, Polaroid uses a **handle-based architecture**:
+Unlike Polars which embeds DataFrames in Python via PyO3, Polarway uses a **handle-based architecture**:
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Client receives a HANDLE, not actual data
 df = pd.read_parquet("data.parquet")  # Returns: Handle("uuid-1234")
@@ -235,23 +235,23 @@ result = df2.collect()  # Streams Arrow batches from server
 ### Installation
 
 ```bash
-# Start the Polaroid gRPC server
-docker run -d -p 50051:50051 polaroid/server:latest
+# Start the Polarway gRPC server
+docker run -d -p 50051:50051 polarway/server:latest
 
 # Or build from source
-git clone https://github.com/EnkiNudimmud/polaroid
-cd polaroid
-cargo build --release -p polaroid-grpc
-./target/release/polaroid-grpc
+git clone https://github.com/EnkiNudimmud/polarway
+cd polarway
+cargo build --release -p polarway-grpc
+./target/release/polarway-grpc
 
 # Install Python client
-pip install polaroid-df
+pip install polarway-df
 ```
 
 ### Basic Example
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Connect to gRPC server
 client = pd.connect("localhost:50051")
@@ -391,12 +391,12 @@ result.map(lambda t: print(t)).map_err(lambda e: log_error(e))
 
 ### Benchmarks vs Polars
 
-| Operation | Polars (PyO3) | Polaroid (gRPC) | Notes |
+| Operation | Polars (PyO3) | Polarway (gRPC) | Notes |
 |-----------|---------------|-----------------|-------|
 | Read 1GB Parquet | 200ms | 210ms | +5% overhead |
 | Filter 10M rows | 50ms | 55ms | +10% overhead |
 | GroupBy + Agg | 120ms | 130ms | +8% overhead |
-| Stream 100GB | OOM | 12s (8.3M rows/sec) | Polaroid advantage |
+| Stream 100GB | OOM | 12s (8.3M rows/sec) | Polarway advantage |
 | Concurrent 100 files | 15s (sequential) | 1.2s (parallel) | 12.5x speedup |
 
 **Network Overhead**: 2-5ms per gRPC request (negligible for analytical queries)
@@ -433,7 +433,7 @@ result.map(lambda t: print(t)).map_err(lambda e: log_error(e))
 ### 📅 Phase 3: Community Contributions (Q1-Q2 2026) - **IN PROGRESS**
 
 #### Apache Arrow-RS Contributions
-Strategic contributions to establish Polaroid in the Arrow ecosystem:
+Strategic contributions to establish Polarway in the Arrow ecosystem:
 
 - **P0: Parquet Statistics Optimizer** (5-6 weeks, 85% acceptance prob.)
   - Issue: [apache/arrow-rs#9296](https://github.com/apache/arrow-rs/issues/9296)
@@ -445,14 +445,14 @@ Strategic contributions to establish Polaroid in the Arrow ecosystem:
 
 - **P1: Zero-Copy Array Construction Guide** (2.5 weeks, 75% acceptance prob.)
   - Issue: [apache/arrow-rs#9061](https://github.com/apache/arrow-rs/issues/9061)
-  - Documentation: Best practices from Polaroid's Polars integration
+  - Documentation: Best practices from Polarway's Polars integration
   - Helper functions for direct array construction (avoid ArrayData overhead)
   - Benchmarks demonstrating allocation reduction
   - **Impact:** Architecture-level improvement for Arrow-RS
 
 - **P2: Avro Cached Decoder** (5-6 weeks, 65% acceptance prob.)
   - Issue: [apache/arrow-rs#9211](https://github.com/apache/arrow-rs/issues/9211)
-  - Alternative to JIT approach using Polaroid's hybrid cache
+  - Alternative to JIT approach using Polarway's hybrid cache
   - LRU-cached pre-decoded batches (vs expensive Avro→Arrow conversion)
   - Benchmarks: Cache-optimized vs interpreted vs JIT
   - **Impact:** High-throughput streaming workloads (Kafka, event processing)
@@ -466,7 +466,7 @@ See [GITHUB_ISSUES_ANALYSIS.md](GITHUB_ISSUES_ANALYSIS.md) for detailed analysis
 - Lazy evaluation with query optimization
 - Predicate/projection pushdown
 - Partition-aware operations
-- Integration with Polaroid storage layer for transparent spill-to-disk
+- Integration with Polarway storage layer for transparent spill-to-disk
 
 ### 📅 Phase 5: Time-Series Extensions (Q4 2026)
 - TimeSeriesFrame with frequency awareness
@@ -488,24 +488,24 @@ See [GITHUB_ISSUES_ANALYSIS.md](GITHUB_ISSUES_ANALYSIS.md) for detailed analysis
 ### Project Structure
 
 ```
-polaroid/
+polarway/
 ├── crates/                    # Polars core crates
-├── polaroid-grpc/             # gRPC server implementation
+├── polarway-grpc/             # gRPC server implementation
 │   ├── src/
 │   │   ├── main.rs           # Server entry point
 │   │   ├── service.rs        # gRPC service impl
 │   │   ├── handles.rs        # Handle lifecycle management
 │   │   └── proto/            # Generated proto code
 │   └── Cargo.toml
-├── polaroid-python/           # Python client library
-│   ├── polaroid/
+├── polarway-python/           # Python client library
+│   ├── polarway/
 │   │   ├── __init__.py
 │   │   ├── dataframe.py      # DataFrame API
 │   │   ├── async_client.py   # Async operations
 │   │   └── proto/            # Generated stubs
 │   └── pyproject.toml
 ├── proto/                     # Protocol buffer definitions
-│   └── polaroid.proto
+│   └── polarway.proto
 └── docs/                      # Documentation
 ```
 
@@ -519,10 +519,10 @@ cargo build --workspace --release
 cargo test --workspace
 
 # Run gRPC server
-cargo run -p polaroid-grpc
+cargo run -p polarway-grpc
 
 # Install Python client (development mode)
-cd polaroid-python
+cd polarway-python
 pip install -e .
 
 # Run Python tests
@@ -544,7 +544,7 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 1. **Fork the repository** and clone it locally
 2. **Create a branch** for your feature: `git checkout -b feature/amazing-feature`
 3. **Make your changes** and add tests
-4. **Run tests**: `cargo test --workspace && pytest polaroid-python/tests/`
+4. **Run tests**: `cargo test --workspace && pytest polarway-python/tests/`
 5. **Format code**: `cargo fmt --all`
 6. **Submit a pull request** with a clear description
 
@@ -564,17 +564,17 @@ This project follows the [Contributor Covenant Code of Conduct](https://www.cont
 
 - **[Functional Programming Guide](docs/FUNCTIONAL_PROGRAMMING_ADVANTAGES.md)**: Monads, functors, and stream processing 🎨
 - **[Mode Selection Guide](docs/MODE_SELECTION_GUIDE.md)**: Choose Portable/Standalone/Distributed modes
-- **[When NOT to Use Polaroid](docs/WHEN_NOT_TO_USE.md)**: Honest comparison with alternatives
+- **[When NOT to Use Polarway](docs/WHEN_NOT_TO_USE.md)**: Honest comparison with alternatives
 - **[Quick Reference](docs/QUICK_REFERENCE.md)**: Common operations cheat sheet
 - **[API Documentation](docs/API_DOCUMENTATION.md)**: Full Rust and Python APIs
-- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Moving from Polars to Polaroid
+- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Moving from Polars to Polarway
 - **[Architecture Guide](docs/ARCHITECTURE.md)**: Deep dive into design decisions
 - **[Advanced Async Operations](docs/ADVANCED_ASYNC.md)**: Concurrent and streaming patterns
 - **[Performance Comparison](docs/PERFORMANCE_COMPARISON.md)**: Benchmarks and optimization tips
 
 ## 🙏 Acknowledgments
 
-Polaroid is built on excellent open-source projects:
+Polarway is built on excellent open-source projects:
 
 - **[Polars](https://github.com/pola-rs/polars)**: Fast DataFrame library (original codebase)
 - **[Apache Arrow](https://arrow.apache.org/)**: Columnar format and compute kernels
@@ -584,7 +584,7 @@ Polaroid is built on excellent open-source projects:
 
 ## 📜 License
 
-Polaroid is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
+Polarway is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
 
 Original Polars code is also MIT licensed - copyright Ritchie Vink and contributors.
 
@@ -594,6 +594,6 @@ Original Polars code is also MIT licensed - copyright Ritchie Vink and contribut
 
 **Built with ❤️ using Rust, gRPC, and Apache Arrow**
 
-[GitHub](https://github.com/ThotDjehuty/polaroid) | [Issues](https://github.com/ThotDjehuty/polaroid/issues)
+[GitHub](https://github.com/ThotDjehuty/polarway) | [Issues](https://github.com/ThotDjehuty/polarway/issues)
 
 </div>

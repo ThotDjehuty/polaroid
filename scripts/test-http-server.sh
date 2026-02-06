@@ -1,9 +1,9 @@
 #!/bin/bash
-cd /Users/melvinalvarez/Documents/Workspace/polaroid
+cd /Users/melvinalvarez/Documents/Workspace/polarway
 
-echo "🚀 Starting Polaroid HTTP server..."
-./serverless/target/release/polaroid-http > /tmp/polaroid-test.log 2>&1 &
-POLAROID_PID=$!
+echo "🚀 Starting Polarway HTTP server..."
+./serverless/target/release/polarway-http > /tmp/polarway-test.log 2>&1 &
+POLARWAY_PID=$!
 
 sleep 3
 
@@ -34,7 +34,7 @@ curl -s -X POST http://localhost:8080/api/discover-pairs \
 
 echo ""
 echo "🛑 Stopping server..."
-kill $POLAROID_PID 2>/dev/null
-wait $POLAROID_PID 2>/dev/null
+kill $POLARWAY_PID 2>/dev/null
+wait $POLARWAY_PID 2>/dev/null
 
 echo "✅ All tests complete!"

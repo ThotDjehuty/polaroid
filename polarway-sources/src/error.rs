@@ -1,4 +1,4 @@
-//! Error types for polaroid-sources
+//! Error types for polarway-sources
 
 use thiserror::Error;
 

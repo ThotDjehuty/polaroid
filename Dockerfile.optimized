@@ -18,11 +18,11 @@ COPY Cargo.toml Cargo.lock ./
 COPY crates/polars-error/Cargo.toml crates/polars-error/Cargo.toml
 COPY crates/polars-utils/Cargo.toml crates/polars-utils/Cargo.toml
 COPY crates/polars-arrow/Cargo.toml crates/polars-arrow/Cargo.toml
-COPY polaroid-grpc/Cargo.toml polaroid-grpc/Cargo.toml
+COPY polarway-grpc/Cargo.toml polarway-grpc/Cargo.toml
 
 # Create dummy source files to satisfy cargo
-RUN mkdir -p crates/polars-error/src crates/polars-utils/src crates/polars-arrow/src polaroid-grpc/src && \
-    echo "fn main() {}" > polaroid-grpc/src/main.rs && \
+RUN mkdir -p crates/polars-error/src crates/polars-utils/src crates/polars-arrow/src polarway-grpc/src && \
+    echo "fn main() {}" > polarway-grpc/src/main.rs && \
     echo "pub fn dummy() {}" > crates/polars-error/src/lib.rs && \
     echo "pub fn dummy() {}" > crates/polars-utils/src/lib.rs && \
     echo "pub fn dummy() {}" > crates/polars-arrow/src/lib.rs
@@ -30,8 +30,8 @@ RUN mkdir -p crates/polars-error/src crates/polars-utils/src crates/polars-arrow
 # Build dependencies (this layer will be cached!)
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
-    cargo build --release --bin polaroid-grpc && \
-    rm -rf target/release/.fingerprint/polaroid-grpc-* target/release/polaroid-grpc*
+    cargo build --release --bin polarway-grpc && \
+    rm -rf target/release/.fingerprint/polarway-grpc-* target/release/polarway-grpc*
 
 # ============================================================================
 # Stage 2: Builder - Build application with cached dependencies
@@ -55,14 +55,14 @@ COPY --from=dependencies /usr/local/cargo /usr/local/cargo
 # Copy actual source code
 COPY Cargo.toml Cargo.lock ./
 COPY crates/ crates/
-COPY polaroid-grpc/ polaroid-grpc/
+COPY polarway-grpc/ polarway-grpc/
 COPY proto/ proto/
 
 # Build only the application (dependencies already built!)
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
-    cargo build --release --bin polaroid-grpc && \
-    strip target/release/polaroid-grpc
+    cargo build --release --bin polarway-grpc && \
+    strip target/release/polarway-grpc
 
 # ============================================================================
 # Stage 3: Runtime - Minimal runtime image
@@ -76,15 +76,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy only the binary
-COPY --from=builder /build/target/release/polaroid-grpc /app/polaroid-grpc
+COPY --from=builder /build/target/release/polarway-grpc /app/polarway-grpc
 
 # Create data directory
 RUN mkdir -p /app/data
 
-ENV POLAROID_BIND_ADDRESS=0.0.0.0:50052
+ENV POLARWAY_BIND_ADDRESS=0.0.0.0:50052
 EXPOSE 50052
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
     CMD nc -z localhost 50052 || exit 1
 
-CMD ["/app/polaroid-grpc"]
+CMD ["/app/polarway-grpc"]

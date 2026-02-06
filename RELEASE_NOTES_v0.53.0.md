@@ -1,4 +1,4 @@
-# Release Notes - Polaroid v0.53.0
+# Release Notes - Polarway v0.53.0
 
 **Release Date**: February 3, 2026  
 **Type**: Major Release (Breaking Changes)
@@ -9,7 +9,7 @@
 
 ### 🔥 New Hybrid Storage Layer
 
-Polaroid v0.53.0 introduces a **complete storage architecture redesign**, replacing QuestDB with a hybrid three-tier system:
+Polarway v0.53.0 introduces a **complete storage architecture redesign**, replacing QuestDB with a hybrid three-tier system:
 
 1. **Cache Backend** (LRU, RAM): Hot data with O(1) access
 2. **Parquet Backend** (Cold, Disk): High compression (zstd level 19)
@@ -31,7 +31,7 @@ Polaroid v0.53.0 introduces a **complete storage architecture redesign**, replac
 - Schema evolution support
 
 ```rust
-use polaroid_grpc::ParquetBackend;
+use polarway_grpc::ParquetBackend;
 
 let backend = ParquetBackend::new("/data/cold")?;
 backend.store("trades_20260203", record_batch)?;
@@ -45,7 +45,7 @@ backend.store("trades_20260203", record_batch)?;
 - ~85% hit rate for typical workloads
 
 ```rust
-use polaroid_grpc::CacheBackend;
+use polarway_grpc::CacheBackend;
 
 let cache = CacheBackend::new(2.0); // 2GB
 let data = cache.load("key")?; // O(1) lookup
@@ -59,7 +59,7 @@ let data = cache.load("key")?; // O(1) lookup
 - Read-only (no DDL operations)
 
 ```rust
-use polaroid_grpc::DuckDBBackend;
+use polarway_grpc::DuckDBBackend;
 
 let duckdb = DuckDBBackend::new(":memory:")?;
 let result = duckdb.query(r#"
@@ -74,7 +74,7 @@ let result = duckdb.query(r#"
 Combined backend implementing smart loading:
 
 ```rust
-use polaroid_grpc::HybridStorage;
+use polarway_grpc::HybridStorage;
 
 let storage = HybridStorage::new(
     "/data/cold".to_string(),
@@ -91,7 +91,7 @@ let data = storage.smart_load("key")?;
 New `StorageClient` with simplified interface:
 
 ```python
-from polaroid import StorageClient
+from polarway import StorageClient
 
 client = StorageClient(
     parquet_path="/data/cold",
@@ -183,8 +183,8 @@ from questdb.ingress import Sender
 sender = Sender(host='localhost', port=9009)
 sender.dataframe(df, table_name='trades')
 
-# After (Polaroid Storage)
-from polaroid import StorageClient
+# After (Polarway Storage)
+from polarway import StorageClient
 client = StorageClient(parquet_path="/data/cold")
 client.store("trades_20260203", df)
 ```
@@ -246,7 +246,7 @@ client.store("trades_20260203", df)
 ### Build
 
 - Cargo.toml: Added `storage` feature flag (default-enabled)
-- Added storage module to polaroid-grpc/src/lib.rs
+- Added storage module to polarway-grpc/src/lib.rs
 - Increased MSRV to Rust 1.75+
 
 ### Testing
@@ -267,12 +267,12 @@ client.store("trades_20260203", df)
 1. **Backup QuestDB data** (if using)
 2. **Update dependencies**:
 ```bash
-pip install --upgrade polaroid-df>=0.53.0
+pip install --upgrade polarway-df>=0.53.0
 ```
 3. **Migrate to new storage layer** (see Breaking Changes)
 4. **Test with new client**:
 ```python
-from polaroid import StorageClient
+from polarway import StorageClient
 client = StorageClient(parquet_path="/data/cold")
 ```
 
@@ -281,22 +281,22 @@ client = StorageClient(parquet_path="/data/cold")
 **Build from source**:
 
 ```bash
-git clone https://github.com/EnkiNudimmud/polaroid
-cd polaroid
+git clone https://github.com/EnkiNudimmud/polarway
+cd polarway
 git checkout v0.53.0
-cargo build --release -p polaroid-grpc
+cargo build --release -p polarway-grpc
 ```
 
 **Run tests**:
 
 ```bash
-cargo test --package polaroid-grpc --lib storage
+cargo test --package polarway-grpc --lib storage
 ```
 
 **Run benchmarks**:
 
 ```bash
-cargo bench --package polaroid-grpc --features storage
+cargo bench --package polarway-grpc --features storage
 ```
 
 ---
@@ -329,10 +329,10 @@ Special thanks to:
 
 ## 📞 Support
 
-- **Issues**: https://github.com/EnkiNudimmud/polaroid/issues
-- **Discussions**: https://github.com/EnkiNudimmud/polaroid/discussions
-- **Documentation**: https://polaroid.readthedocs.io/
-- **Examples**: https://github.com/EnkiNudimmud/polaroid/tree/main/examples
+- **Issues**: https://github.com/EnkiNudimmud/polarway/issues
+- **Discussions**: https://github.com/EnkiNudimmud/polarway/discussions
+- **Documentation**: https://polarway.readthedocs.io/
+- **Examples**: https://github.com/EnkiNudimmud/polarway/tree/main/examples
 
 ---
 
@@ -344,10 +344,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🔗 Related Releases
 
-- Polaroid v0.52.0 (2026-01-15): Time-series native operations
-- Polaroid v0.51.0 (2025-12-20): Streaming network sources
-- Polaroid v0.50.0 (2025-11-10): Functional programming patterns
+- Polarway v0.52.0 (2026-01-15): Time-series native operations
+- Polarway v0.51.0 (2025-12-20): Streaming network sources
+- Polarway v0.50.0 (2025-11-10): Functional programming patterns
 
 ---
 
-**Full Changelog**: https://github.com/EnkiNudimmud/polaroid/compare/v0.52.0...v0.53.0
+**Full Changelog**: https://github.com/EnkiNudimmud/polarway/compare/v0.52.0...v0.53.0

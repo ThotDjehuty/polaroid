@@ -1,13 +1,13 @@
-# Migration Guide: Polars to Polaroid
+# Migration Guide: Polars to Polarway
 
-A comprehensive guide to migrate your existing Polars code to Polaroid.
+A comprehensive guide to migrate your existing Polars code to Polarway.
 
 ## 📋 Table of Contents
 
 1. [Why Migrate](#-why-migrate)
 2. [Version-Specific Migrations](#-version-specific-migrations)
    - [v0.53.0: Adaptive Streaming Sources](#v0530-adaptive-streaming-sources-january-2026)
-3. [General Polars → Polaroid Migration](#-compatibility-overview)
+3. [General Polars → Polarway Migration](#-compatibility-overview)
 
 ---
 
@@ -15,7 +15,7 @@ A comprehensive guide to migrate your existing Polars code to Polaroid.
 
 ### What's New
 
-Polaroid v0.53.0 introduces **Generic Adaptive Streaming Sources** with support for:
+Polarway v0.53.0 introduces **Generic Adaptive Streaming Sources** with support for:
 - **CSV** with adaptive chunking
 - **Cloud Storage**: S3, Azure Blob, Google Cloud Storage  
 - **Databases**: DynamoDB, PostgreSQL, MySQL
@@ -35,13 +35,13 @@ df = pl.read_csv("large.csv")  # Loads entire file into memory
 
 **After (v0.53.0):**
 ```python
-import polaroid as pl
+import polarway as pl
 
 # Automatic memory management
 df = pl.adaptive_scan_csv("large.csv", memory_limit="2GB")
 
 # Or streaming
-from polaroid.streaming import CsvSource
+from polarway.streaming import CsvSource
 source = CsvSource("large.csv", memory_limit="2GB")
 for chunk in source:
     process(chunk)
@@ -59,7 +59,7 @@ df = pl.read_parquet('/tmp/data.parquet')
 
 **After (v0.53.0):**
 ```python
-from polaroid.streaming import S3Source
+from polarway.streaming import S3Source
 
 # Stream directly from S3
 source = S3Source(
@@ -87,7 +87,7 @@ df = pl.DataFrame(data)
 
 **After (v0.53.0):**
 ```python
-from polaroid.streaming import HttpSource
+from polarway.streaming import HttpSource
 
 # Automatic pagination
 source = HttpSource(
@@ -101,7 +101,7 @@ for chunk in source:
 
 ### Configuration
 
-Create `polaroid.toml` for default settings:
+Create `polarway.toml` for default settings:
 
 ```toml
 [sources.csv]
@@ -177,7 +177,7 @@ registry.register("mysql", Box::new(MySqlSourceFactory));
 - **Distributed Computing**: Process data across multiple nodes
 - **Advanced Async**: First-class async/await support
 
-### Use Cases Perfect for Polaroid
+### Use Cases Perfect for Polarway
 
 ✅ Processing datasets larger than your machine's RAM  
 ✅ Shared data access from multiple clients  
@@ -190,10 +190,10 @@ registry.register("mysql", Box::new(MySqlSourceFactory));
 
 ### ✅ What's Compatible
 
-Most Polars operations work identically in Polaroid:
+Most Polars operations work identically in Polarway:
 
 ```python
-# These work the same in both Polars and Polaroid
+# These work the same in both Polars and Polarway
 df.select(["col1", "col2"])
 df.filter(pl.col("price") > 100)
 df.group_by("symbol").agg({"price": "mean"})
@@ -211,11 +211,11 @@ df = pl.read_parquet("data.parquet")  # Returns DataFrame with data
 print(type(df))  # <class 'polars.DataFrame'>
 ```
 
-**Polaroid** (remote handles):
+**Polarway** (remote handles):
 ```python
-import polaroid as pd
+import polarway as pd
 df = pd.read_parquet("data.parquet")  # Returns Handle reference
-print(type(df))  # <class 'polaroid.DataFrame'> (just a UUID)
+print(type(df))  # <class 'polarway.DataFrame'> (just a UUID)
 ```
 
 #### 2. **Explicit Collection**
@@ -227,7 +227,7 @@ result = df.select(["col1"])  # Result is immediately available
 print(result)  # Prints data
 ```
 
-**Polaroid**:
+**Polarway**:
 ```python
 df = pd.read_parquet("data.parquet")
 df2 = df.select(["col1"])  # Returns new handle
@@ -245,7 +245,7 @@ except Exception as e:
     print(f"Error: {e}")
 ```
 
-**Polaroid** (Result monad):
+**Polarway** (Result monad):
 ```python
 result = pd.read_parquet("missing.parquet").collect()
 if result.is_ok():
@@ -268,18 +268,18 @@ dependencies = [
 ]
 ```
 
-**After (Polaroid):**
+**After (Polarway):**
 ```toml
 # pyproject.toml
 dependencies = [
-    "polaroid-df>=0.1.0",
+    "polarway-df>=0.1.0",
 ]
 ```
 
 Or with pip:
 ```bash
 pip uninstall polars
-pip install polaroid-df
+pip install polarway-df
 ```
 
 #### Rust
@@ -291,12 +291,12 @@ pip install polaroid-df
 polars = "0.35"
 ```
 
-**After (Polaroid):**
+**After (Polarway):**
 ```toml
 # Cargo.toml
 [dependencies]
-polaroid = "0.1"
-polaroid-grpc = "0.1"
+polarway = "0.1"
+polarway-grpc = "0.1"
 ```
 
 ### 2. Update Imports
@@ -309,8 +309,8 @@ from polars import col, lit
 
 **After:**
 ```python
-import polaroid as pd
-from polaroid import col, lit
+import polarway as pd
+from polarway import col, lit
 
 # Connect to server
 client = pd.connect("localhost:50051")
@@ -318,15 +318,15 @@ client = pd.connect("localhost:50051")
 
 ### 3. Add Server Connection
 
-Polaroid requires a running gRPC server:
+Polarway requires a running gRPC server:
 
 ```bash
 # Start server with Docker
-docker run -d -p 50051:50051 polaroid/server:latest
+docker run -d -p 50051:50051 polarway/server:latest
 
 # Or build from source
-cd polaroid
-cargo run -p polaroid-grpc
+cd polarway
+cargo run -p polarway-grpc
 ```
 
 ### 4. Update Code Patterns
@@ -346,7 +346,7 @@ result = (
 print(result)
 ```
 
-**After (Polaroid):**
+**After (Polarway):**
 ```python
 df = pd.read_parquet("data.parquet")
 result = (
@@ -372,7 +372,7 @@ result = (
 )
 ```
 
-**After (Polaroid):**
+**After (Polarway):**
 ```python
 # Lazy by default! No need for scan_
 df = pd.read_parquet("data.parquet")
@@ -392,7 +392,7 @@ df2 = pl.read_parquet("data2.parquet")
 joined = df1.join(df2, on="id")
 ```
 
-**After (Polaroid):**
+**After (Polarway):**
 ```python
 df1 = pd.read_parquet("data1.parquet")
 df2 = pd.read_parquet("data2.parquet")
@@ -400,9 +400,9 @@ joined = df1.join(df2, on="id")
 result = joined.collect()  # Explicit collection
 ```
 
-### 5. Async Operations (New in Polaroid!)
+### 5. Async Operations (New in Polarway!)
 
-Polaroid enables true parallel operations:
+Polarway enables true parallel operations:
 
 **Sequential (slow):**
 ```python
@@ -439,7 +439,7 @@ results = await process_files()
 
 ### Core Operations
 
-| Operation | Polars | Polaroid | Notes |
+| Operation | Polars | Polarway | Notes |
 |-----------|--------|----------|-------|
 | Read Parquet | `pl.read_parquet()` | `pd.read_parquet()` | ✅ Same |
 | Read CSV | `pl.read_csv()` | `pd.read_csv()` | ✅ Same |
@@ -451,7 +451,7 @@ results = await process_files()
 
 ### I/O Operations
 
-| Operation | Polars | Polaroid | Notes |
+| Operation | Polars | Polarway | Notes |
 |-----------|--------|----------|-------|
 | Read local file | `pl.read_parquet("file.parquet")` | `pd.read_parquet("file.parquet")` | ✅ Same |
 | Scan lazy | `pl.scan_parquet()` | `pd.read_parquet()` | ⚠️ Lazy by default |
@@ -460,7 +460,7 @@ results = await process_files()
 
 ### Expressions
 
-| Operation | Polars | Polaroid | Notes |
+| Operation | Polars | Polarway | Notes |
 |-----------|--------|----------|-------|
 | Column reference | `pl.col("name")` | `pd.col("name")` | ✅ Same |
 | Literal value | `pl.lit(100)` | `pd.lit(100)` | ✅ Same |
@@ -468,9 +468,9 @@ results = await process_files()
 | Datetime ops | `.dt.year()` | `.dt.year()` | ✅ Same |
 | Aggregations | `.mean()`, `.sum()` | `.mean()`, `.sum()` | ✅ Same |
 
-### New in Polaroid
+### New in Polarway
 
-| Operation | Polars | Polaroid | Notes |
+| Operation | Polars | Polarway | Notes |
 |-----------|--------|----------|-------|
 | Async client | ❌ N/A | `pd.AsyncClient()` | ✨ New |
 | WebSocket | ❌ N/A | `pd.from_websocket()` | ✨ New |
@@ -491,7 +491,7 @@ def test_data_processing():
     assert result.shape[0] > 0
 ```
 
-**After (Polaroid):**
+**After (Polarway):**
 ```python
 def test_data_processing():
     df = pd.read_parquet("test_data.parquet")
@@ -510,26 +510,26 @@ df = pl.read_parquet("data.parquet")
 result = df.filter(pl.col("price") > 100)
 polars_time = time.time() - start
 
-# Polaroid
+# Polarway
 start = time.time()
 df = pd.read_parquet("data.parquet")
 result = df.filter(pd.col("price") > 100).collect()
-polaroid_time = time.time() - start
+polarway_time = time.time() - start
 
 print(f"Polars: {polars_time:.3f}s")
-print(f"Polaroid: {polaroid_time:.3f}s")
-print(f"Overhead: {((polaroid_time/polars_time)-1)*100:.1f}%")
+print(f"Polarway: {polarway_time:.3f}s")
+print(f"Overhead: {((polarway_time/polars_time)-1)*100:.1f}%")
 ```
 
 **Expected Results:**
 - Small datasets (<100MB): 5-10% overhead (gRPC network cost)
 - Large datasets (>1GB): Similar or better performance
-- Streaming (>RAM): Polaroid wins (Polars OOM)
-- Concurrent operations: Polaroid 10-100x faster
+- Streaming (>RAM): Polarway wins (Polars OOM)
+- Concurrent operations: Polarway 10-100x faster
 
 ### Validation Checklist
 
-- [ ] All imports updated (`polars` → `polaroid`)
+- [ ] All imports updated (`polars` → `polarway`)
 - [ ] Server connection established
 - [ ] `.collect()` added where needed
 - [ ] Result types handled (`.unwrap()` or error checks)
@@ -589,14 +589,14 @@ if result.is_err():
 
 ### Issue 4: Type Differences
 
-**Polars** returns `polars.DataFrame`, **Polaroid** returns `pyarrow.Table`:
+**Polars** returns `polars.DataFrame`, **Polarway** returns `pyarrow.Table`:
 
 ```python
 # Polars
 df = pl.read_parquet("data.parquet")
 print(type(df))  # <class 'polars.DataFrame'>
 
-# Polaroid
+# Polarway
 result = pd.read_parquet("data.parquet").collect()
 print(type(result))  # <class 'pyarrow.Table'>
 
@@ -613,10 +613,10 @@ pandas_df = result.to_pandas()
 find . -name "*.py" -exec grep -l "import polars" {} \;
 
 # Replace imports (macOS)
-find . -name "*.py" -exec sed -i '' 's/import polars as pl/import polaroid as pd/g' {} \;
+find . -name "*.py" -exec sed -i '' 's/import polars as pl/import polarway as pd/g' {} \;
 
 # Replace imports (Linux)
-find . -name "*.py" -exec sed -i 's/import polars as pl/import polaroid as pd/g' {} \;
+find . -name "*.py" -exec sed -i 's/import polars as pl/import polarway as pd/g' {} \;
 ```
 
 ### Linting Rules
@@ -625,7 +625,7 @@ Add to your `.pylintrc`:
 
 ```ini
 [SIMILARITIES]
-# Detect Polars usage in Polaroid projects
+# Detect Polars usage in Polarway projects
 check-polars-imports=true
 ```
 
@@ -677,7 +677,7 @@ repos:
 **Solutions:**
 - Automated import replacement
 - Incremental migration by module
-- Parallel testing (Polars vs Polaroid)
+- Parallel testing (Polars vs Polarway)
 - Gradual rollout with feature flags
 
 **Results:**
@@ -690,8 +690,8 @@ repos:
 
 ### Community Support
 
-- **GitHub Issues**: https://github.com/EnkiNudimmud/polaroid/issues
-- **Discussions**: https://github.com/EnkiNudimmud/polaroid/discussions
+- **GitHub Issues**: https://github.com/EnkiNudimmud/polarway/issues
+- **Discussions**: https://github.com/EnkiNudimmud/polarway/discussions
 - **Discord**: [Join our community](#)
 
 ### Migration Assistance
@@ -702,11 +702,11 @@ Need help with migration? Open an issue with:
 - Any errors encountered
 - Performance requirements
 
-We'll help you find the best Polaroid equivalent!
+We'll help you find the best Polarway equivalent!
 
 ---
 
 **See Also**:
 - [Quick Reference](QUICK_REFERENCE.md) - Common operations cheat sheet
 - [API Documentation](API_DOCUMENTATION.md) - Complete API reference
-- [Architecture Guide](ARCHITECTURE.md) - Understanding Polaroid's design
+- [Architecture Guide](ARCHITECTURE.md) - Understanding Polarway's design

@@ -1,21 +1,21 @@
-# Polaroid vs Polars: Comprehensive Performance Comparison
+# Polarway vs Polars: Comprehensive Performance Comparison
 
 ## Executive Summary
 
-Polaroid achieves **2-17x** better performance than Polars for concurrent workloads, streaming operations, and large datasets while maintaining API compatibility.
+Polarway achieves **2-17x** better performance than Polars for concurrent workloads, streaming operations, and large datasets while maintaining API compatibility.
 
 ### Key Results
 
-| Benchmark | Polars | Polaroid | Speedup | Winner |
+| Benchmark | Polars | Polarway | Speedup | Winner |
 |-----------|--------|----------|---------|--------|
-| 50 file batch read | 11.5s | 2.8s | **4.1x** | 🏆 Polaroid |
-| 100 concurrent queries | 60 QPS | 650 QPS | **10.8x** | 🏆 Polaroid |
-| 500 concurrent queries | 70 QPS | 1200 QPS | **17.1x** | 🏆 Polaroid |
-| 50GB dataset processing | OOM ❌ | 0.5GB mem ✅ | **∞** | 🏆 Polaroid |
-| WebSocket streaming | N/A | 120k ticks/s | N/A | 🏆 Polaroid |
+| 50 file batch read | 11.5s | 2.8s | **4.1x** | 🏆 Polarway |
+| 100 concurrent queries | 60 QPS | 650 QPS | **10.8x** | 🏆 Polarway |
+| 500 concurrent queries | 70 QPS | 1200 QPS | **17.1x** | 🏆 Polarway |
+| 50GB dataset processing | OOM ❌ | 0.5GB mem ✅ | **∞** | 🏆 Polarway |
+| WebSocket streaming | N/A | 120k ticks/s | N/A | 🏆 Polarway |
 | Single file read | 0.5s | 0.5s | 1.0x | ⚖️ Tie |
 
-**Verdict**: Polaroid dominates for production systems requiring high concurrency, large datasets, or real-time streaming. Polars remains competitive for small-scale, single-threaded workloads.
+**Verdict**: Polarway dominates for production systems requiring high concurrency, large datasets, or real-time streaming. Polars remains competitive for small-scale, single-threaded workloads.
 
 ---
 
@@ -48,13 +48,13 @@ def read_batch_polars(paths):
 - Only ~2-3 cores utilized despite 16 available
 - Context switching overhead between threads
 
-### Polaroid Implementation
+### Polarway Implementation
 
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 
-async def read_batch_polaroid(paths):
-    async with AsyncPolaroidClient("localhost:50051") as client:
+async def read_batch_polarway(paths):
+    async with AsyncPolarwayClient("localhost:50051") as client:
         # Tokio spawns tasks on all CPU cores
         results = await client.batch_read(paths)
         handles = [r.unwrap() for r in results if r.is_ok()]
@@ -71,7 +71,7 @@ async def read_batch_polaroid(paths):
 
 ### Scalability Analysis
 
-| File Count | Polars (seconds) | Polaroid (seconds) | Speedup |
+| File Count | Polars (seconds) | Polarway (seconds) | Speedup |
 |------------|------------------|-------------------|---------|
 | 1 | 0.5 | 0.5 | 1.0x |
 | 5 | 2.3 | 1.2 | 1.9x |
@@ -80,7 +80,7 @@ async def read_batch_polaroid(paths):
 | 50 | 22.0 | 5.0 | 4.4x |
 | 100 | 45.0 | 8.5 | **5.3x** |
 
-**Key Insight**: Speedup increases with file count. Polaroid scales linearly with CPU cores, Polars plateaus due to GIL.
+**Key Insight**: Speedup increases with file count. Polarway scales linearly with CPU cores, Polars plateaus due to GIL.
 
 ---
 
@@ -104,11 +104,11 @@ result = df.select(pl.col("value").sum())
 
 **Result**: ❌ Out of Memory for 50GB dataset
 
-### Polaroid (Streaming)
+### Polarway (Streaming)
 
 ```python
-# Polaroid streams batches
-async with AsyncPolaroidClient("localhost:50051") as client:
+# Polarway streams batches
+async with AsyncPolarwayClient("localhost:50051") as client:
     handle = await client.read_parquet("50gb_dataset.parquet")
     
     # Stream in batches
@@ -123,7 +123,7 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 
 ### Memory Usage Comparison
 
-| Dataset Size | Polars Peak Memory | Polaroid Peak Memory | Polars Status | Polaroid Status |
+| Dataset Size | Polars Peak Memory | Polarway Peak Memory | Polars Status | Polarway Status |
 |--------------|-------------------|----------------------|---------------|-----------------|
 | 1GB | 1.2GB | 0.5GB | ✅ OK | ✅ OK |
 | 5GB | 5.8GB | 0.5GB | ✅ OK | ✅ OK |
@@ -131,7 +131,7 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 | 20GB | 23.0GB | 0.5GB | ❌ OOM | ✅ OK |
 | 50GB | OOM ❌ | 0.5GB | ❌ Crash | ✅ OK |
 
-**Key Insight**: Polaroid maintains O(1) memory regardless of dataset size. Polars requires O(n) memory.
+**Key Insight**: Polarway maintains O(1) memory regardless of dataset size. Polars requires O(n) memory.
 
 ---
 
@@ -161,12 +161,12 @@ processes = [Process(target=polars_client) for _ in range(num_clients)]
 - No shared state between clients
 - High memory overhead
 
-### Polaroid (Shared Server)
+### Polarway (Shared Server)
 
 ```python
-# All clients share one Polaroid server
-async def polaroid_client():
-    async with AsyncPolaroidClient("localhost:50051") as client:
+# All clients share one Polarway server
+async def polarway_client():
+    async with AsyncPolarwayClient("localhost:50051") as client:
         for _ in range(num_queries):
             df = await client.read_parquet("data.parquet")
             selected = await client.select(df, ["col1", "col2"])
@@ -174,7 +174,7 @@ async def polaroid_client():
             result = await client.collect(filtered)
 
 # Spawn N async tasks (lightweight)
-tasks = [polaroid_client() for _ in range(num_clients)]
+tasks = [polarway_client() for _ in range(num_clients)]
 await asyncio.gather(*tasks)
 ```
 
@@ -185,7 +185,7 @@ await asyncio.gather(*tasks)
 
 ### Results
 
-| Concurrent Clients | Polars QPS | Polaroid QPS | Speedup | Polars Memory | Polaroid Memory |
+| Concurrent Clients | Polars QPS | Polarway QPS | Speedup | Polars Memory | Polarway Memory |
 |-------------------|------------|--------------|---------|---------------|-----------------|
 | 1 | 10 | 10 | 1.0x | 2GB | 2GB |
 | 10 | 25 | 95 | 3.8x | 20GB | 2GB |
@@ -195,8 +195,8 @@ await asyncio.gather(*tasks)
 
 **Key Insights**:
 1. Polars saturates at ~70 QPS (GIL bottleneck)
-2. Polaroid scales linearly up to CPU/network limits
-3. Memory usage: Polars O(n), Polaroid O(1)
+2. Polarway scales linearly up to CPU/network limits
+3. Memory usage: Polars O(n), Polarway O(1)
 
 ---
 
@@ -227,11 +227,11 @@ for tick in websocket_stream:
 # Throughput: 1k ticks/second
 ```
 
-### Polaroid (Streaming Mode)
+### Polarway (Streaming Mode)
 
 ```python
-# Polaroid processes each tick immediately
-async with AsyncPolaroidClient("localhost:50051") as client:
+# Polarway processes each tick immediately
+async with AsyncPolarwayClient("localhost:50051") as client:
     async for tick in websocket_stream:
         # Send to server in real-time
         await client.append_record(tick)
@@ -242,14 +242,14 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 
 ### Latency Distribution
 
-| Percentile | Polars (batch) | Polaroid (streaming) |
+| Percentile | Polars (batch) | Polarway (streaming) |
 |------------|----------------|----------------------|
 | p50 | 500ms | 0.8ms |
 | p95 | 950ms | 1.2ms |
 | p99 | 1000ms | 2.5ms |
 | p99.9 | N/A | 5.0ms |
 
-**Key Insight**: Polaroid achieves **500x lower latency** for real-time workloads.
+**Key Insight**: Polarway achieves **500x lower latency** for real-time workloads.
 
 ---
 
@@ -278,10 +278,10 @@ df = pl.DataFrame(all_data)
 # Memory: 5GB
 ```
 
-### Polaroid (Streaming Ingestion)
+### Polarway (Streaming Ingestion)
 
 ```python
-# Polaroid streams paginated data automatically
+# Polarway streams paginated data automatically
 df = await client.read_rest_api(
     "https://api.example.com/data",
     pagination="cursor",  # Auto-detected
@@ -320,10 +320,10 @@ for path in paths:
 - Control flow with side effects
 - No type safety for errors
 
-### Polaroid (Monadic)
+### Polarway (Monadic)
 
 ```python
-from polaroid.async_client import Result
+from polarway.async_client import Result
 
 # Read all files
 results: list[Result] = await client.batch_read(paths)
@@ -355,34 +355,34 @@ for r in results:
 
 ```
 Polars:    ████░░░░░░ (40/100)
-Polaroid:  ██████████ (100/100)
+Polarway:  ██████████ (100/100)
 ```
 
 ### Memory Efficiency
 
 ```
 Polars:    ███░░░░░░░ (30/100) - Grows with data
-Polaroid:  ██████████ (100/100) - Constant O(1)
+Polarway:  ██████████ (100/100) - Constant O(1)
 ```
 
 ### Concurrency
 
 ```
 Polars:    ██░░░░░░░░ (20/100) - GIL limited
-Polaroid:  ██████████ (100/100) - True parallelism
+Polarway:  ██████████ (100/100) - True parallelism
 ```
 
 ### Real-Time Streaming
 
 ```
 Polars:    ░░░░░░░░░░ (0/100) - Not supported
-Polaroid:  ██████████ (100/100) - Native support
+Polarway:  ██████████ (100/100) - Native support
 ```
 
 ### Overall Score
 
 **Polars**: 90/400 (22.5%)  
-**Polaroid**: 400/400 (100%)
+**Polarway**: 400/400 (100%)
 
 ---
 
@@ -397,7 +397,7 @@ Polaroid:  ██████████ (100/100) - Native support
 ✅ Rapid prototyping  
 ✅ Local development only  
 
-### Use **Polaroid** when:
+### Use **Polarway** when:
 
 ⚡ **Large datasets** (> available RAM)  
 ⚡ **High concurrency** (10+ simultaneous queries)  
@@ -423,7 +423,7 @@ Instance: 100x c6i.2xlarge (each user gets own instance)
 - Cost: $24,576/month × 12 = $294,912/year
 ```
 
-#### Polaroid Setup (for 500 concurrent users)
+#### Polarway Setup (for 500 concurrent users)
 
 ```
 Instance: 1x c6i.8xlarge (shared server)
@@ -452,7 +452,7 @@ Instance: 1x c6i.8xlarge (shared server)
 - ❌ No streaming → missed ticks
 - ❌ No monitoring → blind operations
 
-**Polaroid Architecture** (success):
+**Polarway Architecture** (success):
 - ✅ 1200+ QPS sustained
 - ✅ Constant 2GB memory
 - ✅ Zero missed ticks
@@ -463,14 +463,14 @@ Instance: 1x c6i.8xlarge (shared server)
 
 ## Conclusion
 
-Polaroid is the clear choice for production data platforms requiring:
+Polarway is the clear choice for production data platforms requiring:
 - High concurrency (100+ users)
 - Large datasets (> RAM)
 - Real-time streaming
 - Network-native operations
 - Cost efficiency
 
-**Recommendation**: Start with Polars for prototyping, migrate to Polaroid for production.
+**Recommendation**: Start with Polars for prototyping, migrate to Polarway for production.
 
 ---
 
@@ -478,8 +478,8 @@ Polaroid is the clear choice for production data platforms requiring:
 
 ```bash
 # Run all benchmarks
-cd polaroid/examples
-jupyter notebook benchmark_polaroid_vs_polars.ipynb
+cd polarway/examples
+jupyter notebook benchmark_polarway_vs_polars.ipynb
 
 # Run specific tests
 python examples/websocket_client.py

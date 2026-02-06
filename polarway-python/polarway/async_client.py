@@ -1,4 +1,4 @@
-"""Polaroid Async Client - Advanced async/await support with Tokio-style concurrency
+"""Polarway Async Client - Advanced async/await support with Tokio-style concurrency
 
 Features:
 - Zero-cost async with Python asyncio + Rust Tokio
@@ -16,8 +16,8 @@ from dataclasses import dataclass
 from contextlib import asynccontextmanager
 import time
 
-from . import polaroid_pb2
-from . import polaroid_pb2_grpc
+from . import polarway_pb2
+from . import polarway_pb2_grpc
 
 # Monadic types for functional error handling
 T = TypeVar('T')
@@ -150,11 +150,11 @@ class Option(Generic[T]):
         return Option.Nothing()
 
 
-class AsyncPolaroidClient:
-    """Async Polaroid client with Tokio-style concurrency
+class AsyncPolarwayClient:
+    """Async Polarway client with Tokio-style concurrency
     
     Usage:
-        async with AsyncPolaroidClient("localhost:50051") as client:
+        async with AsyncPolarwayClient("localhost:50051") as client:
             # Concurrent batch read
             dfs = await client.batch_read(["file1.parquet", "file2.parquet"])
             
@@ -166,14 +166,14 @@ class AsyncPolaroidClient:
     def __init__(self, address: str = "localhost:50051", max_concurrent: int = 100):
         self.address = address
         self.channel: Optional[grpc.aio.Channel] = None
-        self.stub: Optional[polaroid_pb2_grpc.DataFrameServiceStub] = None
+        self.stub: Optional[polarway_pb2_grpc.DataFrameServiceStub] = None
         self._active_handles: set = set()
         self._heartbeat_tasks: dict = {}
         self._shutdown_event = asyncio.Event()
         self._semaphore = asyncio.Semaphore(max_concurrent)
     
     async def connect(self):
-        """Establish async connection to Polaroid server"""
+        """Establish async connection to Polarway server"""
         self.channel = grpc.aio.insecure_channel(
             self.address,
             options=[
@@ -185,7 +185,7 @@ class AsyncPolaroidClient:
                 ('grpc.keepalive_permit_without_calls', 1),
             ]
         )
-        self.stub = polaroid_pb2_grpc.DataFrameServiceStub(self.channel)
+        self.stub = polarway_pb2_grpc.DataFrameServiceStub(self.channel)
         return self
     
     async def close(self):
@@ -229,7 +229,7 @@ class AsyncPolaroidClient:
             if self.stub is None:
                 return
             await self.stub.DropHandle(
-                polaroid_pb2.DropHandleRequest(handle=handle)  # type: ignore[attr-defined]
+                polarway_pb2.DropHandleRequest(handle=handle)  # type: ignore[attr-defined]
             )
             self._active_handles.discard(handle)
         except Exception:
@@ -251,7 +251,7 @@ class AsyncPolaroidClient:
                 if self.stub is None:
                     return Result.Err("Client not connected")
                 response = await self.stub.ReadParquet(
-                    polaroid_pb2.ReadParquetRequest(  # type: ignore[attr-defined]
+                    polarway_pb2.ReadParquetRequest(  # type: ignore[attr-defined]
                         path=path,
                         columns=columns or []
                     )
@@ -268,7 +268,7 @@ class AsyncPolaroidClient:
     ) -> List[Result[str, str]]:
         """Concurrent batch read - Tokio work-stealing on server + asyncio.gather on client
         
-        This is where Polaroid shines:
+        This is where Polarway shines:
         - Server uses Tokio's work-stealing runtime (spawns tasks across threads)
         - Client uses asyncio.gather (concurrent RPC calls)
         - Result: Near-linear scalability up to CPU core count
@@ -292,7 +292,7 @@ class AsyncPolaroidClient:
                 if self.stub is None:
                     return Result.Err("Client not connected")
                 stream = self.stub.Collect(
-                    polaroid_pb2.CollectRequest(handle=handle)  # type: ignore[attr-defined]
+                    polarway_pb2.CollectRequest(handle=handle)  # type: ignore[attr-defined]
                 )
                 
                 # Collect all batches
@@ -334,7 +334,7 @@ class AsyncPolaroidClient:
             if self.stub is None:
                 raise RuntimeError("Client not connected")
             stream = self.stub.Collect(
-                polaroid_pb2.CollectRequest(handle=handle)  # type: ignore[attr-defined]
+                polarway_pb2.CollectRequest(handle=handle)  # type: ignore[attr-defined]
             )
             
             async for response in stream:
@@ -358,7 +358,7 @@ class AsyncPolaroidClient:
                     if self.stub is None:
                         break
                     await self.stub.Heartbeat(
-                        polaroid_pb2.HeartbeatRequest(handle=handle)  # type: ignore[attr-defined]
+                        polarway_pb2.HeartbeatRequest(handle=handle)  # type: ignore[attr-defined]
                     )
                 except grpc.aio.AioRpcError:
                     # Handle expired or dropped
@@ -379,7 +379,7 @@ class AsyncPolaroidClient:
             if self.stub is None:
                 return Result.Err("Client not connected")
             response = await self.stub.Select(
-                polaroid_pb2.SelectRequest(  # type: ignore[attr-defined]
+                polarway_pb2.SelectRequest(  # type: ignore[attr-defined]
                     handle=handle,
                     columns=columns
                 )
@@ -395,7 +395,7 @@ class AsyncPolaroidClient:
             if self.stub is None:
                 return Result.Err("Client not connected")
             response = await self.stub.GetShape(
-                polaroid_pb2.GetShapeRequest(handle=handle)  # type: ignore[attr-defined]
+                polarway_pb2.GetShapeRequest(handle=handle)  # type: ignore[attr-defined]
             )
             return Result.Ok((response.rows, response.columns))
         except grpc.aio.AioRpcError as e:
@@ -411,7 +411,7 @@ class AsyncDataFrame:
         table = await df2.collect()  # Executes on server
     """
     
-    def __init__(self, client: AsyncPolaroidClient, handle: str):
+    def __init__(self, client: AsyncPolarwayClient, handle: str):
         self.client = client
         self.handle = handle
         self._pending_select: Optional[List[str]] = None

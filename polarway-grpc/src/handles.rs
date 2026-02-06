@@ -5,7 +5,7 @@ use std::time::Instant;
 use uuid::Uuid;
 use tracing::{debug, info, warn};
 
-use crate::error::{PolaroidError, Result};
+use crate::error::{PolarwayError, Result};
 
 /// Information about a DataFrame handle
 #[derive(Clone, Debug)]
@@ -66,12 +66,12 @@ impl HandleManager {
     /// Get DataFrame by handle (updates last_accessed)
     pub fn get_dataframe(&self, handle: &str) -> Result<Arc<DataFrame>> {
         let mut entry = self.handles.get_mut(handle)
-            .ok_or_else(|| PolaroidError::HandleNotFound(handle.to_string()))?;
+            .ok_or_else(|| PolarwayError::HandleNotFound(handle.to_string()))?;
         
         if entry.is_expired() {
             drop(entry);
             self.handles.remove(handle);
-            return Err(PolaroidError::HandleExpired(handle.to_string()));
+            return Err(PolarwayError::HandleExpired(handle.to_string()));
         }
         
         entry.touch();
@@ -90,7 +90,7 @@ impl HandleManager {
     /// Drop a handle explicitly
     pub fn drop_handle(&self, handle: &str) -> Result<()> {
         self.handles.remove(handle)
-            .ok_or_else(|| PolaroidError::HandleNotFound(handle.to_string()))?;
+            .ok_or_else(|| PolarwayError::HandleNotFound(handle.to_string()))?;
         info!("Dropped handle: {}", handle);
         Ok(())
     }
@@ -98,7 +98,7 @@ impl HandleManager {
     /// Extend TTL for a handle (heartbeat)
     pub fn heartbeat(&self, handle: &str) -> Result<()> {
         let mut entry = self.handles.get_mut(handle)
-            .ok_or_else(|| PolaroidError::HandleNotFound(handle.to_string()))?;
+            .ok_or_else(|| PolarwayError::HandleNotFound(handle.to_string()))?;
         
         entry.touch();
         debug!("Heartbeat for handle: {}", handle);
@@ -173,7 +173,7 @@ mod tests {
         let manager = HandleManager::default();
         let result = manager.get_dataframe("nonexistent");
         
-        assert!(matches!(result, Err(PolaroidError::HandleNotFound(_))));
+        assert!(matches!(result, Err(PolarwayError::HandleNotFound(_))));
     }
     
     #[test]
@@ -184,7 +184,7 @@ mod tests {
         manager.drop_handle(&handle).unwrap();
         let result = manager.get_dataframe(&handle);
         
-        assert!(matches!(result, Err(PolaroidError::HandleNotFound(_))));
+        assert!(matches!(result, Err(PolarwayError::HandleNotFound(_))));
     }
     
     #[test]
@@ -208,6 +208,6 @@ mod tests {
         std::thread::sleep(std::time::Duration::from_millis(150));
         let result = manager.get_dataframe(&handle);
         
-        assert!(matches!(result, Err(PolaroidError::HandleExpired(_))));
+        assert!(matches!(result, Err(PolarwayError::HandleExpired(_))));
     }
 }

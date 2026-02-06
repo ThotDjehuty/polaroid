@@ -68,7 +68,7 @@ impl S3Source {
                 secret_access_key,
                 session_token.clone(),
                 None,
-                "polaroid"
+                "polarway"
             );
             
             let mut builder = aws_config::defaults(BehaviorVersion::latest())

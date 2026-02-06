@@ -1,4 +1,4 @@
-# Polaroid Serverless Optimization Guide
+# Polarway Serverless Optimization Guide
 
 **Date**: 2026-01-18
 **Version**: 0.52.0
@@ -21,7 +21,7 @@
 
 **Traditional (gRPC Server)**:
 ```
-Client → gRPC → Polaroid Server (always running)
+Client → gRPC → Polarway Server (always running)
 Cost: $20-50/month (dedicated container)
 ```
 
@@ -35,7 +35,7 @@ Cost: $1-5/month (pay per invocation)
 
 #### 1. HTTP API Mode (No gRPC Server)
 
-**File**: `polaroid-grpc/src/http_api.rs`
+**File**: `polarway-grpc/src/http_api.rs`
 
 ```rust
 use axum::{routing::post, Router, Json};
@@ -128,16 +128,16 @@ WORKDIR /build
 
 # Copy only Cargo files for dependency caching
 COPY Cargo.toml Cargo.lock ./
-COPY polaroid-grpc/Cargo.toml ./polaroid-grpc/
-RUN mkdir -p polaroid-grpc/src && echo "fn main() {}" > polaroid-grpc/src/main.rs
+COPY polarway-grpc/Cargo.toml ./polarway-grpc/
+RUN mkdir -p polarway-grpc/src && echo "fn main() {}" > polarway-grpc/src/main.rs
 
 # Build dependencies (cached layer)
-RUN cargo build --release --manifest-path polaroid-grpc/Cargo.toml \
+RUN cargo build --release --manifest-path polarway-grpc/Cargo.toml \
     --no-default-features --features serverless
 
 # Copy source and build
 COPY . .
-RUN cargo build --release --manifest-path polaroid-grpc/Cargo.toml \
+RUN cargo build --release --manifest-path polarway-grpc/Cargo.toml \
     --no-default-features --features serverless
 
 # Stage 2: Runtime
@@ -146,12 +146,12 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /build/target/release/polaroid-grpc /usr/local/bin/polaroid
+COPY --from=builder /build/target/release/polarway-grpc /usr/local/bin/polarway
 
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["polaroid"]
+CMD ["polarway"]
 ```
 
 **Size Comparison**:
@@ -247,8 +247,8 @@ properties:
   template:
     revisionSuffix: "serverless"
     containers:
-      - name: polaroid
-        image: your-registry.azurecr.io/polaroid:serverless
+      - name: polarway
+        image: your-registry.azurecr.io/polarway:serverless
         resources:
           cpu: 0.25
           memory: 0.5Gi
@@ -270,10 +270,10 @@ properties:
 **Deployment**:
 ```bash
 az containerapp create \
-  --name polaroid-serverless \
+  --name polarway-serverless \
   --resource-group your-rg \
   --environment your-env \
-  --image your-registry.azurecr.io/polaroid:serverless \
+  --image your-registry.azurecr.io/polarway:serverless \
   --target-port 8080 \
   --ingress external \
   --cpu 0.25 --memory 0.5Gi \
@@ -292,7 +292,7 @@ import requests
 import pyarrow as pa
 from io import BytesIO
 
-class PolaroidClient:
+class PolarwayClient:
     def __init__(self, base_url: str, api_key: str):
         self.base_url = base_url
         self.headers = {"Authorization": f"Bearer {api_key}"}
@@ -323,8 +323,8 @@ class PolaroidClient:
         return pl.from_arrow(table)
 
 # Usage
-client = PolaroidClient(
-    base_url="https://polaroid.azurecontainerapps.io",
+client = PolarwayClient(
+    base_url="https://polarway.azurecontainerapps.io",
     api_key="your-key"
 )
 
@@ -342,7 +342,7 @@ print(df)
 ```markdown
 ## 🌩️ Serverless Mode
 
-For cost-sensitive deployments, Polaroid can run in **serverless mode**:
+For cost-sensitive deployments, Polarway can run in **serverless mode**:
 
 - **No gRPC server**: HTTP-only API
 - **Scale to zero**: $0 when idle
@@ -353,15 +353,15 @@ For cost-sensitive deployments, Polaroid can run in **serverless mode**:
 
 **Deploy**:
 \`\`\`bash
-docker build -f Dockerfile.serverless -t polaroid:serverless .
-az containerapp create --name polaroid --image polaroid:serverless \
+docker build -f Dockerfile.serverless -t polarway:serverless .
+az containerapp create --name polarway --image polarway:serverless \
   --min-replicas 0 --max-replicas 10
 \`\`\`
 
 **Query**:
 \`\`\`python
-from polaroid import PolaroidClient
-client = PolaroidClient("https://your-app.azurecontainerapps.io", "api-key")
+from polarway import PolarwayClient
+client = PolarwayClient("https://your-app.azurecontainerapps.io", "api-key")
 df = client.query_polars("SELECT * FROM 'data.parquet'")
 \`\`\`
 
@@ -470,4 +470,4 @@ requests
 
 ---
 
-**Next**: Implement HTTP API in `polaroid-grpc/src/http_api.rs`
+**Next**: Implement HTTP API in `polarway-grpc/src/http_api.rs`

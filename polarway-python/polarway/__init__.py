@@ -1,5 +1,5 @@
 """
-Polaroid: FDAP-Optimized DataFrame Engine
+Polarway: FDAP-Optimized DataFrame Engine
 
 A next-generation DataFrame library with gRPC interface,
 streaming-first architecture, and native time-series support.
@@ -24,7 +24,7 @@ def read_parquet(path: str, **kwargs) -> "DataFrame":
         DataFrame handle
     
     Example:
-        >>> import polaroid as pd
+        >>> import polarway as pd
         >>> pd.connect("localhost:50051")
         >>> df = pd.read_parquet("data.parquet")
         >>> print(df.shape())
@@ -51,7 +51,7 @@ def read_rest_api(url: str, method: str = "GET", headers: dict = None, body: str
         DataFrame handle pointing to server-side DataFrame
     
     Example:
-        >>> import polaroid as pld
+        >>> import polarway as pld
         >>> pld.connect("localhost:50051")
         >>> 
         >>> # Fetch stock data from Yahoo Finance

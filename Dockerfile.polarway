@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 # Copy entire workspace (simplest approach that works)
 COPY . .
 
-# Build polaroid-grpc in release mode
-RUN cargo build --release --bin polaroid-grpc
+# Build polarway-grpc in release mode
+RUN cargo build --release --bin polarway-grpc
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /build/target/release/polaroid-grpc /app/polaroid-grpc
+COPY --from=builder /build/target/release/polarway-grpc /app/polarway-grpc
 
 # Expose gRPC port
 EXPOSE 50051
@@ -45,4 +45,4 @@ HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
   CMD nc -z localhost 50051 || exit 1
 
 # Run server
-CMD ["/app/polaroid-grpc"]
+CMD ["/app/polarway-grpc"]

@@ -4,10 +4,10 @@
 *.pdb
 *.ipynb
 !notebooks/rest_exec_api_demo.ipynb
-!notebooks/polaroid_showcase.ipynb
-!notebooks/polaroid_advanced.ipynb
-!notebooks/polaroid_cloud_integrations.ipynb
-!notebooks/polaroid_functional_programming.ipynb
+!notebooks/polarway_showcase.ipynb
+!notebooks/polarway_advanced.ipynb
+!notebooks/polarway_cloud_integrations.ipynb
+!notebooks/polarway_functional_programming.ipynb
 .ENV
 .env
 .ipynb_checkpoints/

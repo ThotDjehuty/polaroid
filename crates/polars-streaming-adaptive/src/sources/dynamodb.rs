@@ -77,7 +77,7 @@ impl DynamoDbSource {
                 secret_access_key,
                 None,
                 None,
-                "polaroid"
+                "polarway"
             );
             
             let mut builder = aws_config::defaults(BehaviorVersion::latest())

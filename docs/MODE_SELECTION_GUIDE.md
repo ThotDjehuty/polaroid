@@ -287,7 +287,7 @@ from python.backends import get_router
 
 # Router auto-detects best mode based on:
 # 1. Environment variables (BACKEND_MODE)
-# 2. Available imports (polaroid, polars, grpc)
+# 2. Available imports (polarway, polars, grpc)
 # 3. Data size (small → portable, large → distributed)
 
 router = get_router()
@@ -307,7 +307,7 @@ os.environ["BACKEND_MODE"] = "standalone"
 
 # Force Distributed mode
 os.environ["BACKEND_MODE"] = "distributed"
-os.environ["GRPC_SERVER"] = "polaroid-server:50051"
+os.environ["GRPC_SERVER"] = "polarway-server:50051"
 
 from python.backends import get_router
 router = get_router()

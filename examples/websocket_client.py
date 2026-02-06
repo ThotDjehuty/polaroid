@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WebSocket Real-Time Streaming with Polaroid
+WebSocket Real-Time Streaming with Polarway
 
 Demonstrates:
 - Consuming live data from WebSocket sources (blockchain, market feeds)
@@ -27,8 +27,8 @@ import sys
 from typing import AsyncIterator, Dict, List, Optional
 import signal
 
-sys.path.insert(0, '../polaroid-python')
-from polaroid.async_client import AsyncPolaroidClient, Result
+sys.path.insert(0, '../polarway-python')
+from polarway.async_client import AsyncPolarwayClient, Result
 
 
 class WebSocketDataStream:
@@ -106,11 +106,11 @@ class RollingWindowAggregator:
         }
 
 
-class PolaroidStreamProcessor:
-    """Process WebSocket stream and store in Polaroid"""
+class PolarwayStreamProcessor:
+    """Process WebSocket stream and store in Polarway"""
     
-    def __init__(self, polaroid_url: str, ws_url: str, window_size: int = 1000):
-        self.polaroid_url = polaroid_url
+    def __init__(self, polarway_url: str, ws_url: str, window_size: int = 1000):
+        self.polarway_url = polarway_url
         self.ws_url = ws_url
         self.window_size = window_size
         self.aggregator = RollingWindowAggregator(window_size)
@@ -122,7 +122,7 @@ class PolaroidStreamProcessor:
         """Main processing loop"""
         ws_stream = WebSocketDataStream(self.ws_url)
         
-        async with AsyncPolaroidClient(self.polaroid_url) as polaroid:
+        async with AsyncPolarwayClient(self.polarway_url) as polarway:
             print(f"🚀 Starting stream processor (window: {self.window_size})")
             
             async for tick in ws_stream.stream():
@@ -136,11 +136,11 @@ class PolaroidStreamProcessor:
                           f"(${stats['min_price']:.2f}-${stats['max_price']:.2f}) | "
                           f"Vol: {stats['total_volume']:.0f}")
                 
-                # Batch writes to Polaroid
+                # Batch writes to Polarway
                 self.batch_buffer.append(tick)
                 
                 if len(self.batch_buffer) >= self.batch_size:
-                    await self._flush_to_polaroid(polaroid)
+                    await self._flush_to_polarway(polarway)
                     
                 # Measure latency
                 if self.tick_count % 1000 == 0:
@@ -148,8 +148,8 @@ class PolaroidStreamProcessor:
                     latency_ms = now_ms - tick['timestamp']
                     print(f"⏱️  End-to-end latency: {latency_ms}ms")
                     
-    async def _flush_to_polaroid(self, client: AsyncPolaroidClient):
-        """Write batch to Polaroid"""
+    async def _flush_to_polarway(self, client: AsyncPolarwayClient):
+        """Write batch to Polarway"""
         if not self.batch_buffer:
             return
             
@@ -162,11 +162,11 @@ class PolaroidStreamProcessor:
         #     handle = result.unwrap()
         #     await client.write_parquet(handle, "market_data.parquet")
         
-        print(f"💾 Flushed {len(self.batch_buffer)} records to Polaroid")
+        print(f"💾 Flushed {len(self.batch_buffer)} records to Polarway")
         self.batch_buffer.clear()
 
 
-async def blockchain_mempool_monitor(rpc_url: str, polaroid_url: str):
+async def blockchain_mempool_monitor(rpc_url: str, polarway_url: str):
     """
     Monitor blockchain mempool in real-time
     
@@ -174,7 +174,7 @@ async def blockchain_mempool_monitor(rpc_url: str, polaroid_url: str):
     """
     print(f"⛓️  Monitoring blockchain mempool: {rpc_url}")
     
-    async with AsyncPolaroidClient(polaroid_url) as client:
+    async with AsyncPolarwayClient(polarway_url) as client:
         # Simulate mempool subscription (use web3.py or ethers in production)
         tx_count = 0
         high_value_txs = []
@@ -284,8 +284,8 @@ async def main():
     print("Example 1: WebSocket Stream Processor")
     print("=" * 60)
     
-    processor = PolaroidStreamProcessor(
-        polaroid_url="localhost:50051",
+    processor = PolarwayStreamProcessor(
+        polarway_url="localhost:50051",
         ws_url="ws://127.0.0.1:8080",
         window_size=1000,
     )

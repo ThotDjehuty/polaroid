@@ -6,22 +6,22 @@
 
 **From**: EnkiNudimmud  
 **To**: ThotDjehuty  
-**Repository**: https://github.com/ThotDjehuty/polaroid
+**Repository**: https://github.com/ThotDjehuty/polarway
 
 ## Purpose
 
-This document confirms the transfer of complete ownership and management rights of the Polaroid project to ThotDjehuty. Polaroid is now managed as an independent project, not a fork.
+This document confirms the transfer of complete ownership and management rights of the Polarway project to ThotDjehuty. Polarway is now managed as an independent project, not a fork.
 
 ## Project Status
 
 - **Current Status**: Independent project maintained by ThotDjehuty
 - **Base**: Polars 0.52.0 (with significant enhancements)
 - **License**: Apache 2.0
-- **Repository**: https://github.com/ThotDjehuty/polaroid
+- **Repository**: https://github.com/ThotDjehuty/polarway
 
 ## Relationship to Polars
 
-Polaroid is an **independent project** that:
+Polarway is an **independent project** that:
 - Started from Polars 0.52.0 codebase
 - Maintains compatibility with Polars APIs where possible
 - Develops experimental features independently
@@ -31,9 +31,9 @@ Polaroid is an **independent project** that:
 ## Management
 
 - **Owner**: ThotDjehuty
-- **Repository**: https://github.com/ThotDjehuty/polaroid
-- **Issues**: https://github.com/ThotDjehuty/polaroid/issues
-- **Discussions**: https://github.com/ThotDjehuty/polaroid/discussions
+- **Repository**: https://github.com/ThotDjehuty/polarway
+- **Issues**: https://github.com/ThotDjehuty/polarway/issues
+- **Discussions**: https://github.com/ThotDjehuty/polarway/discussions
 
 ## Changes Made
 
@@ -46,7 +46,7 @@ Polaroid is an **independent project** that:
 
 - [x] README.md - Updated clone URLs and footer links
 - [x] RELEASE_NOTES.md - Clarified independent project status
-- [x] polaroid-python/pyproject.toml - Updated all URLs
+- [x] polarway-python/pyproject.toml - Updated all URLs
 - [x] README_OLD.md - Updated clone URL
 
 ## GitHub Actions Required
@@ -54,7 +54,7 @@ Polaroid is an **independent project** that:
 To complete the transfer and remove fork relationship:
 
 ### 1. GitHub Settings
-Go to: https://github.com/ThotDjehuty/polaroid/settings
+Go to: https://github.com/ThotDjehuty/polarway/settings
 
 **If this is currently a fork**, contact GitHub Support:
 - Navigate to Settings → General
@@ -79,7 +79,7 @@ Add topics:
 
 ### 4. About Section
 Update:
-- Website: https://github.com/ThotDjehuty/polaroid
+- Website: https://github.com/ThotDjehuty/polarway
 - Topics: (as above)
 - Remove any "forked from" badge if present
 

@@ -13,7 +13,7 @@ use tower_http::cors::CorsLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 // Import our generic handler
-use polaroid_serverless::{PolaroidHandler, ServerlessHandler, ServerlessRequest, ServerlessResponse};
+use polarway_serverless::{PolarwayHandler, ServerlessHandler, ServerlessRequest, ServerlessResponse};
 
 /// Convert axum::Request to ServerlessRequest
 async fn to_serverless_request(
@@ -109,14 +109,14 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                "polaroid_serverless=debug,tower_http=debug,axum::rejection=trace".into()
+                "polarway_serverless=debug,tower_http=debug,axum::rejection=trace".into()
             }),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
     // Create handler
-    let handler: Arc<dyn ServerlessHandler> = Arc::new(PolaroidHandler::new());
+    let handler: Arc<dyn ServerlessHandler> = Arc::new(PolarwayHandler::new());
 
     // Build router
     let app = Router::new()
@@ -135,7 +135,7 @@ async fn main() {
         .unwrap_or(8080);
 
     let addr = format!("0.0.0.0:{}", port);
-    tracing::info!("🚀 Polaroid HTTP server listening on {}", addr);
+    tracing::info!("🚀 Polarway HTTP server listening on {}", addr);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();

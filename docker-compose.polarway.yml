@@ -1,20 +1,20 @@
 services:
-  polaroid-grpc:
+  polarway-grpc:
     build:
       context: .
       dockerfile: Dockerfile.optimized
       cache_from:
-        - polaroid-grpc:latest
+        - polarway-grpc:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    image: polaroid-grpc:latest
-    container_name: polaroid-server-public
+    image: polarway-grpc:latest
+    container_name: polarway-server-public
     ports:
       - "50053:50052"
     environment:
       - RUST_LOG=info
       - RUST_BACKTRACE=1
-      - POLAROID_BIND_ADDRESS=0.0.0.0:50052
+      - POLARWAY_BIND_ADDRESS=0.0.0.0:50052
     volumes:
       # Mount test data directory (read-write for notebooks)
       - /tmp:/tmp
@@ -23,7 +23,7 @@ services:
       # Mount notebooks directory for easy testing
       - ${PWD}/notebooks:/app/notebooks:ro
     networks:
-      - polaroid-net
+      - polarway-net
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z localhost 50052 || exit 1"]
@@ -33,6 +33,6 @@ services:
       start_period: 10s
 
 networks:
-  polaroid-net:
+  polarway-net:
     driver: bridge
 

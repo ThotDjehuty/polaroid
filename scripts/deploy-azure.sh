@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-echo "☁️  Deploying Polaroid to Azure Functions"
+echo "☁️  Deploying Polarway to Azure Functions"
 echo "========================================"
 
 # Configuration
 RESOURCE_GROUP="${RESOURCE_GROUP:-QANT-EXPE-BENCH}"
 LOCATION="${LOCATION:-switzerlandnorth}"
-FUNCTION_APP="${FUNCTION_APP:-hftlab-polaroid-func}"
-STORAGE_ACCOUNT="${STORAGE_ACCOUNT:-hftlabpolaroidstorage}"
+FUNCTION_APP="${FUNCTION_APP:-hftlab-polarway-func}"
+STORAGE_ACCOUNT="${STORAGE_ACCOUNT:-hftlabpolarwaystorage}"
 
 # Check dependencies
 if ! command -v az &> /dev/null; then
@@ -29,7 +29,7 @@ echo "   Subscription: $(az account show --query name -o tsv)"
 echo ""
 
 # Check if binary exists
-BINARY_PATH="serverless/target/release/polaroid-http"
+BINARY_PATH="serverless/target/release/polarway-http"
 if [ ! -f "$BINARY_PATH" ]; then
     echo "❌ Binary not found at $BINARY_PATH"
     echo "   Run: ./scripts/build-serverless.sh"
@@ -89,13 +89,13 @@ mkdir -p azure-deploy
 cp -r azure-functions/* azure-deploy/
 
 # Copy binary to root of deployment package
-cp target/release/polaroid-http azure-deploy/
-chmod +x azure-deploy/polaroid-http
+cp target/release/polarway-http azure-deploy/
+chmod +x azure-deploy/polarway-http
 
 # Verify package structure
 echo "📂 Deployment package structure:"
 ls -lh azure-deploy/
-ls -lh azure-deploy/PolaroidApi/
+ls -lh azure-deploy/PolarwayApi/
 
 # Create zip for deployment
 echo "📦 Creating deployment zip..."

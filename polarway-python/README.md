@@ -1,12 +1,12 @@
-# Polaroid Python Client
+# Polarway Python Client
 
-Python client library for connecting to Polaroid gRPC server.
+Python client library for connecting to Polarway gRPC server.
 
 ## Installation
 
 ```bash
 # Install from source
-cd polaroid-python
+cd polarway-python
 pip install -e .
 
 # Generate protocol buffers
@@ -16,7 +16,7 @@ pip install -e .
 ## Quick Start
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Connect to server
 pd.connect("localhost:50051")

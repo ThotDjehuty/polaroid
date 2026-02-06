@@ -1,11 +1,11 @@
-# Polaroid Quick Reference
+# Polarway Quick Reference
 
-A comprehensive cheat sheet for common Polaroid operations.
+A comprehensive cheat sheet for common Polarway operations.
 
 ## 🚀 Getting Started
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Connect to gRPC server
 client = pd.connect("localhost:50051")
@@ -525,7 +525,7 @@ result.map(lambda t: print(t)).map_err(lambda e: log_error(e))
 try:
     df = pd.read_parquet("file.parquet")
     result = df.collect()
-except PolaroidError as e:
+except PolarwayError as e:
     print(f"Operation failed: {e}")
 ```
 

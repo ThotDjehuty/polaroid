@@ -2,6 +2,8 @@
 
 <div align="center">
 
+![Polarway Logo](docs/assets/logo.svg)
+
 **Railway-Oriented Data Processing: Safe, Fast, and Composable**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

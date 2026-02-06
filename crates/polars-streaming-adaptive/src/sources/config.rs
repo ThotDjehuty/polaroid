@@ -192,7 +192,7 @@ impl Default for KafkaConfig {
         Self {
             brokers: vec!["localhost:9092".to_string()],
             topic: String::new(),
-            group_id: "polaroid-consumer".to_string(),
+            group_id: "polarway-consumer".to_string(),
             auto_offset_reset: "earliest".to_string(),
             max_poll_records: 500,
         }

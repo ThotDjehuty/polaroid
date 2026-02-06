@@ -1,6 +1,6 @@
-# Polaroid Architecture Guide
+# Polarway Architecture Guide
 
-Deep dive into Polaroid's architecture, design decisions, and implementation details.
+Deep dive into Polarway's architecture, design decisions, and implementation details.
 
 ## 🏗️ High-Level Architecture
 
@@ -21,7 +21,7 @@ Deep dive into Polaroid's architecture, design decisions, and implementation det
 └─────────────────────┼────────────────────────────────────┘
                       │
 ┌─────────────────────┼────────────────────────────────────┐
-│              Polaroid Server                             │
+│              Polarway Server                             │
 │                     │                                    │
 │  ┌──────────────────▼────────────────────┐              │
 │  │         gRPC Service Layer            │              │
@@ -85,7 +85,7 @@ Deep dive into Polaroid's architecture, design decisions, and implementation det
 
 **Zero-Copy Operations**
 
-Polaroid uses Apache Arrow's zero-copy IPC for data transfer:
+Polarway uses Apache Arrow's zero-copy IPC for data transfer:
 
 ```rust
 // No serialization needed - Arrow buffers shared directly
@@ -362,7 +362,7 @@ df3 = df2.select(...)                 # Another copy
 **Solution with Handles:**
 
 ```python
-# Polaroid - data lives on server
+# Polarway - data lives on server
 df = pd.read_parquet("10GB.parquet")  # Handle("abc"), server uses 10GB
 df2 = df.filter(...)                  # Handle("def"), server uses 10GB
 df3 = df2.select(...)                 # Handle("ghi"), server still 10GB
@@ -422,12 +422,12 @@ let df2 = df1.clone();  // Just increments Arc counter (O(1))
 
 ### Architecture Overview
 
-Polaroid’s distributed direction is:
+Polarway’s distributed direction is:
 - **Time-series storage/metadata/observability** anchored in **QuestDB** (tables, partitions, retention, SQL, system tables).
 - **Distributed query execution** via **DataFusion + Ballista** (scheduler + executors, shuffle, object store).
 - **APIs**: gRPC remains the primary engine API; a **QuestDB-like REST endpoint** (`/exec`) is added for compatibility and easy integrations.
 
-In that model, Polaroid is the **gateway / control-plane** that:
+In that model, Polarway is the **gateway / control-plane** that:
 - receives API requests (gRPC/REST)
 - resolves handles and metadata
 - compiles queries (DataFusion logical plan)
@@ -442,7 +442,7 @@ Clients
   gRPC/HTTP Load Balancer
       |
       v
-  Polaroid API Gateways (stateless)
+  Polarway API Gateways (stateless)
    - gRPC Service
    - REST /exec (QuestDB-like)
    - Handle routing
@@ -464,8 +464,8 @@ Ballista architecture (at a high level):
 - **Executors**: run partitions of the plan and exchange shuffle data.
 - **Object store**: stores shuffle and result artifacts (recommended for scale).
 
-Polaroid integration direction:
-- Polaroid builds a DataFusion plan and submits it to Ballista when `distributed=true`.
+Polarway integration direction:
+- Polarway builds a DataFusion plan and submits it to Ballista when `distributed=true`.
 - Handles reference results stored externally (object store).
 - QuestDB remains the authoritative store for time-series tables and operational metadata.
 
@@ -496,7 +496,7 @@ fn partition_by_range(df: DataFrame, key: &str, ranges: &[Range])
 ```rust
 #[tokio::main]
 async fn main() {
-    let server = PolaroidServer::new();
+    let server = PolarwayServer::new();
     
     // Handle connections concurrently
     let listener = TcpListener::bind("0.0.0.0:50051").await?;
@@ -719,7 +719,7 @@ Cost-Based Optimizer:
 ```sql
 -- Use DataFusion for SQL parsing
 SELECT symbol, AVG(price) as avg_price
-FROM polaroid://data.parquet
+FROM polarway://data.parquet
 WHERE date > '2024-01-01'
 GROUP BY symbol
 ORDER BY avg_price DESC

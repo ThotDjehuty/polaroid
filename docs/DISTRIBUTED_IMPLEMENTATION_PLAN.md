@@ -1,11 +1,11 @@
-# Polaroid Distributed Workload — Implementation Plan
+# Polarway Distributed Workload — Implementation Plan
 
 Date: 2026-01-13
 Branch note: external (stateless) handle scaffolding exists on `feat/stateless-handles-objectstore`.
 
-## 0) Goal (What “distributed Polaroid” means)
+## 0) Goal (What “distributed Polarway” means)
 
-Polaroid becomes horizontally scalable by running **multiple gRPC workers** behind a **load balancer** while keeping **handle state external** (so any worker can serve subsequent requests for a handle).
+Polarway becomes horizontally scalable by running **multiple gRPC workers** behind a **load balancer** while keeping **handle state external** (so any worker can serve subsequent requests for a handle).
 
 Minimum viable distributed semantics:
 - A request that produces a DataFrame persists it to a shared store and returns an **external handle** (e.g. `ext:fs:<uuid>` today).
@@ -21,7 +21,7 @@ Non-goals (for the minimal-effort path):
 ### Components
 - **Client(s)** (Python SDK / notebook / job runner)
 - **L7 Load Balancer** (HTTP/2 gRPC capable) or service discovery
-- **Polaroid Worker Pool** (N containers/VMs, identical)
+- **Polarway Worker Pool** (N containers/VMs, identical)
 - **External State Store**
   - Phase 0/1: shared filesystem (NFS/SMB/hostPath) for Arrow IPC artifacts
   - Phase 2+: object store (S3-compatible / blob storage) with lifecycle rules
@@ -51,8 +51,8 @@ Exit criteria:
 ### Phase 1 — Multi-container on ONE host (first distributed semantics)
 - Run multiple worker containers on a single machine.
 - Enable external handles:
-  - `POLAROID_HANDLE_STORE=external`
-  - `POLAROID_STATE_DIR=/state` (mounted shared dir)
+  - `POLARWAY_HANDLE_STORE=external`
+  - `POLARWAY_STATE_DIR=/state` (mounted shared dir)
 - Put a local gRPC-capable LB in front.
 
 Exit criteria:
@@ -99,7 +99,7 @@ Interactive requests go through LB; batch jobs go through queue.
 ## 4) Storage strategy (external handles)
 
 ### Near-term: shared filesystem
-- Store Arrow IPC at `${POLAROID_STATE_DIR}/<uuid>.ipc`.
+- Store Arrow IPC at `${POLARWAY_STATE_DIR}/<uuid>.ipc`.
 - Ensure the directory is shared across workers.
 
 Risks:
@@ -158,16 +158,16 @@ Tracing:
 ## 8) Configuration knobs
 
 Environment variables:
-- `POLAROID_BIND_ADDRESS` (already exists): e.g. `0.0.0.0:50051`
-- `POLAROID_HANDLE_STORE`:
+- `POLARWAY_BIND_ADDRESS` (already exists): e.g. `0.0.0.0:50051`
+- `POLARWAY_HANDLE_STORE`:
   - `memory` (default)
   - `external`
-- `POLAROID_STATE_DIR`:
+- `POLARWAY_STATE_DIR`:
   - for filesystem store (e.g. `/state`)
 
 ## 9) Security notes (don’t skip in multi-tenant)
 
-- Never trust `POLAROID_STATE_DIR` from clients (server-side only).
+- Never trust `POLARWAY_STATE_DIR` from clients (server-side only).
 - Consider per-tenant namespaces in handle keys.
 - Require auth before allowing read by handle.
 - Add quotas per tenant.

@@ -1,4 +1,4 @@
-/// Performance optimizations for Polaroid gRPC service
+/// Performance optimizations for Polarway gRPC service
 /// 
 /// This module implements zero-copy, memory pooling, and batching
 /// optimizations to eliminate overhead and surpass Polars performance.
@@ -80,15 +80,15 @@ impl FastArrowSerializer {
         // Write IPC stream (Arrow's wire format)
         {
             let mut writer = StreamWriter::try_new(&mut buffer, &df.schema().to_arrow(true))
-                .map_err(|e| crate::error::PolaroidError::Arrow(e))?;
+                .map_err(|e| crate::error::PolarwayError::Arrow(e))?;
             
             for batch in batches {
                 writer.write(&batch)
-                    .map_err(|e| crate::error::PolaroidError::Arrow(e))?;
+                    .map_err(|e| crate::error::PolarwayError::Arrow(e))?;
             }
             
             writer.finish()
-                .map_err(|e| crate::error::PolaroidError::Arrow(e))?;
+                .map_err(|e| crate::error::PolarwayError::Arrow(e))?;
         }
         
         Ok(buffer)
@@ -107,13 +107,13 @@ impl FastArrowSerializer {
             let mut buffer = MEMORY_POOL.get_buffer(batch_size);
             
             let mut writer = StreamWriter::try_new(&mut buffer, &schema)
-                .map_err(|e| crate::error::PolaroidError::Arrow(e))?;
+                .map_err(|e| crate::error::PolarwayError::Arrow(e))?;
             
             writer.write(&batch)
-                .map_err(|e| crate::error::PolaroidError::Arrow(e))?;
+                .map_err(|e| crate::error::PolarwayError::Arrow(e))?;
             
             writer.finish()
-                .map_err(|e| crate::error::PolaroidError::Arrow(e))?;
+                .map_err(|e| crate::error::PolarwayError::Arrow(e))?;
             
             Ok(buffer)
         })
@@ -157,7 +157,7 @@ impl ParallelFilter {
         
         let parts: Vec<&str> = expr_str.split_whitespace().collect();
         if parts.len() < 3 {
-            return Err(crate::error::PolaroidError::InvalidExpression(
+            return Err(crate::error::PolarwayError::InvalidExpression(
                 format!("Invalid expression: {}", expr_str)
             ));
         }
@@ -215,7 +215,7 @@ impl ParallelFilter {
                 }
             },
             _ => {
-                return Err(crate::error::PolaroidError::InvalidExpression(
+                return Err(crate::error::PolarwayError::InvalidExpression(
                     format!("Unsupported operator: {}", op)
                 ));
             }
@@ -228,7 +228,7 @@ impl ParallelFilter {
     pub fn apply_with_expr(df: &DataFrame, expr_str: &str) -> crate::error::Result<DataFrame> {
         let expr = Self::parse_expr(expr_str)?;
         Self::apply_simd_optimized(df, expr)
-            .map_err(|e| crate::error::PolaroidError::Polars(e))
+            .map_err(|e| crate::error::PolarwayError::Polars(e))
     }
     
     /// Apply filter in parallel chunks
@@ -306,7 +306,7 @@ impl FastGroupBy {
             .agg(agg_exprs)
             .with_streaming(true)
             .collect()
-            .map_err(|e| crate::error::PolaroidError::Polars(e))?;
+            .map_err(|e| crate::error::PolarwayError::Polars(e))?;
         
         Ok(result)
     }
@@ -401,7 +401,7 @@ impl BatchOptimizer {
         let results = futures::future::join_all(tasks).await;
         
         results.into_iter()
-            .map(|r| r.unwrap_or_else(|e| Err(crate::error::PolaroidError::Tokio(e))))
+            .map(|r| r.unwrap_or_else(|e| Err(crate::error::PolarwayError::Tokio(e))))
             .collect()
     }
 }

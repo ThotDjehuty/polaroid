@@ -1,4 +1,4 @@
-# Serverless-Optimized Dockerfile for Polaroid
+# Serverless-Optimized Dockerfile for Polarway
 # Target: Azure Container Apps / AWS Fargate / Cloud Run
 # Goals: Fast cold start (<500ms), small image (<60MB), low memory (<512MB)
 
@@ -18,30 +18,30 @@ RUN apt-get update && apt-get install -y \
 # Copy workspace configuration
 COPY Cargo.toml Cargo.lock ./
 COPY crates crates/
-COPY polaroid-grpc polaroid-grpc/
+COPY polarway-grpc polarway-grpc/
 
 # Create dummy main for dependency caching
-RUN mkdir -p polaroid-grpc/src && \
-    echo "fn main() {}" > polaroid-grpc/src/main.rs && \
-    echo "pub fn dummy() {}" > polaroid-grpc/src/lib.rs
+RUN mkdir -p polarway-grpc/src && \
+    echo "fn main() {}" > polarway-grpc/src/main.rs && \
+    echo "pub fn dummy() {}" > polarway-grpc/src/lib.rs
 
 # Build dependencies only (cached layer)
 RUN cargo build --release \
-    --manifest-path polaroid-grpc/Cargo.toml \
+    --manifest-path polarway-grpc/Cargo.toml \
     --no-default-features \
     --features "http-api,lazy,sql,parquet" \
-    && rm -rf polaroid-grpc/src
+    && rm -rf polarway-grpc/src
 
 # Copy actual source code
-COPY polaroid-grpc/src polaroid-grpc/src
+COPY polarway-grpc/src polarway-grpc/src
 
 # Build with optimizations
 ENV RUSTFLAGS="-C target-cpu=native -C opt-level=3 -C lto=thin"
 RUN cargo build --release \
-    --manifest-path polaroid-grpc/Cargo.toml \
+    --manifest-path polarway-grpc/Cargo.toml \
     --no-default-features \
     --features "http-api,lazy,sql,parquet" \
-    && strip target/release/polaroid-grpc
+    && strip target/release/polarway-grpc
 
 # ============================================================================
 # Stage 2: Runtime (Minimal Debian)
@@ -55,15 +55,15 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Create non-root user
-RUN useradd -m -u 1000 polaroid
+RUN useradd -m -u 1000 polarway
 
 # Copy binary from builder
-COPY --from=builder /build/target/release/polaroid-grpc /usr/local/bin/polaroid
-RUN chmod +x /usr/local/bin/polaroid
+COPY --from=builder /build/target/release/polarway-grpc /usr/local/bin/polarway
+RUN chmod +x /usr/local/bin/polarway
 
 # Switch to non-root user
-USER polaroid
-WORKDIR /home/polaroid
+USER polarway
+WORKDIR /home/polarway
 
 # Environment configuration
 ENV PORT=8080
@@ -78,5 +78,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Expose HTTP port
 EXPOSE 8080
 
-# Run polaroid in serverless mode
-CMD ["polaroid", "--mode", "serverless"]
+# Run polarway in serverless mode
+CMD ["polarway", "--mode", "serverless"]

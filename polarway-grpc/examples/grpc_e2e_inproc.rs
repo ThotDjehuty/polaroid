@@ -1,10 +1,10 @@
 use std::net::SocketAddr;
 use std::time::Duration;
 
-use polaroid_grpc::proto::data_frame_service_client::DataFrameServiceClient;
-use polaroid_grpc::proto::data_frame_service_server::DataFrameServiceServer;
-use polaroid_grpc::proto::*;
-use polaroid_grpc::PolaroidDataFrameService;
+use polarway_grpc::proto::data_frame_service_client::DataFrameServiceClient;
+use polarway_grpc::proto::data_frame_service_server::DataFrameServiceServer;
+use polarway_grpc::proto::*;
+use polarway_grpc::PolarwayDataFrameService;
 use polars::prelude::*;
 use tokio::sync::oneshot;
 use tokio_stream::wrappers::TcpListenerStream;
@@ -12,7 +12,7 @@ use tonic::transport::Server;
 
 fn unique_tmp_path(ext: &str) -> std::path::PathBuf {
     let mut p = std::env::temp_dir();
-    let name = format!("polaroid_grpc_example_{}_{}.{}", std::process::id(), uuid::Uuid::new_v4(), ext);
+    let name = format!("polarway_grpc_example_{}_{}.{}", std::process::id(), uuid::Uuid::new_v4(), ext);
     p.push(name);
     p
 }
@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let addr: SocketAddr = listener.local_addr()?;
 
-    let service = PolaroidDataFrameService::new();
+    let service = PolarwayDataFrameService::new();
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
 
     tokio::spawn(async move {

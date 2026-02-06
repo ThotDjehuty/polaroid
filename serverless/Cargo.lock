@@ -1738,7 +1738,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "polaroid-serverless"
+name = "polarway-serverless"
 version = "0.52.0"
 dependencies = [
  "anyhow",

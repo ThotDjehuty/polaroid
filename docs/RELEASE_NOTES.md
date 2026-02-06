@@ -1,12 +1,12 @@
-# Polaroid Release Notes
+# Polarway Release Notes
 
-## Version 0.52.0-polaroid (Based on Polars 0.52.0)
+## Version 0.52.0-polarway (Based on Polars 0.52.0)
 
 **Release Date:** January 2026
 
 ### Overview
 
-Polaroid is an independent project based on Polars 0.52.0 that adds powerful capabilities for distributed computing, adaptive streaming, financial time series analysis, and enterprise data source integrations. While we maintain compatibility with Polars, Polaroid is developed and managed independently by ThotDjehuty to explore advanced features that may be upstreamed to Polars in the future.
+Polarway is an independent project based on Polars 0.52.0 that adds powerful capabilities for distributed computing, adaptive streaming, financial time series analysis, and enterprise data source integrations. While we maintain compatibility with Polars, Polarway is developed and managed independently by ThotDjehuty to explore advanced features that may be upstreamed to Polars in the future.
 
 ### Major New Features
 
@@ -61,7 +61,7 @@ let vwap_df = vwap(&df, "timestamp", "close", "volume")?;
 let twap_df = twap(&df, "close", 10)?;
 ```
 
-#### 3. **Distributed Computing Framework** (`polaroid-distributed`)
+#### 3. **Distributed Computing Framework** (`polarway-distributed`)
 Scalable distributed query execution for large-scale data processing.
 
 **Components:**
@@ -87,7 +87,7 @@ Scalable distributed query execution for large-scale data processing.
                      Cache Layer
 ```
 
-#### 4. **Enterprise Data Sources** (`polaroid-sources`)
+#### 4. **Enterprise Data Sources** (`polarway-sources`)
 Production-ready integrations for enterprise data systems.
 
 **Supported Sources:**
@@ -102,8 +102,8 @@ Production-ready integrations for enterprise data systems.
 - Comprehensive error handling and logging
 - Schema inference and validation
 
-#### 5. **gRPC Server** (`polaroid-grpc`)
-High-performance remote procedure calls for distributed Polaroid operations.
+#### 5. **gRPC Server** (`polarway-grpc`)
+High-performance remote procedure calls for distributed Polarway operations.
 
 **Features:**
 - Bidirectional streaming for large result sets
@@ -140,7 +140,7 @@ High-performance remote procedure calls for distributed Polaroid operations.
 
 ### Migration from Polars
 
-Polaroid is a **drop-in replacement** for Polars 0.52.0:
+Polarway is a **drop-in replacement** for Polars 0.52.0:
 
 ```toml
 # Before
@@ -149,7 +149,7 @@ polars = "0.52.0"
 
 # After
 [dependencies]
-polars = { path = "path/to/polaroid/crates/polars" }
+polars = { path = "path/to/polarway/crates/polars" }
 ```
 
 All existing Polars code will continue to work without modifications.
@@ -203,14 +203,14 @@ Apache 2.0 (same as Polars)
 
 - **Polars Team**: For creating an amazing dataframe library
 - **Rust Community**: For excellent async and parallel computing libraries
-- **Contributors**: Everyone who helped test and improve Polaroid
+- **Contributors**: Everyone who helped test and improve Polarway
 
 ### Getting Help
 
-- **Documentation**: https://github.com/ThotDjehuty/polaroid/wiki
-- **Issues**: https://github.com/ThotDjehuty/polaroid/issues
-- **Discussions**: https://github.com/ThotDjehuty/polaroid/discussions
+- **Documentation**: https://github.com/ThotDjehuty/polarway/wiki
+- **Issues**: https://github.com/ThotDjehuty/polarway/issues
+- **Discussions**: https://github.com/ThotDjehuty/polarway/discussions
 
 ---
 
-**Note**: Polaroid is an independent project that maintains compatibility with Polars. Features are developed with the intention of potentially contributing them upstream to the main Polars project to benefit the entire community.
+**Note**: Polarway is an independent project that maintains compatibility with Polars. Features are developed with the intention of potentially contributing them upstream to the main Polars project to benefit the entire community.

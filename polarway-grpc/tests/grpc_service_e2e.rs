@@ -1,10 +1,10 @@
 use std::net::SocketAddr;
 use std::time::Duration;
 
-use polaroid_grpc::proto::data_frame_service_client::DataFrameServiceClient;
-use polaroid_grpc::proto::data_frame_service_server::DataFrameServiceServer;
-use polaroid_grpc::proto::*;
-use polaroid_grpc::PolaroidDataFrameService;
+use polarway_grpc::proto::data_frame_service_client::DataFrameServiceClient;
+use polarway_grpc::proto::data_frame_service_server::DataFrameServiceServer;
+use polarway_grpc::proto::*;
+use polarway_grpc::PolarwayDataFrameService;
 use polars::prelude::*;
 use polars_utils::plpath::PlPath;
 use tokio::sync::oneshot;
@@ -17,7 +17,7 @@ async fn spawn_grpc_server() -> (String, oneshot::Sender<()>) {
         .expect("bind ephemeral port");
     let local_addr: SocketAddr = listener.local_addr().expect("local addr");
 
-    let service = PolaroidDataFrameService::new();
+    let service = PolarwayDataFrameService::new();
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
 
     tokio::spawn(async move {
@@ -35,7 +35,7 @@ async fn spawn_grpc_server() -> (String, oneshot::Sender<()>) {
 
 fn unique_tmp_path(ext: &str) -> std::path::PathBuf {
     let mut p = std::env::temp_dir();
-    let name = format!("polaroid_grpc_test_{}_{}.{}", std::process::id(), uuid::Uuid::new_v4(), ext);
+    let name = format!("polarway_grpc_test_{}_{}.{}", std::process::id(), uuid::Uuid::new_v4(), ext);
     p.push(name);
     p
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute Polaroid notebooks headlessly and log results under historia/.
+"""Execute Polarway notebooks headlessly and log results under historia/.
 
 Designed to be deterministic and to never hide output. It will:
 - execute each notebook with nbclient
@@ -7,8 +7,8 @@ Designed to be deterministic and to never hide output. It will:
 - write a per-notebook log summary
 
 Usage:
-  python polaroid/tools/run_notebooks.py
-  python polaroid/tools/run_notebooks.py polaroid/notebooks/phase2_operations_test.ipynb
+  python polarway/tools/run_notebooks.py
+  python polarway/tools/run_notebooks.py polarway/notebooks/phase2_operations_test.ipynb
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ def _timestamp() -> str:
 
 
 def _workspace_root() -> Path:
-    # polaroid/tools/run_notebooks.py -> <root>/polaroid/tools/run_notebooks.py
+    # polarway/tools/run_notebooks.py -> <root>/polarway/tools/run_notebooks.py
     return Path(__file__).resolve().parents[2]
 
 
@@ -40,7 +40,7 @@ def _historia_runs_dir(root: Path) -> Path:
 
 
 def _default_notebooks(root: Path) -> list[Path]:
-    nb_dir = root / "polaroid" / "notebooks"
+    nb_dir = root / "polarway" / "notebooks"
     return sorted([p for p in nb_dir.glob("*.ipynb") if p.is_file()])
 
 
@@ -85,7 +85,7 @@ def _execute_one(nb_path: Path, out_dir: Path, timeout_s: int, kernel_name: str 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("notebooks", nargs="*", help="Notebook paths. If omitted, runs all polaroid/notebooks/*.ipynb")
+    parser.add_argument("notebooks", nargs="*", help="Notebook paths. If omitted, runs all polarway/notebooks/*.ipynb")
     parser.add_argument("--timeout", type=int, default=300, help="Per-cell timeout in seconds")
     parser.add_argument("--kernel", default=None, help="Kernel name (optional)")
     args = parser.parse_args()

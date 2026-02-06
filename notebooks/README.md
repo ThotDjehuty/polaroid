@@ -1,6 +1,6 @@
-# 📚 Polaroid Notebooks
+# 📚 Polarway Notebooks
 
-**Production-ready examples and tutorials for the Polaroid DataFrame library**
+**Production-ready examples and tutorials for the Polarway DataFrame library**
 
 ---
 
@@ -10,15 +10,15 @@ Choose a notebook based on your use case:
 
 | Notebook | Level | Time | Description |
 |----------|-------|------|-------------|
-| [🎬 Polaroid Showcase](polaroid_showcase.ipynb) | **Beginner** | 15 min | Introduction with 6 real-world use cases |
-| [🚀 Advanced Techniques](polaroid_advanced.ipynb) | **Advanced** | 30 min | Query optimization, streaming joins, ETL pipelines |
-| [☁️ Cloud Integrations](polaroid_cloud_integrations.ipynb) | **Intermediate** | 20 min | REST APIs, databases, cloud storage |
+| [🎬 Polarway Showcase](polarway_showcase.ipynb) | **Beginner** | 15 min | Introduction with 6 real-world use cases |
+| [🚀 Advanced Techniques](polarway_advanced.ipynb) | **Advanced** | 30 min | Query optimization, streaming joins, ETL pipelines |
+| [☁️ Cloud Integrations](polarway_cloud_integrations.ipynb) | **Intermediate** | 20 min | REST APIs, databases, cloud storage |
 
 ---
 
 ## 📖 Detailed Guide
 
-### 🎬 Polaroid Showcase (`polaroid_showcase.ipynb`)
+### 🎬 Polarway Showcase (`polarway_showcase.ipynb`)
 
 **Perfect for**: First-time users, data analysts, contributors
 
@@ -26,7 +26,7 @@ Choose a notebook based on your use case:
 - ⚡ **Performance**: 10x faster than pandas on real workloads
 - 🌊 **Streaming**: Process 100M rows with <500MB RAM
 - 🧹 **Data Cleaning**: Production-quality ETL pipelines
-- 📊 **Benchmarks**: Actual Polaroid vs pandas comparisons
+- 📊 **Benchmarks**: Actual Polarway vs pandas comparisons
 - 📁 **Multi-Format**: CSV, Parquet, JSON with same API
 - 📈 **Window Functions**: Time-series and financial analysis
 
@@ -40,12 +40,12 @@ Choose a notebook based on your use case:
 
 **Run it**:
 ```bash
-jupyter notebook polaroid_showcase.ipynb
+jupyter notebook polarway_showcase.ipynb
 ```
 
 ---
 
-### 🚀 Advanced Techniques (`polaroid_advanced.ipynb`)
+### 🚀 Advanced Techniques (`polarway_advanced.ipynb`)
 
 **Perfect for**: Data engineers, backend developers, optimization enthusiasts
 
@@ -65,12 +65,12 @@ jupyter notebook polaroid_showcase.ipynb
 
 **Run it**:
 ```bash
-jupyter notebook polaroid_advanced.ipynb
+jupyter notebook polarway_advanced.ipynb
 ```
 
 ---
 
-### ☁️ Cloud Integrations (`polaroid_cloud_integrations.ipynb`)
+### ☁️ Cloud Integrations (`polarway_cloud_integrations.ipynb`)
 
 **Perfect for**: Cloud engineers, API developers, platform builders
 
@@ -90,7 +90,7 @@ jupyter notebook polaroid_advanced.ipynb
 
 **Run it**:
 ```bash
-jupyter notebook polaroid_cloud_integrations.ipynb
+jupyter notebook polarway_cloud_integrations.ipynb
 ```
 
 ---
@@ -100,7 +100,7 @@ jupyter notebook polaroid_cloud_integrations.ipynb
 ### Prerequisites
 
 ```bash
-# Install Polaroid and dependencies
+# Install Polarway and dependencies
 pip install polars numpy pandas
 
 # Start Jupyter
@@ -126,7 +126,7 @@ pip install matplotlib seaborn plotly
 
 All notebooks include **real benchmarks** with actual timing:
 
-| Operation | Dataset Size | Polaroid | Pandas | Speedup |
+| Operation | Dataset Size | Polarway | Pandas | Speedup |
 |-----------|--------------|----------|--------|---------|
 | **GroupBy aggregation** | 10M rows | 0.8s | 8.5s | **10.6x** |
 | **Filter + join** | 20M rows | 1.2s | 15.3s | **12.8x** |
@@ -142,17 +142,17 @@ All notebooks include **real benchmarks** with actual timing:
 
 **Recommended order**:
 
-1. **Start here**: [`polaroid_showcase.ipynb`](polaroid_showcase.ipynb)
+1. **Start here**: [`polarway_showcase.ipynb`](polarway_showcase.ipynb)
    - Get familiar with basic API
    - See real performance gains
-   - Understand when to use Polaroid
+   - Understand when to use Polarway
 
-2. **Next level**: [`polaroid_cloud_integrations.ipynb`](polaroid_cloud_integrations.ipynb)
+2. **Next level**: [`polarway_cloud_integrations.ipynb`](polarway_cloud_integrations.ipynb)
    - Connect to your data sources
    - Build multi-source pipelines
    - Integrate with pandas ecosystem
 
-3. **Master level**: [`polaroid_advanced.ipynb`](polaroid_advanced.ipynb)
+3. **Master level**: [`polarway_advanced.ipynb`](polarway_advanced.ipynb)
    - Optimize for production
    - Handle TB-scale data
    - Build enterprise pipelines
@@ -161,9 +161,9 @@ All notebooks include **real benchmarks** with actual timing:
 
 ## 💡 Pro Tips
 
-### When to Use Polaroid
+### When to Use Polarway
 
-✅ **Use Polaroid when**:
+✅ **Use Polarway when**:
 - Dataset > 1GB or 1M rows
 - Need 10x faster processing
 - Memory constraints (streaming mode)
@@ -176,7 +176,7 @@ All notebooks include **real benchmarks** with actual timing:
 - Interactive exploration (Jupyter)
 - Legacy code compatibility
 
-**Best practice**: Process with Polaroid, visualize with Pandas.
+**Best practice**: Process with Polarway, visualize with Pandas.
 
 ---
 
@@ -186,10 +186,10 @@ All notebooks include **real benchmarks** with actual timing:
 
 ```bash
 # Build image with all notebooks
-docker build -t polaroid-notebooks .
+docker build -t polarway-notebooks .
 
 # Run Jupyter server
-docker run -p 8888:8888 polaroid-notebooks
+docker run -p 8888:8888 polarway-notebooks
 ```
 
 ### Cloud (Azure ML, SageMaker)
@@ -264,10 +264,10 @@ df = df.with_columns(pl.col('date').str.strptime(pl.Date, '%Y-%m-%d'))
 
 ## 📚 Additional Resources
 
-- **Documentation**: [Polaroid API Docs](https://github.com/ThotDjehuty/polaroid)
+- **Documentation**: [Polarway API Docs](https://github.com/ThotDjehuty/polarway)
 - **Polars Guide**: [Official Polars Book](https://pola-rs.github.io/polars-book/)
 - **Community**: [Discord Server](#)
-- **Issues**: [GitHub Issues](https://github.com/ThotDjehuty/polaroid/issues)
+- **Issues**: [GitHub Issues](https://github.com/ThotDjehuty/polarway/issues)
 
 ---
 
@@ -296,6 +296,6 @@ MIT License - see [LICENSE](../LICENSE) for details
 
 ---
 
-**Built with ❤️ by the Polaroid team**
+**Built with ❤️ by the Polarway team**
 
 *Last updated: January 22, 2026*

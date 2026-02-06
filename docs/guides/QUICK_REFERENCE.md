@@ -1,17 +1,17 @@
-# Polaroid Quick Reference
+# Polarway Quick Reference
 
 ## Architecture at a Glance
 
 ```
 ┌─────────────────────────────────────────────────┐
-│   Python Client (polaroid-python)              │
+│   Python Client (polarway-python)              │
 │   - Thin gRPC client                            │
 │   - Handle management                           │
 │   - Arrow IPC deserialization                   │
 └────────────────────┬────────────────────────────┘
                      │ gRPC (Arrow Flight)
 ┌────────────────────▼────────────────────────────┐
-│   Polaroid gRPC Server (Rust)                  │
+│   Polarway gRPC Server (Rust)                  │
 │   - Request routing                             │
 │   - Authentication                              │
 │   - Handle lifecycle management                 │
@@ -264,7 +264,7 @@ except pd.ColumnNotFoundError as e:
     print(f"Column not found: {e}")
 except pd.NetworkError as e:
     print(f"Network error: {e}")
-except pd.PolaroidError as e:
+except pd.PolarwayError as e:
     print(f"General error: {e}")
 ```
 
@@ -281,7 +281,7 @@ pd.config.set("log_level", "INFO")
 pd.config.set("max_memory", "8GB")
 
 # From config file
-pd.load_config("~/.polaroid/config.yaml")
+pd.load_config("~/.polarway/config.yaml")
 ```
 
 ## Performance Tips
@@ -416,9 +416,9 @@ print(f"Total queries: {stats.total_queries}")
 print(f"Uptime: {stats.uptime}")
 ```
 
-## Comparison: Polars vs Polaroid
+## Comparison: Polars vs Polarway
 
-| Feature | Polars | Polaroid |
+| Feature | Polars | Polarway |
 |---------|--------|----------|
 | Interface | PyO3 (FFI) | gRPC |
 | Execution | In-process | Client-server |
@@ -432,7 +432,7 @@ print(f"Uptime: {stats.uptime}")
 
 ## Links
 
-- **Docs**: https://docs.polaroid.rs
-- **GitHub**: https://github.com/polaroid-rs/polaroid
-- **Discord**: https://discord.gg/polaroid
-- **PyPI**: https://pypi.org/project/polaroid/
+- **Docs**: https://docs.polarway.rs
+- **GitHub**: https://github.com/polarway-rs/polarway
+- **Discord**: https://discord.gg/polarway
+- **PyPI**: https://pypi.org/project/polarway/

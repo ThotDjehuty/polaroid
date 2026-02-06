@@ -1,9 +1,9 @@
 use thiserror::Error;
 use tonic::Status;
 
-/// Polaroid error types - no panics, only Results
+/// Polarway error types - no panics, only Results
 #[derive(Debug, Error)]
-pub enum PolaroidError {
+pub enum PolarwayError {
     #[error("Column not found: {0}")]
     ColumnNotFound(String),
     
@@ -38,22 +38,22 @@ pub enum PolaroidError {
     Internal(String),
 }
 
-impl From<PolaroidError> for Status {
-    fn from(err: PolaroidError) -> Self {
+impl From<PolarwayError> for Status {
+    fn from(err: PolarwayError) -> Self {
         match err {
-            PolaroidError::ColumnNotFound(msg) => Status::not_found(msg),
-            PolaroidError::HandleNotFound(msg) => Status::not_found(msg),
-            PolaroidError::HandleExpired(msg) => Status::deadline_exceeded(msg),
-            PolaroidError::InvalidPredicate(msg) => Status::invalid_argument(msg),
-            PolaroidError::InvalidExpression(msg) => Status::invalid_argument(msg),
-            PolaroidError::Io(e) => Status::internal(e.to_string()),
-            PolaroidError::Polars(e) => Status::internal(e.to_string()),
-            PolaroidError::Arrow(e) => Status::internal(e.to_string()),
-            PolaroidError::Serialization(msg) => Status::internal(msg),
-            PolaroidError::Network(msg) => Status::unavailable(msg),
-            PolaroidError::Internal(msg) => Status::internal(msg),
+            PolarwayError::ColumnNotFound(msg) => Status::not_found(msg),
+            PolarwayError::HandleNotFound(msg) => Status::not_found(msg),
+            PolarwayError::HandleExpired(msg) => Status::deadline_exceeded(msg),
+            PolarwayError::InvalidPredicate(msg) => Status::invalid_argument(msg),
+            PolarwayError::InvalidExpression(msg) => Status::invalid_argument(msg),
+            PolarwayError::Io(e) => Status::internal(e.to_string()),
+            PolarwayError::Polars(e) => Status::internal(e.to_string()),
+            PolarwayError::Arrow(e) => Status::internal(e.to_string()),
+            PolarwayError::Serialization(msg) => Status::internal(msg),
+            PolarwayError::Network(msg) => Status::unavailable(msg),
+            PolarwayError::Internal(msg) => Status::internal(msg),
         }
     }
 }
 
-pub type Result<T> = std::result::Result<T, PolaroidError>;
+pub type Result<T> = std::result::Result<T, PolarwayError>;

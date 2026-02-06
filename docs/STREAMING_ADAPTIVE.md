@@ -3,7 +3,7 @@
 **Version**: 0.1.0  
 **Date**: 21 janvier 2026  
 **Author**: Melvin Alvarez  
-**Status**: ✅ Successfully built in Polaroid workspace
+**Status**: ✅ Successfully built in Polarway workspace
 
 ---
 
@@ -30,13 +30,13 @@
 
 ## 📦 Installation
 
-### As a Polaroid Crate
+### As a Polarway Crate
 
 Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-polars-streaming-adaptive = { path = "../polaroid/crates/polars-streaming-adaptive" }
+polars-streaming-adaptive = { path = "../polarway/crates/polars-streaming-adaptive" }
 ```
 
 ### Python Bindings (Optional)
@@ -45,7 +45,7 @@ Enable Python bindings feature:
 
 ```toml
 [dependencies]
-polars-streaming-adaptive = { path = "../polaroid/crates/polars-streaming-adaptive", features = ["python"] }
+polars-streaming-adaptive = { path = "../polarway/crates/polars-streaming-adaptive", features = ["python"] }
 ```
 
 ---
@@ -432,7 +432,7 @@ let reader = ParallelStreamReader::from_glob("data/*.parquet")?
 ### Setup
 
 ```bash
-cd /Users/melvinalvarez/Documents/Workspace/polaroid/crates/polars-streaming-adaptive
+cd /Users/melvinalvarez/Documents/Workspace/polarway/crates/polars-streaming-adaptive
 cargo bench
 ```
 
@@ -507,8 +507,8 @@ cargo bench
 
 ## 📚 Related Documentation
 
-- [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) - Overall Polaroid architecture
-- [POLAROID_POLARS_OPTIMIZATION_STRATEGY.md](../../POLAROID_POLARS_OPTIMIZATION_STRATEGY.md) - Optimization strategy
+- [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) - Overall Polarway architecture
+- [POLARWAY_POLARS_OPTIMIZATION_STRATEGY.md](../../POLARWAY_POLARS_OPTIMIZATION_STRATEGY.md) - Optimization strategy
 - [PHASE2_LAZY_STREAMING.md](../../PHASE2_LAZY_STREAMING.md) - Lazy streaming implementation plan
 - [Polars Documentation](https://pola-rs.github.io/polars-book/) - Official Polars docs
 
@@ -516,13 +516,13 @@ cargo bench
 
 ## 🤝 Contributing
 
-This crate is part of the **Polaroid** project, a Polars fork focused on performance optimizations for financial data processing. We welcome contributions!
+This crate is part of the **Polarway** project, a Polars fork focused on performance optimizations for financial data processing. We welcome contributions!
 
 ### Development Setup
 
 ```bash
-# Clone Polaroid
-cd /Users/melvinalvarez/Documents/Workspace/polaroid
+# Clone Polarway
+cd /Users/melvinalvarez/Documents/Workspace/polarway
 
 # Build the crate
 cargo build --release -p polars-streaming-adaptive
@@ -553,11 +553,11 @@ MIT License - See LICENSE file for details
 ## 📧 Contact
 
 - **Author**: Melvin Alvarez
-- **Project**: [Polaroid](https://github.com/melvin-alvarez/polaroid)
-- **Issues**: File issues in Polaroid repository
+- **Project**: [Polarway](https://github.com/melvin-alvarez/polarway)
+- **Issues**: File issues in Polarway repository
 
 ---
 
 **Last Updated**: 21 janvier 2026  
 **Version**: 0.1.0  
-**Status**: ✅ Built successfully in Polaroid workspace
+**Status**: ✅ Built successfully in Polarway workspace

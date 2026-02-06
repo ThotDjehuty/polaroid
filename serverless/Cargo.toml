@@ -1,33 +1,33 @@
 [package]
-name = "polaroid-serverless"
+name = "polarway-serverless"
 version = "0.52.0"
 edition = "2021"
 authors = ["HFT Lab Team"]
 license = "MIT"
-description = "Cloud-agnostic serverless wrapper for Polaroid DataFrame engine"
+description = "Cloud-agnostic serverless wrapper for Polarway DataFrame engine"
 
 # Mark as standalone (not part of parent workspace)
 [workspace]
 
 # Multiple binaries for different cloud providers
 [[bin]]
-name = "polaroid-http"
+name = "polarway-http"
 path = "src/http_server.rs"
 
 [[bin]]
-name = "polaroid-azure"
+name = "polarway-azure"
 path = "adapters/azure.rs"
 
 [[bin]]
-name = "polaroid-lambda"
+name = "polarway-lambda"
 path = "adapters/aws.rs"
 
 [[bin]]
-name = "polaroid-gcp"
+name = "polarway-gcp"
 path = "adapters/gcp.rs"
 
 [[bin]]
-name = "polaroid-cloudflare"
+name = "polarway-cloudflare"
 path = "adapters/cloudflare.rs"
 
 [dependencies]
@@ -52,7 +52,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 bytes = "1.10"
 
-# Polaroid core (using 0.37 which is proven stable)
+# Polarway core (using 0.37 which is proven stable)
 # Using minimal features for small binary size
 polars = { version = "0.37", default-features = false, features = [
     "lazy", "parquet", "json", "dtype-datetime", "regex", "describe", "rows"

@@ -62,7 +62,7 @@ All operations follow this lifecycle:
 ### Error Handling
 
 ```rust
-.map_err(PolaroidError::from)?  // Convert Polars errors
+.map_err(PolarwayError::from)?  // Convert Polars errors
 .map_err(|e| Status::internal(format!(...)))?  // Convert to gRPC Status
 ```
 
@@ -95,7 +95,7 @@ expr.alias(&alias_str)
 
 ### Expected Performance (Based on Polars Architecture)
 
-| Dataset Size | Expected Polaroid Advantage | Notes |
+| Dataset Size | Expected Polarway Advantage | Notes |
 |-------------|---------------------------|-------|
 | < 1K rows | 0.5-1× (overhead) | gRPC overhead ~1-5ms dominates |
 | 1K-10K rows | 1-2× faster | Rust efficiency starts showing |
@@ -148,9 +148,9 @@ df = client.pct_change(['price'], periods=1)
 
 ### Benchmark Suite: `benchmark_timeseries.py`
 
-Compares Polaroid against:
+Compares Polarway against:
 - **pandas**: Most common Python library
-- **polars**: Rust-backed Python library (same engine as Polaroid)
+- **polars**: Rust-backed Python library (same engine as Polarway)
 - **numpy**: Low-level array operations
 
 Test matrix: 4 operations × 4 sizes = 16 benchmarks
@@ -187,7 +187,7 @@ Test matrix: 4 operations × 4 sizes = 16 benchmarks
    - Example: Detect bull/bear markets from price changes
 
 2. **Optimal Control with Market Data**
-   - Use Polaroid for fast data preprocessing
+   - Use Polarway for fast data preprocessing
    - Feed into OptimizR's HJB/regime switching
    - Example: Dynamic portfolio rebalancing
 
@@ -222,7 +222,7 @@ feat(grpc): implement Phase 4 time-series operations (lag, lead, diff, pct_chang
 
 ## File Changes
 
-- **Modified**: `polaroid-grpc/src/service.rs`
+- **Modified**: `polarway-grpc/src/service.rs`
   - Added 4 new RPC methods: Lag, Lead, Diff, PctChange
   - Lines 420-534 (115 lines of new code)
   - Imports: Added `lit` from `polars::prelude`

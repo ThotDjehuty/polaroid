@@ -30,8 +30,8 @@ impl Default for CoordinatorConfig {
     fn default() -> Self {
         Self {
             etcd_endpoints: vec!["http://localhost:2379".to_string()],
-            leader_key_prefix: "/polaroid/leader".to_string(),
-            worker_key_prefix: "/polaroid/workers".to_string(),
+            leader_key_prefix: "/polarway/leader".to_string(),
+            worker_key_prefix: "/polarway/workers".to_string(),
             heartbeat_timeout_secs: 30,
         }
     }

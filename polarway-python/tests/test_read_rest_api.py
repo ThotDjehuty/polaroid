@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 import pytest
 
-import polaroid
-from polaroid.client import PolaroidClient
-from polaroid import polaroid_pb2
+import polarway
+from polarway.client import PolarwayClient
+from polarway import polarway_pb2
 
 
 @dataclass
@@ -25,12 +25,12 @@ class _FakeStub:
         self.captured.request = request
         self.captured.timeout = timeout
         if self._error is None:
-            return polaroid_pb2.DataFrameHandle(handle=self._handle)
-        return polaroid_pb2.DataFrameHandle(handle="", error=self._error)
+            return polarway_pb2.DataFrameHandle(handle=self._handle)
+        return polarway_pb2.DataFrameHandle(handle="", error=self._error)
 
 
 def test_client_read_rest_api_builds_request_and_returns_dataframe_handle():
-    client = PolaroidClient("localhost:50051")
+    client = PolarwayClient("localhost:50051")
     fake = _FakeStub(handle="abc123")
     client.stub = fake
 
@@ -44,7 +44,7 @@ def test_client_read_rest_api_builds_request_and_returns_dataframe_handle():
     assert df.handle == "abc123"
 
     req = fake.captured.request
-    assert isinstance(req, polaroid_pb2.RestApiRequest)
+    assert isinstance(req, polarway_pb2.RestApiRequest)
     assert req.url == "https://example.com/data"
     assert req.method == "POST"
     assert dict(req.headers) == {"User-Agent": "pytest", "X-Test": "1"}
@@ -52,7 +52,7 @@ def test_client_read_rest_api_builds_request_and_returns_dataframe_handle():
 
 
 def test_client_read_rest_api_raises_on_server_error():
-    client = PolaroidClient("localhost:50051")
+    client = PolarwayClient("localhost:50051")
     client.stub = _FakeStub(error="HTTP 403")
 
     with pytest.raises(RuntimeError, match="Server error: HTTP 403"):
@@ -71,11 +71,11 @@ def test_package_level_read_rest_api_uses_default_client(monkeypatch: pytest.Mon
 
     fake_client = FakeDefaultClient()
 
-    import polaroid.client as pld_client
+    import polarway.client as pld_client
 
     monkeypatch.setattr(pld_client, "_default_client", fake_client, raising=True)
 
-    out = polaroid.read_rest_api(
+    out = polarway.read_rest_api(
         "https://example.com/data",
         method="GET",
         headers={"User-Agent": "pytest"},

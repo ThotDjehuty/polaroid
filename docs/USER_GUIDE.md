@@ -1,4 +1,4 @@
-# Polaroid Adaptive Streaming User Guide
+# Polarway Adaptive Streaming User Guide
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@
 
 ## Introduction
 
-Polaroid's adaptive streaming engine revolutionizes data processing for memory-constrained environments. Unlike traditional batch processing that loads entire datasets into memory, adaptive streaming:
+Polarway's adaptive streaming engine revolutionizes data processing for memory-constrained environments. Unlike traditional batch processing that loads entire datasets into memory, adaptive streaming:
 
 - **Automatically adjusts** chunk sizes based on available memory
 - **Prevents OOM crashes** through intelligent backpressure
@@ -41,7 +41,7 @@ Polaroid's adaptive streaming engine revolutionizes data processing for memory-c
 ```bash
 # Add to Cargo.toml
 [dependencies]
-polars-streaming-adaptive = { path = "path/to/polaroid/crates/polars-streaming-adaptive" }
+polars-streaming-adaptive = { path = "path/to/polarway/crates/polars-streaming-adaptive" }
 ```
 
 ### Basic CSV Example
@@ -68,7 +68,7 @@ while let Some(chunk) = source.read_chunk().await? {
 ### Python Example
 
 ```python
-import polaroid as pl
+import polarway as pl
 
 # Simple adaptive streaming
 df = pl.scan_csv("large_file.csv") \\
@@ -77,7 +77,7 @@ df = pl.scan_csv("large_file.csv") \\
     .collect()
 
 # Or using source directly
-from polaroid.streaming import CsvSource
+from polarway.streaming import CsvSource
 
 source = CsvSource("large_file.csv", memory_limit="2GB")
 for chunk in source:
@@ -225,7 +225,7 @@ let config = SourceConfig::new("table-name")
 ```rust
 let config = SourceConfig::new("topic-name")
     .with_option("brokers", "localhost:9092")
-    .with_option("group_id", "polaroid-consumer")
+    .with_option("group_id", "polarway-consumer")
     .with_option("auto_offset_reset", "earliest")
     .with_option("max_poll_records", "500");
 ```
@@ -368,8 +368,8 @@ match source.read_chunk().await {
 
 **Python (with monads):**
 ```python
-from polaroid.streaming import CsvSource, SourceError
-from polaroid.result import Result, Ok, Err
+from polarway.streaming import CsvSource, SourceError
+from polarway.result import Result, Ok, Err
 import time
 
 # Using Result monad for functional error handling
@@ -433,7 +433,7 @@ with CsvSource("data.csv").unwrap() as source:
         )
 
 # Combining multiple Results
-from polaroid.result import sequence
+from polarway.result import sequence
 
 results = [
     CsvSource.create("file1.csv").and_then(lambda s: s.read_chunk()),
@@ -576,6 +576,6 @@ config.with_option("infer_schema_length", "10000");
 
 ## Support
 
-- **Issues**: https://github.com/ThotDjehuty/polaroid/issues
-- **Discussions**: https://github.com/ThotDjehuty/polaroid/discussions
-- **Wiki**: https://github.com/ThotDjehuty/polaroid/wiki
+- **Issues**: https://github.com/ThotDjehuty/polarway/issues
+- **Discussions**: https://github.com/ThotDjehuty/polarway/discussions
+- **Wiki**: https://github.com/ThotDjehuty/polarway/wiki

@@ -1,7 +1,7 @@
-//! Polaroid Distributed Query Execution & Caching
+//! Polarway Distributed Query Execution & Caching
 //! ==============================================
 //!
-//! Distributed query execution across multiple Polaroid nodes:
+//! Distributed query execution across multiple Polarway nodes:
 //! - Query planning and distribution
 //! - Work stealing and load balancing
 //! - Multi-level caching (memory, disk, distributed)

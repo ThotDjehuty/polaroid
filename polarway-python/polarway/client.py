@@ -1,4 +1,4 @@
-"""Polaroid client implementation."""
+"""Polarway client implementation."""
 
 import grpc
 import pyarrow as pa
@@ -7,53 +7,53 @@ from typing import Optional, List, Tuple
 from contextlib import contextmanager
 
 from .config import config
-from . import polaroid_pb2
-from . import polaroid_pb2_grpc
+from . import polarway_pb2
+from . import polarway_pb2_grpc
 
 
-_default_client: Optional["PolaroidClient"] = None
+_default_client: Optional["PolarwayClient"] = None
 
 
-def connect(server: str = "localhost:50051", **kwargs) -> "PolaroidClient":
-    """Connect to a Polaroid gRPC server.
+def connect(server: str = "localhost:50051", **kwargs) -> "PolarwayClient":
+    """Connect to a Polarway gRPC server.
     
     Args:
         server: Server address (host:port)
         **kwargs: Additional gRPC channel options
     
     Returns:
-        PolaroidClient instance
+        PolarwayClient instance
     
     Example:
-        >>> import polaroid as pd
+        >>> import polarway as pd
         >>> pd.connect("localhost:50051")
         >>> df = pd.read_parquet("data.parquet")
     """
     global _default_client
-    client = PolaroidClient(server, **kwargs)
+    client = PolarwayClient(server, **kwargs)
     _default_client = client
     config.default_server = server
     return client
 
 
-def get_default_client() -> "PolaroidClient":
-    """Get the default Polaroid client.
+def get_default_client() -> "PolarwayClient":
+    """Get the default Polarway client.
     
     Returns:
-        PolaroidClient instance
+        PolarwayClient instance
     
     Raises:
         RuntimeError: If no connection has been established
     """
     if _default_client is None:
         raise RuntimeError(
-            "No connection to Polaroid server. Call polaroid.connect() first."
+            "No connection to Polarway server. Call polarway.connect() first."
         )
     return _default_client
 
 
-class PolaroidClient:
-    """Client for communicating with Polaroid gRPC server."""
+class PolarwayClient:
+    """Client for communicating with Polarway gRPC server."""
     
     def __init__(self, server: str, **kwargs):
         """Initialize client.
@@ -64,7 +64,7 @@ class PolaroidClient:
         """
         self.server = server
         self.channel = grpc.insecure_channel(server, **kwargs)
-        self.stub = polaroid_pb2_grpc.DataFrameServiceStub(self.channel)
+        self.stub = polarway_pb2_grpc.DataFrameServiceStub(self.channel)
     
     def read_parquet(
         self,
@@ -84,7 +84,7 @@ class PolaroidClient:
         Returns:
             DataFrame handle
         """
-        request = polaroid_pb2.ReadParquetRequest(
+        request = polarway_pb2.ReadParquetRequest(
             path=path,
             columns=columns or [],
             predicate=predicate,
@@ -120,14 +120,14 @@ class PolaroidClient:
             DataFrame handle
         
         Example:
-            >>> import polaroid as pld
+            >>> import polarway as pld
             >>> pld.connect("localhost:50051")
             >>> # Fetch stock data from Yahoo Finance
             >>> url = "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d&range=5d"
             >>> df = pld.read_rest_api(url, headers={"User-Agent": "Mozilla/5.0"})
             >>> print(df.shape())
         """
-        request = polaroid_pb2.RestApiRequest(
+        request = polarway_pb2.RestApiRequest(
             url=url,
             method=method or "GET",
             headers=headers or {},
@@ -149,7 +149,7 @@ class PolaroidClient:
             path: Output path
             **kwargs: Additional write options
         """
-        request = polaroid_pb2.WriteParquetRequest(
+        request = polarway_pb2.WriteParquetRequest(
             handle=handle,
             path=path,
         )
@@ -168,7 +168,7 @@ class PolaroidClient:
         Returns:
             Tuple of (schema_json, columns)
         """
-        request = polaroid_pb2.GetSchemaRequest(handle=handle)
+        request = polarway_pb2.GetSchemaRequest(handle=handle)
         response = self.stub.GetSchema(request, timeout=config.timeout)
         return response.schema_json, response.columns
     
@@ -181,7 +181,7 @@ class PolaroidClient:
         Returns:
             Tuple of (rows, columns)
         """
-        request = polaroid_pb2.GetShapeRequest(handle=handle)
+        request = polarway_pb2.GetShapeRequest(handle=handle)
         response = self.stub.GetShape(request, timeout=config.timeout)
         return response.rows, response.columns
     
@@ -194,7 +194,7 @@ class PolaroidClient:
         Returns:
             PyArrow Table
         """
-        request = polaroid_pb2.CollectRequest(handle=handle)
+        request = polarway_pb2.CollectRequest(handle=handle)
         
         # Stream Arrow IPC batches
         batches = []
@@ -223,7 +223,7 @@ class PolaroidClient:
         Returns:
             New DataFrame handle
         """
-        request = polaroid_pb2.SelectRequest(
+        request = polarway_pb2.SelectRequest(
             handle=handle,
             columns=columns,
         )
@@ -240,7 +240,7 @@ class PolaroidClient:
         Args:
             handle: DataFrame handle
         """
-        request = polaroid_pb2.DropHandleRequest(handle=handle)
+        request = polarway_pb2.DropHandleRequest(handle=handle)
         self.stub.DropHandle(request, timeout=config.timeout)
     
     def heartbeat(self, handles: List[str]) -> dict:
@@ -252,7 +252,7 @@ class PolaroidClient:
         Returns:
             Dict of handle -> is_alive
         """
-        request = polaroid_pb2.HeartbeatRequest(handles=handles)
+        request = polarway_pb2.HeartbeatRequest(handles=handles)
         response = self.stub.Heartbeat(request, timeout=config.timeout)
         return response.alive
     
@@ -262,13 +262,13 @@ class PolaroidClient:
 
 
 class DataFrame:
-    """Polaroid DataFrame - a handle to a server-side DataFrame."""
+    """Polarway DataFrame - a handle to a server-side DataFrame."""
     
-    def __init__(self, client: PolaroidClient, handle: str):
+    def __init__(self, client: PolarwayClient, handle: str):
         """Initialize DataFrame.
         
         Args:
-            client: PolaroidClient instance
+            client: PolarwayClient instance
             handle: Server-side handle
         """
         self._client = client
@@ -359,14 +359,14 @@ class DataFrame:
 
 @contextmanager
 def connection(server: str, **kwargs):
-    """Context manager for Polaroid connection.
+    """Context manager for Polarway connection.
     
     Args:
         server: Server address
         **kwargs: Additional options
     
     Yields:
-        PolaroidClient instance
+        PolarwayClient instance
     
     Example:
         >>> with connection("localhost:50051") as client:

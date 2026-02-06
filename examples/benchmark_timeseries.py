@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Benchmark: Polaroid Time-Series Operations vs Python Libraries
+Benchmark: Polarway Time-Series Operations vs Python Libraries
 
 Compares performance of lag, lead, diff, pct_change operations:
-- Polaroid (via gRPC to Rust backend)
+- Polarway (via gRPC to Rust backend)
 - pandas (pure Python)
 - polars (Rust-backed Python library)
 - numpy (for basic operations)
@@ -12,7 +12,7 @@ import time
 import numpy as np
 import pandas as pd
 import polars as pl
-import polaroid
+import polarway
 from datetime import datetime, timedelta
 
 def generate_timeseries_data(n_rows):
@@ -88,8 +88,8 @@ def benchmark_polars(df, operation):
     elapsed = time.time() - start
     return elapsed, len(result)
 
-def benchmark_polaroid(client, df, operation):
-    """Benchmark Polaroid operation."""
+def benchmark_polarway(client, df, operation):
+    """Benchmark Polarway operation."""
     # Upload data
     upload_start = time.time()
     handle = client.from_pandas(df)
@@ -179,32 +179,32 @@ def run_benchmark(n_rows, operation):
     except Exception as e:
         print(f"  numpy:    FAILED - {e}")
     
-    # Polaroid
+    # Polarway
     try:
-        client = polaroid.Client("localhost:50051")
-        elapsed, total, rows, upload = benchmark_polaroid(client, df, operation)
-        results['polaroid'] = elapsed
-        results['polaroid_total'] = total
-        print(f"  Polaroid: {elapsed*1000:8.2f} ms  ({rows:,} rows) [op only]")
+        client = polarway.Client("localhost:50051")
+        elapsed, total, rows, upload = benchmark_polarway(client, df, operation)
+        results['polarway'] = elapsed
+        results['polarway_total'] = total
+        print(f"  Polarway: {elapsed*1000:8.2f} ms  ({rows:,} rows) [op only]")
         print(f"            {total*1000:8.2f} ms  (with upload: {upload*1000:.2f} ms)")
     except Exception as e:
-        print(f"  Polaroid: FAILED - {e}")
+        print(f"  Polarway: FAILED - {e}")
     
     # Calculate speedups
-    if 'pandas' in results and 'polaroid' in results:
-        speedup = results['pandas'] / results['polaroid']
-        print(f"\n  🚀 Polaroid vs pandas: {speedup:.2f}x faster (operation only)")
+    if 'pandas' in results and 'polarway' in results:
+        speedup = results['pandas'] / results['polarway']
+        print(f"\n  🚀 Polarway vs pandas: {speedup:.2f}x faster (operation only)")
     
-    if 'polars' in results and 'polaroid' in results:
-        speedup = results['polars'] / results['polaroid']
-        print(f"  🚀 Polaroid vs polars: {speedup:.2f}x faster (operation only)")
+    if 'polars' in results and 'polarway' in results:
+        speedup = results['polars'] / results['polarway']
+        print(f"  🚀 Polarway vs polars: {speedup:.2f}x faster (operation only)")
     
     return results
 
 def main():
     """Run comprehensive benchmark suite."""
     print("="*80)
-    print("POLAROID TIME-SERIES BENCHMARK")
+    print("POLARWAY TIME-SERIES BENCHMARK")
     print("Testing lag, lead, diff, pct_change operations")
     print("="*80)
     
@@ -228,7 +228,7 @@ def main():
     print("\n" + "="*80)
     print("SUMMARY")
     print("="*80)
-    print("\nPolaroid provides:")
+    print("\nPolarway provides:")
     print("  ✅ Zero-copy data transfer via Arrow Flight")
     print("  ✅ Lazy evaluation with query optimization")
     print("  ✅ Parallel execution on Rust backend")

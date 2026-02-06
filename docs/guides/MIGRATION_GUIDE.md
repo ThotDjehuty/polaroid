@@ -1,24 +1,24 @@
-# Polaroid Migration Guide: From Polars to Polaroid
+# Polarway Migration Guide: From Polars to Polarway
 
 ## Overview
 
-This guide helps you migrate from **Polars** (PyO3-based) to **Polaroid** (gRPC-based). Polaroid maintains API compatibility where possible while adding powerful new features for time-series, streaming, and network data sources.
+This guide helps you migrate from **Polars** (PyO3-based) to **Polarway** (gRPC-based). Polarway maintains API compatibility where possible while adding powerful new features for time-series, streaming, and network data sources.
 
 ## Quick Start
 
 ### 1. Installation
 
 ```bash
-# Start Polaroid gRPC server
-docker run -d -p 50051:50051 polaroid/server:latest
+# Start Polarway gRPC server
+docker run -d -p 50051:50051 polarway/server:latest
 
 # Or build from source
-cd polaroid
-cargo build --release -p polaroid-grpc
-./target/release/polaroid-grpc
+cd polarway
+cargo build --release -p polarway-grpc
+./target/release/polarway-grpc
 
 # Install Python client
-pip install polaroid
+pip install polarway
 ```
 
 ### 2. Basic Migration
@@ -31,8 +31,8 @@ df = pl.read_parquet("data.parquet")
 result = df.filter(pl.col("price") > 100).select(["symbol", "price"])
 result.write_parquet("output.parquet")
 
-# NEW (Polaroid) - nearly identical!
-import polaroid as pd
+# NEW (Polarway) - nearly identical!
+import polarway as pd
 
 pd.connect("localhost:50051")  # Connect to gRPC server
 df = pd.read_parquet("data.parquet")
@@ -44,7 +44,7 @@ result.write_parquet("output.parquet")
 
 ### Architecture Comparison
 
-| Aspect | Polars | Polaroid |
+| Aspect | Polars | Polarway |
 |--------|--------|----------|
 | **Interface** | PyO3 (FFI) | gRPC (network) |
 | **Execution** | In-process | Client-server |
@@ -58,8 +58,8 @@ result.write_parquet("output.parquet")
 ### Connection Management
 
 ```python
-# Polaroid requires explicit connection
-import polaroid as pd
+# Polarway requires explicit connection
+import polarway as pd
 
 # Method 1: Default connection
 pd.connect("localhost:50051")
@@ -75,12 +75,12 @@ with pd.connection("localhost:50051") as conn:
 # Connection automatically closed
 
 # Method 4: Configuration file
-pd.load_config("~/.polaroid/config.yaml")
+pd.load_config("~/.polarway/config.yaml")
 ```
 
 ### Handle-Based Architecture
 
-Polaroid uses server-side handles to avoid copying data:
+Polarway uses server-side handles to avoid copying data:
 
 ```python
 # Each operation returns a new handle (immutable)
@@ -104,7 +104,7 @@ df2.heartbeat()
 
 ### Core Operations
 
-| Operation | Polars | Polaroid | Notes |
+| Operation | Polars | Polarway | Notes |
 |-----------|--------|----------|-------|
 | `read_parquet` | ✅ | ✅ | Same API |
 | `read_csv` | ✅ | ✅ | Same API |
@@ -115,9 +115,9 @@ df2.heartbeat()
 | `sort` | ✅ | ✅ | Same API |
 | `with_column` | ✅ | ✅ | Same API |
 | `collect` | ✅ | ✅ | Returns Arrow Table |
-| `lazy` | ✅ | ✅ | Automatic in Polaroid |
+| `lazy` | ✅ | ✅ | Automatic in Polarway |
 
-### Extended Operations (Polaroid-Specific)
+### Extended Operations (Polarway-Specific)
 
 | Operation | Description | Example |
 |-----------|-------------|---------|
@@ -146,8 +146,8 @@ result = (
 )
 print(result)
 
-### AFTER (Polaroid) ###
-import polaroid as pd
+### AFTER (Polarway) ###
+import polarway as pd
 
 pd.connect("localhost:50051")
 df = pd.read_csv("data.csv")
@@ -174,7 +174,7 @@ result = (
     .collect()  # Execute here
 )
 
-### AFTER (Polaroid) ###
+### AFTER (Polarway) ###
 # All operations are lazy by default!
 df = pd.read_parquet("large_data.parquet")
 result = (
@@ -200,7 +200,7 @@ result = df.group_by("symbol").agg([
     pl.col("price").max().alias("max_price"),
 ])
 
-### AFTER (Polaroid) ###
+### AFTER (Polarway) ###
 # Method 1: Dict-based (recommended)
 result = df.group_by("symbol").agg({
     "price": ["mean", "max"],
@@ -221,7 +221,7 @@ result = df.group_by("symbol").agg([
 ### BEFORE (Polars) ###
 result = df1.join(df2, on="symbol", how="left")
 
-### AFTER (Polaroid) ###
+### AFTER (Polarway) ###
 # Same API!
 result = df1.join(df2, on="symbol", how="left")
 
@@ -232,7 +232,7 @@ result = df1.join(df2, on=["symbol", "date"], how="inner")
 result = df1.join(df2, left_on="symbol", right_on="ticker", how="left")
 ```
 
-### Pattern 5: Time-Series (New in Polaroid)
+### Pattern 5: Time-Series (New in Polarway)
 
 ```python
 ### BEFORE (Polars) - manual implementation ###
@@ -252,8 +252,8 @@ ohlcv = df.group_by("bucket").agg([
     pl.col("volume").sum().alias("volume"),
 ])
 
-### AFTER (Polaroid) - native support ###
-import polaroid as pd
+### AFTER (Polarway) - native support ###
+import polarway as pd
 
 df = pd.read_parquet("ticks.parquet")
 ts_df = df.as_timeseries("timestamp", frequency="tick")
@@ -273,7 +273,7 @@ lagged = ohlcv.lag({"close": 1, "volume": 1})
 df = pl.scan_parquet("huge_file.parquet")
 result = df.filter(pl.col("value") > 100).collect(streaming=True)
 
-### AFTER (Polaroid) ###
+### AFTER (Polarway) ###
 # Full streaming support with batching
 df = pd.read_parquet("huge_file.parquet", streaming=True)
 
@@ -288,11 +288,11 @@ result = df.filter(pd.col("value") > 100).collect_streaming(
 )
 ```
 
-### Pattern 7: Network Data Sources (New in Polaroid)
+### Pattern 7: Network Data Sources (New in Polarway)
 
 ```python
 ### WebSocket Streaming ###
-import polaroid as pd
+import polarway as pd
 
 # Define schema
 schema = {
@@ -339,7 +339,7 @@ df = pd.from_message_queue(
     type="kafka",
     connection_string="localhost:9092",
     topic="market-data",
-    consumer_group="polaroid-consumer",
+    consumer_group="polarway-consumer",
     schema=schema,
     format="json"
 )
@@ -366,10 +366,10 @@ except Exception as e:
     print(f"Unknown error: {e}")
 ```
 
-### Polaroid (Results)
+### Polarway (Results)
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 # Method 1: Exception-based (default for compatibility)
 try:
@@ -378,8 +378,8 @@ try:
 except pd.ColumnNotFoundError as e:
     print(f"Column error: {e}")
     print(f"Available columns: {e.available_columns}")
-except pd.PolaroidError as e:
-    print(f"Polaroid error: {e}")
+except pd.PolarwayError as e:
+    print(f"Polarway error: {e}")
     print(f"Error context: {e.context}")
 
 # Method 2: Result-based (functional style)
@@ -475,22 +475,22 @@ df.heartbeat()  # Extend TTL
 result = pd.read_parquet("data.parquet").filter(pd.col("price") > 100).collect()
 ```
 
-### Pitfall 3: Mixing Polars and Polaroid
+### Pitfall 3: Mixing Polars and Polarway
 
 ```python
-# WRONG: Can't mix Polars and Polaroid objects
+# WRONG: Can't mix Polars and Polarway objects
 import polars as pl
-import polaroid as pd
+import polarway as pd
 
 df_polars = pl.read_parquet("data.parquet")
-df_polaroid = pd.read_parquet("data2.parquet")
-result = df_polaroid.join(df_polars, on="symbol")  # Error!
+df_polarway = pd.read_parquet("data2.parquet")
+result = df_polarway.join(df_polars, on="symbol")  # Error!
 
-# CORRECT: Convert Polars to Polaroid
+# CORRECT: Convert Polars to Polarway
 df_polars = pl.read_parquet("data.parquet")
-df_polaroid_1 = pd.from_arrow(df_polars.to_arrow())
-df_polaroid_2 = pd.read_parquet("data2.parquet")
-result = df_polaroid_2.join(df_polaroid_1, on="symbol")
+df_polarway_1 = pd.from_arrow(df_polars.to_arrow())
+df_polarway_2 = pd.read_parquet("data2.parquet")
+result = df_polarway_2.join(df_polarway_1, on="symbol")
 ```
 
 ## Testing Your Migration
@@ -499,10 +499,10 @@ result = df_polaroid_2.join(df_polaroid_1, on="symbol")
 
 ```python
 import unittest
-import polaroid as pd
+import polarway as pd
 import pyarrow as pa
 
-class TestPolaroidMigration(unittest.TestCase):
+class TestPolarwayMigration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pd.connect("localhost:50051")
@@ -546,17 +546,17 @@ For gradual migration, use the compatibility layer:
 
 ```python
 # Install compatibility layer
-pip install polaroid[compat]
+pip install polarway[compat]
 
-# Use Polars API with Polaroid backend
-import polaroid.compat as pl  # Drop-in replacement
+# Use Polars API with Polarway backend
+import polarway.compat as pl  # Drop-in replacement
 
 # Existing Polars code works unchanged
 df = pl.read_parquet("data.parquet")
 result = df.filter(pl.col("price") > 100).select(["symbol", "price"])
 result.write_parquet("output.parquet")
 
-# Internally uses Polaroid gRPC backend
+# Internally uses Polarway gRPC backend
 ```
 
 ## Troubleshooting
@@ -606,7 +606,7 @@ result = df.filter(pd.col("price") > 100).collect()
 
 ## Feature Comparison Table
 
-| Feature | Polars | Polaroid | Migration Effort |
+| Feature | Polars | Polarway | Migration Effort |
 |---------|--------|----------|------------------|
 | Basic operations | ✅ | ✅ | Low - API compatible |
 | Lazy evaluation | ✅ | ✅ | Low - automatic |
@@ -619,9 +619,9 @@ result = df.filter(pd.col("price") > 100).collect()
 
 ## Migration Checklist
 
-- [ ] Set up Polaroid gRPC server
-- [ ] Install Polaroid Python client
-- [ ] Update import statements (`polars` → `polaroid`)
+- [ ] Set up Polarway gRPC server
+- [ ] Install Polarway Python client
+- [ ] Update import statements (`polars` → `polarway`)
 - [ ] Add connection initialization
 - [ ] Update `.collect()` calls for Arrow tables
 - [ ] Test all DataFrame operations
@@ -633,10 +633,10 @@ result = df.filter(pd.col("price") > 100).collect()
 
 ## Getting Help
 
-- **Documentation**: https://docs.polaroid.rs
-- **Discord**: https://discord.gg/polaroid
-- **GitHub Issues**: https://github.com/polaroid-rs/polaroid/issues
-- **Migration Support**: migration@polaroid.rs
+- **Documentation**: https://docs.polarway.rs
+- **Discord**: https://discord.gg/polarway
+- **GitHub Issues**: https://github.com/polarway-rs/polarway/issues
+- **Migration Support**: migration@polarway.rs
 
 ## Next Steps
 
@@ -646,4 +646,4 @@ result = df.filter(pd.col("price") > 100).collect()
 4. Optimize performance
 5. Deploy to production
 
-**Welcome to Polaroid!** 🎉
+**Welcome to Polarway!** 🎉

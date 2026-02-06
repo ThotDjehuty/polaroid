@@ -1,4 +1,4 @@
-# Polaroid API Reference
+# Polarway API Reference
 
 ## Module: `polars-streaming-adaptive::sources`
 
@@ -245,13 +245,13 @@ let df = AdaptiveStreamBuilder::new(source)
 ### Installation
 
 ```python
-pip install polaroid
+pip install polarway
 ```
 
 ### Quick Start
 
 ```python
-import polaroid as pl
+import polarway as pl
 
 # Adaptive CSV reading
 df = pl.scan_csv("large.csv") \\
@@ -287,7 +287,7 @@ class CsvSource:
 
 **Example:**
 ```python
-from polaroid.streaming import CsvSource
+from polarway.streaming import CsvSource
 
 source = CsvSource("data.csv", memory_limit="1GB", chunk_size=10_000)
 for chunk in source:
@@ -313,7 +313,7 @@ class S3Source:
 
 **Example:**
 ```python
-from polaroid.streaming import S3Source
+from polarway.streaming import S3Source
 
 source = S3Source(
     "s3://my-bucket/data.parquet",

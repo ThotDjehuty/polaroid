@@ -1,7 +1,7 @@
-// Advanced Tokio patterns for Polaroid server
+// Advanced Tokio patterns for Polarway server
 // Demonstrates zero-cost async, work-stealing, and monadic error handling
 
-use polaroid_grpc::*;
+use polarway_grpc::*;
 use tokio::task;
 use tokio::time::{sleep, Duration};
 use std::sync::Arc;
@@ -279,7 +279,7 @@ async fn measure_throughput() -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
     println!("╔═══════════════════════════════════════════════════════╗");
-    println!("║   Polaroid: Advanced Tokio Patterns & Performance    ║");
+    println!("║   Polarway: Advanced Tokio Patterns & Performance    ║");
     println!("╚═══════════════════════════════════════════════════════╝\n");
     
     // Example 1: Concurrent reads

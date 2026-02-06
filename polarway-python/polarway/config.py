@@ -1,10 +1,10 @@
-"""Configuration management for Polaroid client."""
+"""Configuration management for Polarway client."""
 
 from typing import Optional
 
 
 class Config:
-    """Global configuration for Polaroid client."""
+    """Global configuration for Polarway client."""
     
     def __init__(self) -> None:
         self._default_server: Optional[str] = None

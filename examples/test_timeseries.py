@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Test time-series operations for Polaroid Phase 4
+Test time-series operations for Polarway Phase 4
 
 Tests lag, lead, diff, and pct_change operations with financial data.
 """
 import pandas as pd
-import polaroid
+import polarway
 
 def test_time_series_operations():
     """Test lag, lead, diff, and pct_change on stock price data."""
     
-    # Connect to Polaroid server
-    client = polaroid.Client("localhost:50051")
-    print("✅ Connected to Polaroid server")
+    # Connect to Polarway server
+    client = polarway.Client("localhost:50051")
+    print("✅ Connected to Polarway server")
     
     # Create time-series data (stock prices)
     df = pd.DataFrame({
@@ -24,7 +24,7 @@ def test_time_series_operations():
     print(f"\n📊 Created DataFrame: {df.shape[0]} rows × {df.shape[1]} columns")
     print(df)
     
-    # Upload to Polaroid
+    # Upload to Polarway
     handle = client.from_pandas(df)
     print(f"\n⬆️  Uploaded DataFrame with handle: {handle}")
     

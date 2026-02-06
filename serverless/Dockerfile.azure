@@ -14,7 +14,7 @@ COPY src ./src
 COPY azure-functions ./azure-functions
 
 # Build for release
-RUN cargo build --release --bin polaroid-http
+RUN cargo build --release --bin polarway-http
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -27,11 +27,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /build/target/release/polaroid-http ./
+COPY --from=builder /build/target/release/polarway-http ./
 COPY --from=builder /build/azure-functions ./azure-functions
 
 # Make binary executable
-RUN chmod +x polaroid-http
+RUN chmod +x polarway-http
 
 # Azure Functions expects the handler at root
-CMD ["./polaroid-http"]
+CMD ["./polarway-http"]

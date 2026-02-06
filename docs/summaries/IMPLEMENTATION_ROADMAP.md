@@ -1,8 +1,8 @@
-# Polaroid Implementation Roadmap
+# Polarway Implementation Roadmap
 
 ## Overview
 
-This document outlines the phased implementation strategy for transforming Polars into Polaroid - an FDAP-optimized DataFrame engine with gRPC, functional programming, and native time-series support.
+This document outlines the phased implementation strategy for transforming Polars into Polarway - an FDAP-optimized DataFrame engine with gRPC, functional programming, and native time-series support.
 
 **Timeline**: 24 weeks (6 months)  
 **Team Size**: 2-4 engineers  
@@ -19,14 +19,14 @@ This document outlines the phased implementation strategy for transforming Polar
 ### Tasks
 
 #### Week 1: Project Setup
-- [x] Fork Polars to Polaroid
+- [x] Fork Polars to Polarway
 - [ ] Update Cargo.toml with new dependencies:
   - `tonic` (gRPC server)
   - `tonic-build` (proto compilation)
   - `arrow-flight` (streaming)
   - `tokio` (async runtime)
   - `anyhow` (error handling)
-- [ ] Create `polaroid-grpc` crate
+- [ ] Create `polarway-grpc` crate
 - [ ] Set up proto file compilation in build.rs
 - [ ] Configure logging with `tracing`
 
@@ -42,7 +42,7 @@ This document outlines the phased implementation strategy for transforming Polar
 **Deliverable**: Running gRPC server that can accept connections
 
 #### Week 3: Python Client Library
-- [ ] Create `polaroid-python` package structure
+- [ ] Create `polarway-python` package structure
 - [ ] Generate Python stubs from .proto
 - [ ] Implement connection management:
   - Connection pooling
@@ -93,8 +93,8 @@ This document outlines the phased implementation strategy for transforming Polar
 - [ ] Implement `Unique` RPC
 
 #### Week 7: Monadic Error Handling
-- [ ] Create `PolaroidError` type hierarchy
-- [ ] Replace panics with `Result<T, PolaroidError>`
+- [ ] Create `PolarwayError` type hierarchy
+- [ ] Replace panics with `Result<T, PolarwayError>`
 - [ ] Add error context and stack traces
 - [ ] Implement error serialization in gRPC responses
 - [ ] Add Python exception mapping
@@ -140,7 +140,7 @@ This document outlines the phased implementation strategy for transforming Polar
 
 #### Week 11: DataFusion Integration
 - [ ] Integrate DataFusion query planner
-- [ ] Map Polaroid operations to DataFusion
+- [ ] Map Polarway operations to DataFusion
 - [ ] Add SQL query interface
 - [ ] Implement partition pruning
 - [ ] Add parallel execution
@@ -281,7 +281,7 @@ This document outlines the phased implementation strategy for transforming Polar
 - [ ] Add fault tolerance
 
 #### Week 23: Migration Tooling
-- [ ] Create Polars → Polaroid migration tool
+- [ ] Create Polars → Polarway migration tool
 - [ ] Add compatibility layer (PyO3 mode)
 - [ ] Write migration guide
 - [ ] Create code examples
@@ -294,7 +294,7 @@ This document outlines the phased implementation strategy for transforming Polar
 - [ ] API documentation
 - [ ] Tutorial videos
 
-**Deliverable**: Production-ready Polaroid v1.0
+**Deliverable**: Production-ready Polarway v1.0
 
 ### Success Metrics
 - [ ] P99 latency < 100ms for simple queries
@@ -433,7 +433,7 @@ This document outlines the phased implementation strategy for transforming Polar
 
 ## Go-Live Criteria
 
-Before declaring Polaroid v1.0 production-ready:
+Before declaring Polarway v1.0 production-ready:
 
 - [ ] All Phase 1-6 success metrics met
 - [ ] Zero critical bugs in issue tracker

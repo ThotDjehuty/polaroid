@@ -1,6 +1,6 @@
 # REST Exec API (QuestDB-like)
 
-Polaroid now exposes a small HTTP API designed to mirror the *shape* and ergonomics of QuestDB’s `/exec` endpoint.
+Polarway now exposes a small HTTP API designed to mirror the *shape* and ergonomics of QuestDB’s `/exec` endpoint.
 
 ## Why this exists
 
@@ -12,15 +12,15 @@ Polaroid now exposes a small HTTP API designed to mirror the *shape* and ergonom
 ## Server configuration
 
 Environment variables:
-- `POLAROID_HTTP_BIND_ADDRESS` (default: `0.0.0.0:9000`)
-- `POLAROID_QUESTDB_HTTP_URL` (optional): e.g. `http://questdb:9000`
-  - if set, Polaroid will proxy `/exec?query=...` to QuestDB
+- `POLARWAY_HTTP_BIND_ADDRESS` (default: `0.0.0.0:9000`)
+- `POLARWAY_QUESTDB_HTTP_URL` (optional): e.g. `http://questdb:9000`
+  - if set, Polarway will proxy `/exec?query=...` to QuestDB
 
 Start the server (gRPC + HTTP in the same process):
 
 ```bash
-cd polaroid
-cargo run -p polaroid-grpc
+cd polarway
+cargo run -p polarway-grpc
 ```
 
 ## Endpoints
@@ -35,13 +35,13 @@ Response:
 
 Two modes:
 
-#### 1) Polaroid handle mode (expose DataFrame)
+#### 1) Polarway handle mode (expose DataFrame)
 
 Request:
 - `/exec?handle=<handle>&fmt=json&limit=1000`
 
 Behavior:
-- Loads the DataFrame referenced by `handle` from the Polaroid server.
+- Loads the DataFrame referenced by `handle` from the Polarway server.
 - Returns a QuestDB-like JSON payload with `columns` and `dataset`.
 
 Notes:
@@ -71,16 +71,16 @@ Request:
 - `/exec?query=<sql>&fmt=json`
 
 Behavior:
-- If `POLAROID_QUESTDB_HTTP_URL` (or `QUESTDB_HTTP_URL`) is set, Polaroid proxies the request to `${QUESTDB}/exec?query=...&fmt=json`.
-- This makes Polaroid a single entrypoint for time-series SQL + Polaroid handles.
+- If `POLARWAY_QUESTDB_HTTP_URL` (or `QUESTDB_HTTP_URL`) is set, Polarway proxies the request to `${QUESTDB}/exec?query=...&fmt=json`.
+- This makes Polarway a single entrypoint for time-series SQL + Polarway handles.
 
 If QuestDB is not configured:
-- returns `412 Failed Precondition` with a hint to set `POLAROID_QUESTDB_HTTP_URL`.
+- returns `412 Failed Precondition` with a hint to set `POLARWAY_QUESTDB_HTTP_URL`.
 
 Example (curl):
 
 ```bash
-export POLAROID_QUESTDB_HTTP_URL="http://localhost:9000"   # or your QuestDB host
+export POLARWAY_QUESTDB_HTTP_URL="http://localhost:9000"   # or your QuestDB host
 curl "http://localhost:9000/exec?query=select%201&fmt=json"
 ```
 
@@ -90,11 +90,11 @@ Example (Python):
 import os
 import requests
 
-base = os.environ.get("POLAROID_HTTP_URL", "http://localhost:9000")
+base = os.environ.get("POLARWAY_HTTP_URL", "http://localhost:9000")
 
 print(requests.get(f"{base}/ping").text)
 
-# QuestDB proxy mode (requires POLAROID_QUESTDB_HTTP_URL/QUESTDB_HTTP_URL set)
+# QuestDB proxy mode (requires POLARWAY_QUESTDB_HTTP_URL/QUESTDB_HTTP_URL set)
 r = requests.get(f"{base}/exec", params={"query": "select 42", "fmt": "json"})
 print(r.status_code)
 print(r.text)

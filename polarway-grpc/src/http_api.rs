@@ -22,12 +22,12 @@ pub struct HttpApiState {
 
 #[derive(Debug, Deserialize)]
 pub struct ExecQuery {
-    /// Polaroid extension: return the DataFrame referenced by this handle.
+    /// Polarway extension: return the DataFrame referenced by this handle.
     pub handle: Option<String>,
 
     /// QuestDB compatibility: the SQL query parameter.
     ///
-    /// Note: in Polaroid, SQL execution is planned via DataFusion/Ballista.
+    /// Note: in Polarway, SQL execution is planned via DataFusion/Ballista.
     /// For now this endpoint primarily supports `handle=`.
     pub query: Option<String>,
 
@@ -102,8 +102,8 @@ async fn exec(State(state): State<HttpApiState>, Query(q): Query<ExecQuery>) -> 
         },
         (None, Some(sql)) => {
             // QuestDB compatibility mode: proxy /exec?query=... to QuestDB if configured.
-            // This makes Polaroid usable as a single entrypoint for time-series + metadata.
-            let questdb_url = std::env::var("POLAROID_QUESTDB_HTTP_URL")
+            // This makes Polarway usable as a single entrypoint for time-series + metadata.
+            let questdb_url = std::env::var("POLARWAY_QUESTDB_HTTP_URL")
                 .or_else(|_| std::env::var("QUESTDB_HTTP_URL"))
                 .ok();
 
@@ -112,8 +112,8 @@ async fn exec(State(state): State<HttpApiState>, Query(q): Query<ExecQuery>) -> 
                     StatusCode::PRECONDITION_FAILED,
                     Json(json!({
                         "error": "QuestDB is not configured.",
-                        "how": "Set POLAROID_QUESTDB_HTTP_URL=http://questdb:9000 (or QUESTDB_HTTP_URL).",
-                        "note": "Polaroid will proxy /exec?query=... to QuestDB when configured."
+                        "how": "Set POLARWAY_QUESTDB_HTTP_URL=http://questdb:9000 (or QUESTDB_HTTP_URL).",
+                        "note": "Polarway will proxy /exec?query=... to QuestDB when configured."
                     })),
                 )
                     .into_response();
@@ -401,7 +401,7 @@ mod tests {
     #[tokio::test]
     async fn exec_query_mode_requires_questdb_env() {
         let _guard = ENV_LOCK.lock();
-        std::env::remove_var("POLAROID_QUESTDB_HTTP_URL");
+        std::env::remove_var("POLARWAY_QUESTDB_HTTP_URL");
         std::env::remove_var("QUESTDB_HTTP_URL");
 
         let hm = Arc::new(HandleManager::default());
@@ -458,7 +458,7 @@ mod tests {
     async fn exec_query_mode_proxies_to_questdb() {
         let _guard = ENV_LOCK.lock();
         let (base, server) = spawn_mock_questdb().await;
-        std::env::set_var("POLAROID_QUESTDB_HTTP_URL", &base);
+        std::env::set_var("POLARWAY_QUESTDB_HTTP_URL", &base);
 
         let hm = Arc::new(HandleManager::default());
         let app = router(HttpApiState {
@@ -479,7 +479,7 @@ mod tests {
         assert_eq!(json["query"].as_str().unwrap(), "select 42");
         assert_eq!(json["fmt"].as_str().unwrap(), "json");
 
-        std::env::remove_var("POLAROID_QUESTDB_HTTP_URL");
+        std::env::remove_var("POLARWAY_QUESTDB_HTTP_URL");
         server.abort();
     }
 }

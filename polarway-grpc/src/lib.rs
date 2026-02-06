@@ -7,10 +7,10 @@ pub mod storage;  // Storage layer: Parquet + DuckDB + Cache
 
 // Generated proto code
 pub mod proto {
-    tonic::include_proto!("polaroid.v1");
+    tonic::include_proto!("polarway.v1");
 }
 
-pub use service::PolaroidDataFrameService;
+pub use service::PolarwayDataFrameService;
 pub use handles::{HandleManager, DataFrameHandleInfo};
-pub use error::{PolaroidError, Result};
+pub use error::{PolarwayError, Result};
 pub use storage::{StorageBackend, HybridStorage, ParquetBackend, CacheBackend, DuckDBBackend};

@@ -1,4 +1,4 @@
-"""Type definitions for Polaroid."""
+"""Type definitions for Polarway."""
 
 from typing import Union, List, Dict, Any, Optional
 from typing_extensions import TypeAlias

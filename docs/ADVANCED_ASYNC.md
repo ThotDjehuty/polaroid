@@ -1,6 +1,6 @@
 # Advanced Async Features Guide
 
-This guide covers Polaroid's advanced async capabilities that enable high-performance, production-ready data processing at scale.
+This guide covers Polarway's advanced async capabilities that enable high-performance, production-ready data processing at scale.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ This guide covers Polaroid's advanced async capabilities that enable high-perfor
 
 ## Zero-Cost Async
 
-Polaroid leverages Tokio's work-stealing runtime for true zero-cost async operations.
+Polarway leverages Tokio's work-stealing runtime for true zero-cost async operations.
 
 ### Key Benefits
 
@@ -51,9 +51,9 @@ async fn concurrent_parquet_reads(paths: Vec<String>) -> Result<Vec<DataFrame>, 
 
 **Python (Client-Side)**:
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 
-async with AsyncPolaroidClient("localhost:50051") as client:
+async with AsyncPolarwayClient("localhost:50051") as client:
     # Read 100 files concurrently
     results = await client.batch_read([
         f"data/file_{i:03d}.parquet" for i in range(100)
@@ -69,7 +69,7 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 
 ### Performance Characteristics
 
-| Operation | Polars (sync) | Polaroid (async) | Speedup |
+| Operation | Polars (sync) | Polarway (async) | Speedup |
 |-----------|---------------|------------------|---------|
 | 10 files | 2.3s | 0.6s | **3.8x** |
 | 50 files | 11.5s | 2.8s | **4.1x** |
@@ -81,12 +81,12 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 
 ## Monadic Error Handling
 
-Polaroid implements Rust-style `Result<T, E>` and `Option<T>` monads for elegant error handling.
+Polarway implements Rust-style `Result<T, E>` and `Option<T>` monads for elegant error handling.
 
 ### Result Monad
 
 ```python
-from polaroid.async_client import Result
+from polarway.async_client import Result
 
 # Chain operations with map
 result: Result[int, str] = Result.ok(42)
@@ -108,7 +108,7 @@ result = Result.ok(5).and_then(safe_divide)  # Ok(20.0)
 ### Option Monad
 
 ```python
-from polaroid.async_client import Option
+from polarway.async_client import Option
 
 # Handle nullable values
 opt = Option.some(42)
@@ -130,7 +130,7 @@ opt = (Option.some("data.parquet")
 async def process_files(paths: List[str]) -> List[pd.DataFrame]:
     """Process files without exceptions"""
     
-    async with AsyncPolaroidClient("localhost:50051") as client:
+    async with AsyncPolarwayClient("localhost:50051") as client:
         # Read files - returns List[Result[Handle, Error]]
         results = await client.batch_read(paths)
         
@@ -191,7 +191,7 @@ Real-time data ingestion with sub-millisecond latency.
 ### Architecture
 
 ```
-WebSocket Source → Tokio Channel → Polaroid DataFrame → Storage
+WebSocket Source → Tokio Channel → Polarway DataFrame → Storage
      (e.g., Binance)      (mpsc)      (streaming)       (Parquet)
 ```
 
@@ -228,7 +228,7 @@ async fn websocket_server() -> Result<(), Error> {
     while let Some(tick) = rx.recv().await {
         // Convert to DataFrame and store
         let df = tick_to_dataframe(tick)?;
-        store_to_polaroid(df).await?;
+        store_to_polarway(df).await?;
     }
     
     Ok(())
@@ -238,7 +238,7 @@ async fn websocket_server() -> Result<(), Error> {
 ### Python Client
 
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 import websockets
 
 class WebSocketDataStream:
@@ -257,7 +257,7 @@ class WebSocketDataStream:
 async def process_stream():
     ws = WebSocketDataStream("wss://stream.binance.com:9443/ws/btcusdt@trade")
     
-    async with AsyncPolaroidClient("localhost:50051") as polaroid:
+    async with AsyncPolarwayClient("localhost:50051") as polarway:
         batch = []
         
         async for tick in ws.stream():
@@ -266,13 +266,13 @@ async def process_stream():
             # Batch writes for efficiency
             if len(batch) >= 1000:
                 df = pd.DataFrame(batch)
-                # TODO: await polaroid.from_pandas(df)
+                # TODO: await polarway.from_pandas(df)
                 batch.clear()
 ```
 
 ### Performance
 
-- **Latency**: < 1ms end-to-end (WebSocket → Polaroid)
+- **Latency**: < 1ms end-to-end (WebSocket → Polarway)
 - **Throughput**: 100k+ ticks/second per core
 - **Memory**: O(batch_size) - constant footprint
 - **Scalability**: Linear with CPU cores
@@ -296,7 +296,7 @@ async def process_stream():
 dfs = [pl.read_parquet(path) for path in paths]
 # Time: 11.5s | Throughput: 4.3M rows/s
 
-# Polaroid: Concurrent with Tokio
+# Polarway: Concurrent with Tokio
 handles = await client.batch_read(paths)
 tables = await client.batch_collect(handles)
 # Time: 2.8s | Throughput: 17.8M rows/s | Speedup: 4.1x
@@ -304,18 +304,18 @@ tables = await client.batch_collect(handles)
 
 #### 2. Streaming Large Datasets
 
-| Dataset Size | Polars (mem) | Polaroid (mem) | Polars Status | Polaroid Status |
+| Dataset Size | Polars (mem) | Polarway (mem) | Polars Status | Polarway Status |
 |--------------|--------------|----------------|---------------|-----------------|
 | 1GB | 1.2GB | 0.5GB | ✅ OK | ✅ OK |
 | 5GB | 5.8GB | 0.5GB | ✅ OK | ✅ OK |
 | 10GB | 11.5GB | 0.5GB | ⚠️ Slow | ✅ OK |
 | 50GB | OOM ❌ | 0.5GB | ❌ Failed | ✅ OK |
 
-**Key Insight**: Polaroid maintains constant memory regardless of dataset size.
+**Key Insight**: Polarway maintains constant memory regardless of dataset size.
 
 #### 3. Concurrent Query Throughput
 
-| Concurrent Queries | Polars (QPS) | Polaroid (QPS) | Speedup |
+| Concurrent Queries | Polars (QPS) | Polarway (QPS) | Speedup |
 |--------------------|--------------|----------------|---------|
 | 1 | 10 | 10 | 1.0x |
 | 10 | 25 | 95 | 3.8x |
@@ -323,14 +323,14 @@ tables = await client.batch_collect(handles)
 | 100 | 60 | 650 | 10.8x |
 | 500 | 70 | 1200 | **17.1x** |
 
-**Key Insight**: Polars saturates at ~70 QPS (GIL limit), Polaroid scales linearly.
+**Key Insight**: Polars saturates at ~70 QPS (GIL limit), Polarway scales linearly.
 
 #### 4. Network I/O (WebSocket Streaming)
 
 ```
 Polars: Not applicable (no native support)
 
-Polaroid:
+Polarway:
 - Latency: 0.8ms (p50), 1.2ms (p99)
 - Throughput: 120k ticks/second
 - Memory: Constant (500MB for 1M tick window)
@@ -373,7 +373,7 @@ async fn server_with_graceful_shutdown() -> Result<(), Error> {
 ```python
 import signal
 
-class AsyncPolaroidClient:
+class AsyncPolarwayClient:
     def __init__(self):
         self._shutdown_event = asyncio.Event()
         self._tasks = []
@@ -461,7 +461,7 @@ class CircuitBreaker:
 ### 4. Health Checks
 
 ```python
-async def heartbeat(client: AsyncPolaroidClient, interval: float = 30.0):
+async def heartbeat(client: AsyncPolarwayClient, interval: float = 30.0):
     """Keep connection alive with periodic health checks"""
     
     while not client._shutdown_event.is_set():
@@ -476,9 +476,9 @@ async def heartbeat(client: AsyncPolaroidClient, interval: float = 30.0):
 
 ---
 
-## When to Use Polaroid vs Polars
+## When to Use Polarway vs Polars
 
-### Use **Polaroid** when:
+### Use **Polarway** when:
 
 ✅ **High Concurrency**: 100+ simultaneous queries  
 ✅ **Large Datasets**: > available RAM  
@@ -514,13 +514,13 @@ async def arbitrage_bot():
         connect_exchange("kraken"),
     ]
     
-    async with AsyncPolaroidClient("localhost:50051") as polaroid:
+    async with AsyncPolarwayClient("localhost:50051") as polarway:
         async for ticks in merge_streams(streams):
-            # Store in Polaroid
-            df = await polaroid.from_records(ticks)
+            # Store in Polarway
+            df = await polarway.from_records(ticks)
             
             # Detect arbitrage
-            opportunities = await polaroid.query("""
+            opportunities = await polarway.query("""
                 SELECT * FROM ticks
                 WHERE abs(binance_price - coinbase_price) > 0.01 * binance_price
             """)
@@ -540,13 +540,13 @@ Store in time-series database
 """
 
 async def iot_pipeline(mqtt_broker: str):
-    async with AsyncPolaroidClient("localhost:50051") as polaroid:
+    async with AsyncPolarwayClient("localhost:50051") as polarway:
         async for batch in subscribe_mqtt(mqtt_broker):
             # Real-time aggregation
-            df = await polaroid.from_records(batch)
+            df = await polarway.from_records(batch)
             
             # Detect anomalies
-            anomalies = await polaroid.query("""
+            anomalies = await polarway.query("""
                 SELECT * FROM sensors
                 WHERE value > mean + 3 * stddev
             """)
@@ -566,14 +566,14 @@ Cost-effective storage (Parquet on S3)
 """
 
 async def log_ingestion(kafka_topic: str):
-    async with AsyncPolaroidClient("localhost:50051") as polaroid:
+    async with AsyncPolarwayClient("localhost:50051") as polarway:
         async for logs in consume_kafka(kafka_topic):
             # Parse and store
-            df = await polaroid.from_json(logs)
-            await polaroid.write_parquet(df, "s3://logs/date={today}/")
+            df = await polarway.from_json(logs)
+            await polarway.write_parquet(df, "s3://logs/date={today}/")
             
             # Real-time dashboards
-            stats = await polaroid.query("""
+            stats = await polarway.query("""
                 SELECT service, count(*), avg(latency_ms)
                 FROM logs
                 WHERE timestamp > now() - interval '5 minutes'
@@ -588,8 +588,8 @@ async def log_ingestion(kafka_topic: str):
 ## Resources
 
 - **Examples**: See `/examples` directory for complete working code
-- **Benchmarks**: Run `examples/benchmark_polaroid_vs_polars.ipynb`
-- **API Docs**: [https://polaroid.readthedocs.io](https://polaroid.readthedocs.io)
+- **Benchmarks**: Run `examples/benchmark_polarway_vs_polars.ipynb`
+- **API Docs**: [https://polarway.readthedocs.io](https://polarway.readthedocs.io)
 - **Tokio Guide**: [https://tokio.rs/tokio/tutorial](https://tokio.rs/tokio/tutorial)
 - **Monads in Rust**: [Feasible Functors](https://varkor.github.io/blog/2018/08/28/feasible-functors-in-rust.html)
 

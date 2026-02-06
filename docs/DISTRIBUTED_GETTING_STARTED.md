@@ -1,12 +1,12 @@
-# Getting Started — Running Polaroid Across Multiple Containers/VMs
+# Getting Started — Running Polarway Across Multiple Containers/VMs
 
 Date: 2026-01-13
 
-This guide shows the simplest way to distribute Polaroid workloads across multiple containers/VMs.
+This guide shows the simplest way to distribute Polarway workloads across multiple containers/VMs.
 
 ## 1) Quick concept
 
-You scale Polaroid by:
+You scale Polarway by:
 - Running **N identical gRPC workers** behind a **gRPC-capable load balancer**.
 - Turning on **external handles** so any worker can serve follow-up operations.
 
@@ -25,14 +25,14 @@ External handles mean:
 ## 3) Environment variables
 
 On each worker:
-- `POLAROID_BIND_ADDRESS=0.0.0.0:50051`
+- `POLARWAY_BIND_ADDRESS=0.0.0.0:50051`
 
 Handle store modes:
 - In-memory (default):
-  - `POLAROID_HANDLE_STORE=memory`
+  - `POLARWAY_HANDLE_STORE=memory`
 - External (distributed-safe):
-  - `POLAROID_HANDLE_STORE=external`
-  - `POLAROID_STATE_DIR=/state` (must be shared across workers)
+  - `POLARWAY_HANDLE_STORE=external`
+  - `POLARWAY_STATE_DIR=/state` (must be shared across workers)
 
 ## 4) Single-host multi-container (Phase 1)
 
@@ -42,11 +42,11 @@ Handle store modes:
 - 1 load balancer container in front
 
 ### What to run
-- Worker containers (replicas): `polaroid-grpc`
+- Worker containers (replicas): `polarway-grpc`
 - Load balancer: any HTTP/2 gRPC-capable LB
 
 ### Key idea
-All workers must see the same `POLAROID_STATE_DIR` contents.
+All workers must see the same `POLARWAY_STATE_DIR` contents.
 
 ## 5) Multi-VM / multi-host (Phase 2)
 

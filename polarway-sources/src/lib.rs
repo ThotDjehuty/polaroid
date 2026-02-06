@@ -1,7 +1,7 @@
-//! Polaroid Network Data Sources
+//! Polarway Network Data Sources
 //! ==============================
 //!
-//! Network-native data sources for streaming data into Polaroid DataFrames:
+//! Network-native data sources for streaming data into Polarway DataFrames:
 //! - WebSocket streams with automatic reconnection
 //! - REST API pagination strategies (offset, cursor, link header)
 //! - gRPC streaming sources for service-to-service communication

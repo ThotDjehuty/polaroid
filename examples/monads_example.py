@@ -1,22 +1,22 @@
 """
-Polaroid Monads Example - Rust-Powered Functional Programming
+Polarway Monads Example - Rust-Powered Functional Programming
 
-This example demonstrates how to use Polaroid's Rust-powered Result and Option monads
+This example demonstrates how to use Polarway's Rust-powered Result and Option monads
 exposed via PyO3 for safe, functional error handling in Python.
 
-IMPORTANT: This requires Polaroid to be compiled with PyO3 bindings enabled.
+IMPORTANT: This requires Polarway to be compiled with PyO3 bindings enabled.
 The `polars.monads` module is exposed from the Rust crate `polars-python/src/monads.rs`
 
 To build with monad support:
-    cd polaroid
+    cd polarway
     cargo build --features python
     maturin develop --features python
 """
 
-import polaroid as pd
+import polarway as pd
 
-# These imports require Polaroid compiled with PyO3 bindings
-# See: polaroid/crates/polars-python/src/monads.rs
+# These imports require Polarway compiled with PyO3 bindings
+# See: polarway/crates/polars-python/src/monads.rs
 from polars.monads import Result, Option, Thunk  # type: ignore
 
 import polars as pl
@@ -157,7 +157,7 @@ def safe_dataframe_operations():
     print("=" * 60)
     
     # Simulated DataFrame operations returning Result
-    # In real Polaroid, these would come from the server
+    # In real Polarway, these would come from the server
     
     # Safe division avoiding division by zero
     def safe_divide(a: float, b: float) -> Result:
@@ -213,7 +213,7 @@ def main():
     print("Summary")
     print("=" * 60)
     print("""
-Polaroid's monads are Rust types exposed via PyO3:
+Polarway's monads are Rust types exposed via PyO3:
 - Result<T, E>: Safe error handling (no exceptions)
 - Option<T>: Safe null handling (no None checks)
 - Thunk<T>: Lazy evaluation with memoization

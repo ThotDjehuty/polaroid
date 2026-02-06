@@ -1,22 +1,22 @@
-"""Polaroid exception classes."""
+"""Polarway exception classes."""
 
 
-class PolaroidError(Exception):
-    """Base exception for Polaroid errors."""
+class PolarwayError(Exception):
+    """Base exception for Polarway errors."""
     pass
 
 
-class ConnectionError(PolaroidError):
-    """Error connecting to Polaroid server."""
+class ConnectionError(PolarwayError):
+    """Error connecting to Polarway server."""
     pass
 
 
-class ServerError(PolaroidError):
-    """Error from Polaroid server."""
+class ServerError(PolarwayError):
+    """Error from Polarway server."""
     pass
 
 
-class HandleError(PolaroidError):
+class HandleError(PolarwayError):
     """Error related to DataFrame handles."""
     pass
 
@@ -31,12 +31,12 @@ class HandleExpiredError(HandleError):
     pass
 
 
-class FileNotFoundError(PolaroidError):
+class FileNotFoundError(PolarwayError):
     """File not found."""
     pass
 
 
-class SchemaError(PolaroidError):
+class SchemaError(PolarwayError):
     """Schema-related error."""
     pass
 
@@ -46,11 +46,11 @@ class TypeMismatchError(SchemaError):
     pass
 
 
-class OperationError(PolaroidError):
+class OperationError(PolarwayError):
     """Error performing DataFrame operation."""
     pass
 
 
-class TimeoutError(PolaroidError):
+class TimeoutError(PolarwayError):
     """Operation timed out."""
     pass

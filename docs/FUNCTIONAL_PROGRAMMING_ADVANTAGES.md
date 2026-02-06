@@ -1,8 +1,8 @@
-# Polaroid's Functional Programming Advantages
+# Polarway's Functional Programming Advantages
 
-## 🎯 Why Polaroid for Functional Programming?
+## 🎯 Why Polarway for Functional Programming?
 
-Polaroid shines by bringing **Rust's functional programming paradigms** to **Python** through zero-cost abstractions. Unlike traditional DataFrame libraries that mix imperative and functional styles, Polaroid embraces pure functional patterns powered by Rust's type system.
+Polarway shines by bringing **Rust's functional programming paradigms** to **Python** through zero-cost abstractions. Unlike traditional DataFrame libraries that mix imperative and functional styles, Polarway embraces pure functional patterns powered by Rust's type system.
 
 ## 🚀 Core Functional Programming Features
 
@@ -10,7 +10,7 @@ Polaroid shines by bringing **Rust's functional programming paradigms** to **Pyt
 
 Rust's `Result<T, E>` and `Option<T>` monads are exposed through clean Python APIs via PyO3.
 
-**Important**: To use Polaroid's Rust-powered monads in Python:
+**Important**: To use Polarway's Rust-powered monads in Python:
 ```python
 from polars.monads import Result, Option, Thunk
 ```
@@ -18,7 +18,7 @@ from polars.monads import Result, Option, Thunk
 These are **not** pure Python implementations - they are Rust types exposed via PyO3 with zero-cost abstractions.
 
 ```python
-import polaroid as pd
+import polarway as pd
 from polars.monads import Result, Option
 
 # Traditional pandas - exceptions everywhere
@@ -28,7 +28,7 @@ try:
 except Exception as e:
     print(f"Error: {e}")
 
-# Polaroid - monadic error handling using Rust-powered Result monad
+# Polarway - monadic error handling using Rust-powered Result monad
 result = pd.read_csv("might_not_exist.csv")
 if result.is_ok():
     df = result.unwrap()
@@ -57,7 +57,7 @@ result = (
 
 ### 2. **Stream Processing with Functors**
 
-Polaroid treats data as **streams** that can be transformed through composable functors:
+Polarway treats data as **streams** that can be transformed through composable functors:
 
 ```python
 # Stream processing with functional composition
@@ -129,7 +129,7 @@ Never deal with `NaN`, `None`, or sentinel values again:
 df["price"].fillna(0)  # Silent data corruption
 df["price"].dropna()   # Loses information
 
-# Polaroid - explicit Option<T> monad using Rust-powered monads
+# Polarway - explicit Option<T> monad using Rust-powered monads
 from polars.monads import Option
 
 price_opt = df.select("price").first()
@@ -156,7 +156,7 @@ max_price_opt.match_option(
 
 ### 5. **Lazy Evaluation with Query Optimization**
 
-Polaroid uses **lazy evaluation** to build computation graphs that are optimized before execution:
+Polarway uses **lazy evaluation** to build computation graphs that are optimized before execution:
 
 ```python
 # Define a lazy computation (no execution yet)
@@ -222,7 +222,7 @@ result = pipeline.collect()
 ## 📊 Real-World Example: Time-Series Mean Reversion Strategy
 
 ```python
-import polaroid as pd
+import polarway as pd
 import polars as pl
 
 # Functional pipeline for mean reversion detection
@@ -321,7 +321,7 @@ result.match_result(
 df["new_col"] = df["price"] / 0  # Creates NaN, continues silently
 df["another"] = df["missing_column"]  # Creates None, continues silently
 
-# Polaroid - explicit error handling using Rust-powered Result monad
+# Polarway - explicit error handling using Rust-powered Result monad
 from polars.monads import Result
 
 result = df.with_column(pl.col("price") / pl.lit(0.0))  # Returns Result<DataFrame, Error>
@@ -373,7 +373,7 @@ for value in df["price"]:
     if adjusted > 100:
         total += adjusted
 
-# Functional style (Polaroid)
+# Functional style (Polarway)
 total = (
     df.select("price")
     .map(lambda x: x * 1.1)
@@ -409,28 +409,28 @@ total = (
 - [Rust Option and Result](https://doc.rust-lang.org/std/option/) - Monadic error handling
 - [Tokio Streams](https://docs.rs/tokio-stream/) - Async stream processing
 
-### Polaroid-Specific
+### Polarway-Specific
 
 - [API Reference](API_REFERENCE.md) - Complete API documentation
 - [Architecture](ARCHITECTURE.md) - System design and Rust internals
 - [User Guide](USER_GUIDE.md) - Getting started and tutorials
 - [Examples](../examples/) - Real-world functional pipelines
-- Rust Monads: See `polaroid/crates/polars-python/src/monads.rs` for Result/Option implementation
+- Rust Monads: See `polarway/crates/polars-python/src/monads.rs` for Result/Option implementation
 
 ## 🚀 Migration from Pandas/Polars
 
-### Pandas → Polaroid
+### Pandas → Polarway
 
-| Pandas Pattern | Polaroid Functional Pattern |
+| Pandas Pattern | Polarway Functional Pattern |
 |----------------|----------------------------|
 | `df.fillna(0)` | `option.match_option(on_some=lambda x: x, on_nothing=lambda: 0.0)` |
 | `df.groupby().apply(fn)` | `df.group_by().map(fn)` |
 | `df.rolling().apply(fn)` | `df.rolling_window(fn=fn)` |
 | `try/except` | `result.match_result()` or `.and_then()` |
 
-### Polars → Polaroid
+### Polars → Polarway
 
-| Polars Pattern | Polaroid Functional Pattern |
+| Polars Pattern | Polarway Functional Pattern |
 |----------------|----------------------------|
 | `df.select()` | Same, but returns `Result<DataFrame>` |
 | `df.lazy()` | Same, but uses Tokio streams |
@@ -439,7 +439,7 @@ total = (
 
 ## 🎯 Summary
 
-Polaroid brings **Rust's functional programming elegance** to **Python's data science ecosystem**:
+Polarway brings **Rust's functional programming elegance** to **Python's data science ecosystem**:
 
 - **Monads** for safe error handling (no more silent failures)
 - **Functors** for composable transformations (build reusable pipelines)

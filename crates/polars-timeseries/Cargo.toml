@@ -2,10 +2,10 @@
 name = "polars-timeseries"
 version = "0.1.0"
 edition = "2021"
-authors = ["Melvin Alvarez <melvin@polaroid.io>"]
+authors = ["Melvin Alvarez <melvin@polarway.io>"]
 description = "Time-series extensions for Polars - TWAP, VWAP, multi-frequency resampling for trading workflows"
 license = "MIT"
-repository = "https://github.com/ThotDjehuty/polaroid"
+repository = "https://github.com/ThotDjehuty/polarway"
 keywords = ["polars", "timeseries", "trading", "finance", "vwap"]
 categories = ["data-structures", "finance", "algorithms"]
 

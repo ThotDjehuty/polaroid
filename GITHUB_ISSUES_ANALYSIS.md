@@ -1,15 +1,15 @@
-# Analyse des Issues GitHub : Opportunités pour Polaroid v0.53.0
+# Analyse des Issues GitHub : Opportunités pour Polarway v0.53.0
 ## Rapport d'Évaluation des Contributions Potentielles
 
 **Date:** 3 février 2026  
-**Version Polaroid:** v0.53.0 (Hybrid Storage: Parquet + DuckDB + Cache)  
+**Version Polarway:** v0.53.0 (Hybrid Storage: Parquet + DuckDB + Cache)  
 **Auteur:** Copilot Analysis Agent
 
 ---
 
 ## Résumé Exécutif
 
-Après analyse de 636 issues ouvertes dans Apache Arrow-RS et projets connexes, **3 issues majeures** peuvent être résolues ou significativement améliorées grâce aux capacités uniques de Polaroid v0.53.0.
+Après analyse de 636 issues ouvertes dans Apache Arrow-RS et projets connexes, **3 issues majeures** peuvent être résolues ou significativement améliorées grâce aux capacités uniques de Polarway v0.53.0.
 
 ### Score Global
 - **Issues identifiées:** 3 candidates prioritaires
@@ -20,7 +20,7 @@ Après analyse de 636 issues ouvertes dans Apache Arrow-RS et projets connexes, 
 
 ---
 
-## Issues Candidates avec Solutions Polaroid
+## Issues Candidates avec Solutions Polarway
 
 ### 1. 🎯 **#9296: Optimized Decoding of Parquet Statistics** (PRIORITÉ HAUTE)
 
@@ -42,12 +42,12 @@ pub struct ColumnIndex {
 }
 ```
 
-#### Solution Polaroid
-Polaroid v0.53.0 résout ce problème **nativement** :
+#### Solution Polarway
+Polarway v0.53.0 résout ce problème **nativement** :
 
 1. **Storage stats déjà en format columnar**
    ```rust
-   // polaroid-grpc/src/storage/mod.rs
+   // polarway-grpc/src/storage/mod.rs
    pub struct HybridStorageStats {
        pub cache_hit_rate: f64,          // Direct access
        pub compression_ratio: f64,        // Precomputed
@@ -57,7 +57,7 @@ Polaroid v0.53.0 résout ce problème **nativement** :
    ```
 
 2. **Parquet metadata cached in-memory**
-   - Polaroid's ParquetBackend lit les stats Parquet **une seule fois** au load
+   - Polarway's ParquetBackend lit les stats Parquet **une seule fois** au load
    - Les stocke dans LRU cache (2GB)
    - Évite re-parsing à chaque query
 
@@ -67,14 +67,14 @@ Polaroid v0.53.0 résout ce problème **nativement** :
 
 #### Implémentation Proposée
 
-**Fichier:** `polaroid-grpc/src/storage/parquet_stats.rs` (nouveau module)
+**Fichier:** `polarway-grpc/src/storage/parquet_stats.rs` (nouveau module)
 
 ```rust
 use parquet::file::metadata::RowGroupMetaData;
 use arrow::array::{Int64Array, BooleanArray};
 
-/// Polaroid-optimized Parquet statistics decoder
-pub struct PolaroidStatsDecoder {
+/// Polarway-optimized Parquet statistics decoder
+pub struct PolarwayStatsDecoder {
     cache: LruCache<String, ColumnIndexCache>,
 }
 
@@ -87,7 +87,7 @@ pub struct ColumnIndexCache {
     pub row_group_id: u32,
 }
 
-impl PolaroidStatsDecoder {
+impl PolarwayStatsDecoder {
     pub fn decode_optimized(
         &mut self,
         metadata: &RowGroupMetaData,
@@ -103,11 +103,11 @@ impl PolaroidStatsDecoder {
 
 Contribuer un PR à apache/arrow-rs:
 ```
-parquet/src/arrow/polaroid_stats_decoder.rs  (nouveau module)
+parquet/src/arrow/polarway_stats_decoder.rs  (nouveau module)
 ↓
 Expose public API: `ParquetStatsOptimizer`
 ↓
-DataFusion peut l'utiliser via feature flag "polaroid-stats"
+DataFusion peut l'utiliser via feature flag "polarway-stats"
 ```
 
 #### Estimation d'Effort
@@ -136,7 +136,7 @@ DataFusion peut l'utiliser via feature flag "polaroid-stats"
 
 - **Utilisateurs directs:** DataFusion (query engine majeur)
 - **Bénéficiaires indirects:** InfluxDB, Ballista, tous projets utilisant Parquet stats
-- **Visibilité:** Apache project = très forte visibilité pour Polaroid
+- **Visibilité:** Apache project = très forte visibilité pour Polarway
 
 ---
 
@@ -162,12 +162,12 @@ let data = unsafe {
 PrimitiveArray::from(data)  // 🚨 Conversion overhead
 ```
 
-#### Solution Polaroid
+#### Solution Polarway
 
-Polaroid utilise déjà **zero-copy construction** partout :
+Polarway utilise déjà **zero-copy construction** partout :
 
 ```rust
-// polaroid-grpc/src/storage/cache.rs
+// polarway-grpc/src/storage/cache.rs
 impl CacheBackend {
     pub fn load(&self, key: &str) -> Option<DataFrame> {
         self.cache.lock().unwrap().get(key).map(|entry| {
@@ -184,14 +184,14 @@ Polars DataFrames = déjà basés sur Arrow arrays **sans ArrayData wrapper**.
 
 **Créer un guide de bonnes pratiques:**
 
-`polaroid/docs/source/arrow_integration.md`
+`polarway/docs/source/arrow_integration.md`
 
 ```markdown
 # Arrow Integration Best Practices
 
 ## Zero-Copy Array Construction
 
-Polaroid demonstrates how to work with Arrow arrays efficiently:
+Polarway demonstrates how to work with Arrow arrays efficiently:
 
 ### ❌ Avoid: ArrayData wrapper overhead
 ```rust
@@ -205,9 +205,9 @@ let nulls = Some(NullBuffer::new(...)).filter(|n| n.null_count() > 0);
 PrimitiveArray::new(ScalarBuffer::from(buffer), nulls)
 ```
 
-### Polaroid Example: Polars → Arrow conversion
+### Polarway Example: Polars → Arrow conversion
 ```rust
-// polaroid-grpc/src/storage/mod.rs
+// polarway-grpc/src/storage/mod.rs
 pub fn to_arrow_batch(df: &pl::DataFrame) -> RecordBatch {
     // Polars already uses Arrow arrays internally
     // Conversion is zero-copy via Arc cloning
@@ -225,7 +225,7 @@ pub fn build_primitive_array_zerocopy<T: ArrowPrimitiveType>(
     nulls: Option<Buffer>,
 ) -> PrimitiveArray<T> {
     // Documented zero-copy construction path
-    // Example from Polaroid integration
+    // Example from Polarway integration
 }
 ```
 
@@ -233,9 +233,9 @@ pub fn build_primitive_array_zerocopy<T: ArrowPrimitiveType>(
 
 | Phase | Tâches | Durée |
 |-------|--------|-------|
-| **Documentation** | Guide Arrow integration Polaroid | 1 semaine |
+| **Documentation** | Guide Arrow integration Polarway | 1 semaine |
 | **Helper Functions** | PR avec utility functions | 1 semaine |
-| **Examples** | Benchmarks Polaroid vs ArrayData | 3 jours |
+| **Examples** | Benchmarks Polarway vs ArrayData | 3 jours |
 | **TOTAL** | | **2.5 semaines** |
 
 #### Probabilité d'Acceptation: **75%**
@@ -243,11 +243,11 @@ pub fn build_primitive_array_zerocopy<T: ArrowPrimitiveType>(
 **Facteurs positifs:**
 - ✅ Issue déjà identifiée par mainteneurs (@tustvold)
 - ✅ Solution documentée + exemples concrets
-- ✅ Démontre best practices avec Polaroid
+- ✅ Démontre best practices avec Polarway
 
 **Risques:**
-- ⚠️ Peut être perçu comme "promotional" pour Polaroid
-  - **Mitigation:** Focus sur principes génériques, Polaroid comme cas d'étude
+- ⚠️ Peut être perçu comme "promotional" pour Polarway
+  - **Mitigation:** Focus sur principes génériques, Polarway comme cas d'étude
 
 ---
 
@@ -260,18 +260,18 @@ pub fn build_primitive_array_zerocopy<T: ArrowPrimitiveType>(
 #### Problème Identifié
 > "Goal: add an optional JIT Avro-to-Arrow decode path that compiles a schema-specialized decode kernel once per (writer, reader, options) pair and reuses it for all subsequent batches, with an aspirational target of ~3× higher steady-state decode throughput."
 
-#### Solution Polaroid
+#### Solution Polarway
 
-Polaroid's **hybrid cache + Parquet storage** peut servir de **fast path alternatif** au JIT:
+Polarway's **hybrid cache + Parquet storage** peut servir de **fast path alternatif** au JIT:
 
 **Approche: Cache-Optimized Decoding**
 
 ```rust
-// Concept: Use Polaroid cache as "compiled decoder" substitute
+// Concept: Use Polarway cache as "compiled decoder" substitute
 
 pub struct CachedAvroDecoder {
     /// LRU cache of pre-decoded Parquet batches
-    cache: PolaroidStorageClient,
+    cache: PolarwayStorageClient,
 }
 
 impl CachedAvroDecoder {
@@ -280,7 +280,7 @@ impl CachedAvroDecoder {
         avro_bytes: &[u8],
         schema_id: &str,
     ) -> Result<RecordBatch> {
-        // 1. Check if schema_id + data hash in Polaroid cache
+        // 1. Check if schema_id + data hash in Polarway cache
         let cache_key = format!("avro:{}:{}", schema_id, hash(avro_bytes));
         
         if let Some(cached) = self.cache.load(&cache_key) {
@@ -312,13 +312,13 @@ impl CachedAvroDecoder {
 `arrow-avro/src/decoder/cached.rs`
 
 ```rust
-#[cfg(feature = "polaroid-cache")]
-pub struct PolaroidCachedDecoder {
-    storage: PolaroidStorageClient,
+#[cfg(feature = "polarway-cache")]
+pub struct PolarwayCachedDecoder {
+    storage: PolarwayStorageClient,
     stats: CacheStats,
 }
 
-// Benchmark: Compare JIT proposal vs Polaroid cache approach
+// Benchmark: Compare JIT proposal vs Polarway cache approach
 ```
 
 #### Estimation d'Effort
@@ -340,12 +340,12 @@ pub struct PolaroidCachedDecoder {
 
 **Risques:**
 - ⚠️ Mainteneurs peuvent préférer JIT pure approach
-- ⚠️ Dépendance externe (Polaroid) = friction
+- ⚠️ Dépendance externe (Polarway) = friction
   - **Mitigation:** Rendre le cache layer pluggable (trait-based)
 
 ---
 
-## Autres Issues Analysées (Non-Prioritaires pour Polaroid)
+## Autres Issues Analysées (Non-Prioritaires pour Polarway)
 
 ### Issues Arrow-RS Hors-Scope
 - **#9344, #9343, #9342, #9341, #9340:** ListView support (non lié au storage)
@@ -354,11 +354,11 @@ pub struct PolaroidCachedDecoder {
 - **#9326:** DataType helpers (type system)
 - **#9269:** Test organization (repo hygiene)
 - **#9242:** Per-row-group WriterProperties (API design)
-- **#9233:** Avro schema refactor (scope trop large pour Polaroid)
+- **#9233:** Avro schema refactor (scope trop large pour Polarway)
 - **#9225:** Union type casting (type system)
 - **#9212:** AsyncWriter for Avro (I/O, non-storage)
 
-**Raison:** Ces issues concernent l'API Arrow, le système de types, ou l'organisation du code - domaines où Polaroid n'apporte pas de valeur directe.
+**Raison:** Ces issues concernent l'API Arrow, le système de types, ou l'organisation du code - domaines où Polarway n'apporte pas de valeur directe.
 
 ---
 
@@ -377,30 +377,30 @@ pub struct PolaroidCachedDecoder {
 #### Phase 1 (Q1 2026) : Quick Win
 **Issue #9061 - ArrayData Overhead Documentation**
 - ✅ ROI rapide (2.5 semaines)
-- ✅ Établit crédibilité Polaroid dans communauté Arrow
+- ✅ Établit crédibilité Polarway dans communauté Arrow
 - ✅ 75% probabilité acceptation
 
 **Livrables:**
-1. `polaroid/docs/source/arrow_integration.md` (guide complet)
+1. `polarway/docs/source/arrow_integration.md` (guide complet)
 2. PR à apache/arrow-rs avec helper functions
-3. Blog post: "Zero-Copy Arrow Arrays: Lessons from Polaroid"
+3. Blog post: "Zero-Copy Arrow Arrays: Lessons from Polarway"
 
 #### Phase 2 (Q2 2026) : Major Contribution
 **Issue #9296 - Parquet Statistics Optimizer**
 - 🔥 Impact maximum (DataFusion + tous projets Parquet)
-- ✅ Démontre valeur technique unique de Polaroid
+- ✅ Démontre valeur technique unique de Polarway
 - ✅ 85% probabilité acceptation
 
 **Livrables:**
-1. Module `polaroid_stats_decoder.rs` testé + benchmarked
-2. PR à apache/arrow-rs avec feature flag "polaroid-stats"
+1. Module `polarway_stats_decoder.rs` testé + benchmarked
+2. PR à apache/arrow-rs avec feature flag "polarway-stats"
 3. Présentation Apache Arrow meetup (virtuel)
-4. Case study: "3x Faster Parquet Statistics with Polaroid"
+4. Case study: "3x Faster Parquet Statistics with Polarway"
 
 #### Phase 3 (Q3 2026) : Innovation
 **Issue #9211 - Avro Cached Decoder**
 - 🎯 Approche innovante (alternative au JIT)
-- ✅ Différenciation Polaroid vs autres solutions
+- ✅ Différenciation Polarway vs autres solutions
 - ⚠️ 65% probabilité (plus risqué)
 
 **Livrables:**
@@ -412,18 +412,18 @@ pub struct PolaroidCachedDecoder {
 
 ## Métriques de Succès
 
-### Visibilité Polaroid
-- **GitHub Stars:** +200-500 stars sur Polaroid repo
+### Visibilité Polarway
+- **GitHub Stars:** +200-500 stars sur Polarway repo
 - **Documentation Views:** 5,000+ vues docs ReadTheDocs
 - **Mentions:** Twitter/HN posts sur contributions Apache
 
 ### Adoption Technique
-- **DataFusion Integration:** Feature flag "polaroid-stats" activé par défaut
-- **Downstream Projects:** 3-5 projets adoptent Polaroid storage layer
-- **Benchmarks Cités:** Polaroid stats optimizer référencé dans Arrow docs
+- **DataFusion Integration:** Feature flag "polarway-stats" activé par défaut
+- **Downstream Projects:** 3-5 projets adoptent Polarway storage layer
+- **Benchmarks Cités:** Polarway stats optimizer référencé dans Arrow docs
 
 ### Communauté
-- **Contributors:** +5 external contributors à Polaroid
+- **Contributors:** +5 external contributors à Polarway
 - **Issues Opened:** 10-15 feature requests de qualité
 - **Conference Talks:** 1-2 présentations Arrow Summit / Data+AI
 
@@ -431,7 +431,7 @@ pub struct PolaroidCachedDecoder {
 
 ## Conclusion
 
-Polaroid v0.53.0 possède des **capacités uniques** (hybrid storage, smart caching, Parquet optimization) qui résolvent des **problèmes réels** identifiés par la communauté Apache Arrow.
+Polarway v0.53.0 possède des **capacités uniques** (hybrid storage, smart caching, Parquet optimization) qui résolvent des **problèmes réels** identifiés par la communauté Apache Arrow.
 
 **Les 3 issues ciblées** représentent une opportunité stratégique:
 1. **Impact communautaire élevé** (3,350+ stars Apache Arrow)
@@ -446,7 +446,7 @@ Polaroid v0.53.0 possède des **capacités uniques** (hybrid storage, smart cach
 ---
 
 **Prochaines étapes:**
-1. ✅ Valider roadmap avec stakeholders Polaroid
-2. ✅ Créer issues détaillées dans Polaroid repo
+1. ✅ Valider roadmap avec stakeholders Polarway
+2. ✅ Créer issues détaillées dans Polarway repo
 3. ✅ Contacter mainteneurs Apache Arrow (@tustvold, @alamb) pour feedback préliminaire
 4. 🚀 Commencer Phase 1 (documentation) immédiatement

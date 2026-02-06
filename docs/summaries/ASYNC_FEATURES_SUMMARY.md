@@ -2,7 +2,7 @@
 
 ## What Was Added
 
-### 1. Advanced Async Client (`polaroid-python/polaroid/async_client.py`)
+### 1. Advanced Async Client (`polarway-python/polarway/async_client.py`)
 - **485 lines** of production-ready async code
 - `Result<T,E>` and `Option<T>` monads (Rust-style error handling)
 - Concurrent batch operations (`batch_read`, `batch_collect`)
@@ -25,7 +25,7 @@
 - Sub-millisecond latency, 120k+ ticks/second
 
 ### 4. Comprehensive Benchmarks
-- **Notebook**: `examples/benchmark_polaroid_vs_polars.ipynb`
+- **Notebook**: `examples/benchmark_polarway_vs_polars.ipynb`
 - Shows **2-17x speedup** over Polars for concurrent workloads
 - Visualizations: throughput charts, memory graphs, scalability curves
 
@@ -38,7 +38,7 @@
 
 ## Performance Highlights
 
-| Benchmark | Polars | Polaroid | Speedup |
+| Benchmark | Polars | Polarway | Speedup |
 |-----------|--------|----------|---------|
 | 50 file batch read | 11.5s | 2.8s | **4.1x** ⚡ |
 | 100 concurrent queries | 60 QPS | 650 QPS | **10.8x** ⚡ |
@@ -54,7 +54,7 @@
 
 ### Sync API (backwards compatible)
 ```python
-import polaroid as pd
+import polarway as pd
 
 df = pd.read_parquet("data.parquet")
 table = df.select(["col1", "col2"]).collect()
@@ -62,9 +62,9 @@ table = df.select(["col1", "col2"]).collect()
 
 ### Async API (new - 5x faster)
 ```python
-from polaroid.async_client import AsyncPolaroidClient
+from polarway.async_client import AsyncPolarwayClient
 
-async with AsyncPolaroidClient("localhost:50051") as client:
+async with AsyncPolarwayClient("localhost:50051") as client:
     results = await client.batch_read([
         f"data/file_{i:03d}.parquet" for i in range(100)
     ])
@@ -77,9 +77,9 @@ async with AsyncPolaroidClient("localhost:50051") as client:
 ```python
 ws = WebSocketDataStream("wss://stream.binance.com")
 
-async with AsyncPolaroidClient("localhost:50051") as polaroid:
+async with AsyncPolarwayClient("localhost:50051") as polarway:
     async for tick in ws.stream():
-        await polaroid.append_record(tick)
+        await polarway.append_record(tick)
         # <1ms latency!
 ```
 
@@ -109,7 +109,7 @@ async with AsyncPolaroidClient("localhost:50051") as polaroid:
 
 1. **Run Benchmarks**:
    ```bash
-   jupyter notebook examples/benchmark_polaroid_vs_polars.ipynb
+   jupyter notebook examples/benchmark_polarway_vs_polars.ipynb
    ```
 
 2. **Try WebSocket Example**:
@@ -123,16 +123,16 @@ async with AsyncPolaroidClient("localhost:50051") as polaroid:
 
 3. **Test Async Client**:
    ```bash
-   # Start Polaroid server
-   cargo run --release -p polaroid-grpc
+   # Start Polarway server
+   cargo run --release -p polarway-grpc
    
    # Run async example
    python -c "
-   from polaroid.async_client import AsyncPolaroidClient
+   from polarway.async_client import AsyncPolarwayClient
    import asyncio
    
    async def test():
-       async with AsyncPolaroidClient('localhost:50051') as client:
+       async with AsyncPolarwayClient('localhost:50051') as client:
            print('✅ Async client working!')
    
    asyncio.run(test())
@@ -150,9 +150,9 @@ async with AsyncPolaroidClient("localhost:50051") as polaroid:
 
 ---
 
-## When to Use Polaroid
+## When to Use Polarway
 
-### ✅ Use Polaroid for:
+### ✅ Use Polarway for:
 - Large datasets (> RAM)
 - High concurrency (100+ queries/sec)
 - Real-time streaming (WebSocket/Kafka)
@@ -168,5 +168,5 @@ async with AsyncPolaroidClient("localhost:50051") as polaroid:
 ---
 
 **Status**: ✅ **COMPLETE**  
-**GitHub**: https://github.com/ThotDjehuty/polaroid  
-**Fork from**: https://github.com/EnkiNudimmud/polaroid
+**GitHub**: https://github.com/ThotDjehuty/polarway  
+**Fork from**: https://github.com/EnkiNudimmud/polarway

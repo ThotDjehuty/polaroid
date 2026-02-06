@@ -1,4 +1,4 @@
-# Polaroid API Documentation
+# Polarway API Documentation
 
 Complete API documentation for both Rust and Python interfaces.
 
@@ -8,10 +8,10 @@ Complete API documentation for both Rust and Python interfaces.
 
 #### `connect(address: str) -> Client`
 
-Connect to a Polaroid gRPC server.
+Connect to a Polarway gRPC server.
 
 ```python
-import polaroid as pd
+import polarway as pd
 
 client = pd.connect("localhost:50051")
 ```
@@ -836,15 +836,15 @@ result.map(lambda t: process(t)).map_err(lambda e: log_error(e))
 ### Client Connection
 
 ```rust
-use polaroid_grpc::client::PolaroidClient;
+use polarway_grpc::client::PolarwayClient;
 
-let mut client = PolaroidClient::connect("http://localhost:50051").await?;
+let mut client = PolarwayClient::connect("http://localhost:50051").await?;
 ```
 
 ### DataFrame Operations
 
 ```rust
-use polaroid::prelude::*;
+use polarway::prelude::*;
 
 // Read Parquet
 let df = client.read_parquet("data.parquet").await?;
@@ -904,32 +904,32 @@ Expression builder.
 
 ### Module Reference
 
-#### `polaroid::prelude`
+#### `polarway::prelude`
 
 Common imports.
 
 ```rust
-use polaroid::prelude::*;
+use polarway::prelude::*;
 ```
 
 Exports: `DataFrame`, `LazyFrame`, `Series`, `col`, `lit`, `DataType`
 
-#### `polaroid::io`
+#### `polarway::io`
 
 I/O operations.
 
 ```rust
-use polaroid::io::{ParquetReader, CsvReader};
+use polarway::io::{ParquetReader, CsvReader};
 
 let df = ParquetReader::new("data.parquet").finish()?;
 ```
 
-#### `polaroid::lazy`
+#### `polarway::lazy`
 
 Lazy evaluation.
 
 ```rust
-use polaroid::lazy::dsl::*;
+use polarway::lazy::dsl::*;
 
 let lazy_df = scan_parquet("data.parquet")?;
 ```

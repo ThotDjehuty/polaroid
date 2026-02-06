@@ -1,4 +1,4 @@
-// Generic serverless handler for Polaroid DataFrame engine
+// Generic serverless handler for Polarway DataFrame engine
 // Cloud-agnostic interface that can be adapted to any serverless platform
 
 use serde::{Deserialize, Serialize};
@@ -75,11 +75,11 @@ impl Metrics {
         
         let registry = Registry::new();
         
-        let request_count = IntCounter::new("polaroid_requests_total", "Total requests").unwrap();
+        let request_count = IntCounter::new("polarway_requests_total", "Total requests").unwrap();
         registry.register(Box::new(request_count.clone())).unwrap();
         
         let request_duration = HistogramVec::new(
-            prometheus::HistogramOpts::new("polaroid_request_duration_seconds", "Request duration"),
+            prometheus::HistogramOpts::new("polarway_request_duration_seconds", "Request duration"),
             &["endpoint", "tier"]
         ).unwrap();
         registry.register(Box::new(request_duration.clone())).unwrap();
@@ -222,8 +222,8 @@ pub trait ServerlessHandler: Send + Sync {
     ) -> Result<ServerlessResponse, ServerlessError>;
 }
 
-/// Polaroid-specific handler implementation with real DataFrame operations
-pub struct PolaroidHandler {
+/// Polarway-specific handler implementation with real DataFrame operations
+pub struct PolarwayHandler {
     handle_manager: Arc<HandleManager>,
     #[cfg(feature = "metrics")]
     metrics: Arc<Metrics>,
@@ -231,7 +231,7 @@ pub struct PolaroidHandler {
     jwt_secret: String,
 }
 
-impl PolaroidHandler {
+impl PolarwayHandler {
     pub fn new() -> Self {
         let handle_manager = Arc::new(HandleManager::default());
         
@@ -580,7 +580,7 @@ impl PolaroidHandler {
 }
 
 #[async_trait::async_trait]
-impl ServerlessHandler for PolaroidHandler {
+impl ServerlessHandler for PolarwayHandler {
     async fn handle_request(
         &self,
         req: ServerlessRequest,
@@ -611,7 +611,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_health_check() {
-        let handler = PolaroidHandler::new();
+        let handler = PolarwayHandler::new();
         let req = ServerlessRequest {
             method: "GET".to_string(),
             path: "/health".to_string(),
@@ -626,7 +626,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_discover_pairs() {
-        let handler = PolaroidHandler::new();
+        let handler = PolarwayHandler::new();
         let req = ServerlessRequest {
             method: "POST".to_string(),
             path: "/api/discover-pairs".to_string(),

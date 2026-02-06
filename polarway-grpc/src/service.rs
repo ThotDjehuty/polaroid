@@ -11,13 +11,13 @@ use crate::proto::{
     *,
 };
 use crate::handles::HandleManager;
-use crate::error::{PolaroidError, Result};
+use crate::error::{PolarwayError, Result};
 
-pub struct PolaroidDataFrameService {
+pub struct PolarwayDataFrameService {
     handle_manager: Arc<HandleManager>,
 }
 
-impl PolaroidDataFrameService {
+impl PolarwayDataFrameService {
     pub fn new() -> Self {
         let handle_manager = Arc::new(HandleManager::default());
         
@@ -44,7 +44,7 @@ impl PolaroidDataFrameService {
 
         polars::io::ipc::IpcWriter::new(&mut buffer)
             .finish(&mut df.clone())
-            .map_err(PolaroidError::Polars)?;
+            .map_err(PolarwayError::Polars)?;
 
         Ok(buffer)
     }
@@ -114,7 +114,7 @@ impl PolaroidDataFrameService {
         // Write DataFrame as Arrow IPC
         polars::io::ipc::IpcWriter::new(&mut buffer)
             .finish(&mut df.clone())
-            .map_err(|e| PolaroidError::Polars(e))?;
+            .map_err(|e| PolarwayError::Polars(e))?;
         
         Ok(vec![ArrowBatch {
             arrow_ipc: buffer,
@@ -124,7 +124,7 @@ impl PolaroidDataFrameService {
 }
 
 #[tonic::async_trait]
-impl DataFrameService for PolaroidDataFrameService {
+impl DataFrameService for PolarwayDataFrameService {
     type CollectStream = ReceiverStream<std::result::Result<ArrowBatch, Status>>;
     type CollectStreamingStream = ReceiverStream<std::result::Result<ArrowBatch, Status>>;
     type StreamWebSocketStream = ReceiverStream<std::result::Result<ArrowBatch, Status>>;

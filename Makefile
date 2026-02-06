@@ -183,8 +183,8 @@ clean:  ## Clean up caches, build artifacts, and the venv
 
 .PHONY: docker-build-fast
 docker-build-fast:  ## Build Docker image with cargo-chef caching (FAST)
-	@echo "🚀 Building Polaroid Docker image (optimized with cargo-chef)..."
-	@DOCKER_BUILDKIT=1 docker compose -f docker-compose.polaroid.yml build \
+	@echo "🚀 Building Polarway Docker image (optimized with cargo-chef)..."
+	@DOCKER_BUILDKIT=1 docker compose -f docker-compose.polarway.yml build \
 		--build-arg BUILDKIT_INLINE_CACHE=1 \
 		--progress=plain
 	@echo "✅ Docker image built with dependency caching!"
@@ -194,83 +194,83 @@ docker-build: docker-build-fast  ## Alias for docker-build-fast
 
 .PHONY: docker-build-clean
 docker-build-clean:  ## Build Docker image from scratch (no cache)
-	@echo "🧹 Building Polaroid Docker image (clean build, no cache)..."
-	@DOCKER_BUILDKIT=1 docker compose -f docker-compose.polaroid.yml build --no-cache --progress=plain
+	@echo "🧹 Building Polarway Docker image (clean build, no cache)..."
+	@DOCKER_BUILDKIT=1 docker compose -f docker-compose.polarway.yml build --no-cache --progress=plain
 	@echo "✅ Clean Docker build complete!"
 
 .PHONY: docker-up
-docker-up:  ## Start Polaroid gRPC server (with volume mounts)
-	@echo "🚀 Starting Polaroid gRPC server..."
-	@docker compose -f docker-compose.polaroid.yml up
+docker-up:  ## Start Polarway gRPC server (with volume mounts)
+	@echo "🚀 Starting Polarway gRPC server..."
+	@docker compose -f docker-compose.polarway.yml up
 	
 .PHONY: docker-up-d
-docker-up-d:  ## Start Polaroid gRPC server in background
-	@echo "🚀 Starting Polaroid gRPC server (detached)..."
-	@docker compose -f docker-compose.polaroid.yml up -d
-	@echo "✅ Polaroid running at localhost:50053"
+docker-up-d:  ## Start Polarway gRPC server in background
+	@echo "🚀 Starting Polarway gRPC server (detached)..."
+	@docker compose -f docker-compose.polarway.yml up -d
+	@echo "✅ Polarway running at localhost:50053"
 	@echo "📂 Volume mounts:"
 	@echo "   - /tmp -> /tmp (test data)"
 	@echo "   - ./data -> /app/data"
 	@echo "   - ./notebooks -> /app/notebooks (read-only)"
 
 .PHONY: docker-down
-docker-down:  ## Stop Polaroid services
-	@echo "🛑 Stopping Polaroid services..."
-	@docker compose -f docker-compose.polaroid.yml down
-	@echo "✅ Polaroid stopped"
+docker-down:  ## Stop Polarway services
+	@echo "🛑 Stopping Polarway services..."
+	@docker compose -f docker-compose.polarway.yml down
+	@echo "✅ Polarway stopped"
 
 .PHONY: docker-logs
-docker-logs:  ## View Polaroid container logs
-	@echo "📋 Tailing Polaroid logs (Ctrl+C to exit)..."
-	@docker compose -f docker-compose.polaroid.yml logs -f
+docker-logs:  ## View Polarway container logs
+	@echo "📋 Tailing Polarway logs (Ctrl+C to exit)..."
+	@docker compose -f docker-compose.polarway.yml logs -f
 
 .PHONY: docker-restart
 docker-restart:  ## Quick restart without rebuild
 	@echo "⚡ Quick restart (no rebuild)..."
-	@docker compose -f docker-compose.polaroid.yml restart
-	@echo "✅ Polaroid restarted!"
+	@docker compose -f docker-compose.polarway.yml restart
+	@echo "✅ Polarway restarted!"
 
 .PHONY: docker-rebuild
 docker-rebuild: docker-down docker-build-fast docker-up-d  ## Full rebuild and restart (FAST)
-	@echo "✅ Full rebuild complete! Polaroid running at localhost:50053"
+	@echo "✅ Full rebuild complete! Polarway running at localhost:50053"
 
 .PHONY: docker-clean
 docker-clean:  ## Remove all Docker artifacts
 	@echo "🧹 Cleaning Docker artifacts..."
-	@docker compose -f docker-compose.polaroid.yml down --remove-orphans --volumes
-	@docker rmi polaroid-grpc:latest 2>/dev/null || true
+	@docker compose -f docker-compose.polarway.yml down --remove-orphans --volumes
+	@docker rmi polarway-grpc:latest 2>/dev/null || true
 	@docker builder prune -f
 	@echo "✅ Docker cleanup complete!"
 
 .PHONY: docker-shell
-docker-shell:  ## Open shell in running Polaroid container
-	@docker compose -f docker-compose.polaroid.yml exec polaroid-grpc /bin/bash || echo "Container not running. Start with: make docker-up-d"
+docker-shell:  ## Open shell in running Polarway container
+	@docker compose -f docker-compose.polarway.yml exec polarway-grpc /bin/bash || echo "Container not running. Start with: make docker-up-d"
 
 .PHONY: docker-stats
 docker-stats:  ## Show Docker container resource usage
-	@docker stats polaroid-server-public --no-stream
+	@docker stats polarway-server-public --no-stream
 
 .PHONY: rebuild
-rebuild:  ## Clean and rebuild Polaroid gRPC server locally
-	@echo "🔨 Rebuilding Polaroid gRPC server..."
-	cd polaroid-grpc && cargo clean && cargo build --release
+rebuild:  ## Clean and rebuild Polarway gRPC server locally
+	@echo "🔨 Rebuilding Polarway gRPC server..."
+	cd polarway-grpc && cargo clean && cargo build --release
 	@echo "✅ Rebuild complete!"
 
 .PHONY: test
-test:  ## Run Polaroid gRPC tests
-	cd polaroid-grpc && cargo test --all-features
+test:  ## Run Polarway gRPC tests
+	cd polarway-grpc && cargo test --all-features
 
 .PHONY: help
 help:  ## Display this help screen
 	@echo -e "\033[1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-	@echo -e "\033[1m  Polaroid - DataFrame Engine Commands\033[0m"
+	@echo -e "\033[1m  Polarway - DataFrame Engine Commands\033[0m"
 	@echo -e "\033[1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 	@echo
 	@echo "🚀 Quick Start:"
 	@echo "  make requirements           Set up Python virtual environment"
-	@echo "  make build-release          Build Polaroid (optimized)"
+	@echo "  make build-release          Build Polarway (optimized)"
 	@echo "  make docker-build-fast      Build Docker image (with caching - FAST!)"
-	@echo "  make docker-up-d            Start Polaroid gRPC server"
+	@echo "  make docker-up-d            Start Polarway gRPC server"
 	@echo
 	@echo "🔨 Build Commands:"
 	@grep -E '^(build|build-release|build-debug-release):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
@@ -280,7 +280,7 @@ help:  ## Display this help screen
 	@echo "  make docker-build-clean     Clean build without cache"
 	@echo "  make docker-up              Start gRPC server (foreground)"
 	@echo "  make docker-up-d            Start in background (port 50053)"
-	@echo "  make docker-down            Stop Polaroid services"
+	@echo "  make docker-down            Stop Polarway services"
 	@echo "  make docker-logs            View container logs (follow)"
 	@echo "  make docker-restart         Quick restart (no rebuild)"
 	@echo "  make docker-rebuild         Full rebuild and restart (FAST)"

@@ -2,15 +2,15 @@
 resolver = "2"
 members = [
   "crates/*",
-  "polaroid-grpc",
-  "polaroid-sources",
-  "polaroid-distributed",
+  "polarway-grpc",
+  "polarway-sources",
+  "polarway-distributed",
 ]
 default-members = [
   "crates/*",
-  "polaroid-grpc",
-  "polaroid-sources",
-  "polaroid-distributed",
+  "polarway-grpc",
+  "polarway-sources",
+  "polarway-distributed",
 ]
 
 [workspace.package]
