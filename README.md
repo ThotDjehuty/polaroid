@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Polarway Logo](docs/assets/logo.svg)
+![Polarway Logo](docs/assets/polarway-logo.png)
 
 **Railway-Oriented Data Processing: Safe, Fast, and Composable**
 

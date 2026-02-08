@@ -101,42 +101,42 @@ Table of Contents
    :maxdepth: 2
    :caption: Getting Started
 
-   installation
+   user-guide/installation
+   user-guide/getting-started
    quickstart
    examples
 
 .. toctree::
    :maxdepth: 2
-   :caption: Architecture
+   :caption: Core Concepts
 
+   concepts/index
+   concepts/railway
+   concepts/hybrid-storage
    architecture
    storage
-   streaming
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
+   user-guide/concepts/index
+   user-guide/concepts/streaming
+   user-guide/concepts/lazy-api
 
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
 
-   api/python
-   api/rust
-   api/grpc
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Guides
-
-   guides/storage_layer
-   guides/streaming
-   guides/time_series
-   guides/functional_programming
+   api/reference
 
 .. toctree::
    :maxdepth: 1
    :caption: Development
 
-   contributing
-   changelog
-   release_notes
+   development/contributing/index
+   development/versioning
+   releases/changelog
 
 Indices and tables
 ==================
