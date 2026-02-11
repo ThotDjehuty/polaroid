@@ -120,6 +120,7 @@ pub fn vwap_lazy(
 ///
 /// Typical price is often used instead of close price for VWAP calculation:
 /// Typical Price = (High + Low + Close) / 3
+#[allow(dead_code)]
 pub fn typical_price(df: &DataFrame) -> TimeSeriesResult<Series> {
     let high = df.column("high")?.as_materialized_series().clone();
     let low = df.column("low")?.as_materialized_series().clone();

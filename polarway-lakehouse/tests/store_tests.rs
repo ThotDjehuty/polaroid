@@ -174,8 +174,7 @@ async fn test_compact_and_vacuum() {
     }
 
     // Compact should succeed
-    let metrics = store.compact(schema::TABLE_USERS).await.unwrap();
-    assert!(metrics.files_added >= 0);
+    let _metrics = store.compact(schema::TABLE_USERS).await.unwrap();
 
     // Vacuum (dry run) should succeed
     let vacuum_metrics = store.vacuum(schema::TABLE_USERS, 0, true).await.unwrap();

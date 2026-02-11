@@ -27,6 +27,8 @@ Usage:
     summary = client.billing_summary("user-123", "2025-01-01", "2025-12-31")
 """
 
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false
+
 from __future__ import annotations
 
 import hashlib
@@ -523,7 +525,9 @@ class LakehouseClient:
         self._update_user_field(user_id, "subscription_tier", tier.value)
         self._log_audit(user_id, user.username, ActionType.USER_APPROVED, detail=f"Tier: {tier.value}")
 
-        return self.get_user(user_id)
+        updated = self.get_user(user_id)
+        assert updated is not None, "User should exist after update"
+        return updated
 
     def reject_user(self, user_id: str) -> bool:
         """Reject and remove a pending user."""

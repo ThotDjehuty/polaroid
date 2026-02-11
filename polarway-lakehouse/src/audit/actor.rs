@@ -100,7 +100,7 @@ impl AuditActor {
             match msg {
                 AuditMsg::Log { user_id, username, action, resource, detail, ip_address } => {
                     if let Err(e) = self.handle_log(user_id, username, action, resource, detail, ip_address).await {
-                        warn!(error = %e, "Failed to write audit log");
+                        warn!(error = ?e, "Failed to write audit log");
                     }
                 }
                 AuditMsg::GetUserActivity { user_id, limit, reply } => {

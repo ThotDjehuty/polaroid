@@ -430,7 +430,7 @@ impl AuthActor {
                 true
             }
             Err(e) => {
-                warn!(error = %e, "Logout failed");
+                warn!(error = ?e, "Logout failed");
                 false
             }
         }

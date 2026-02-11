@@ -216,9 +216,10 @@ impl DeltaStore {
     pub async fn scan(&self, table_name: &str) -> Result<Vec<RecordBatch>> {
         let url = self.table_url(table_name)?;
         let table = open_table(url).await?;
+        let table_provider: Arc<dyn deltalake::datafusion::catalog::TableProvider> = Arc::new(table);
 
         let ctx = deltalake::datafusion::prelude::SessionContext::new();
-        ctx.register_table("t", Arc::new(table))
+        ctx.register_table("t", table_provider)
             .map_err(|e| LakehouseError::DataFusion(e.to_string()))?;
 
         let df = ctx
@@ -252,9 +253,10 @@ impl DeltaStore {
     pub async fn query(&self, table_name: &str, sql_where: &str) -> Result<Vec<RecordBatch>> {
         let url = self.table_url(table_name)?;
         let table = open_table(url).await?;
+        let table_provider: Arc<dyn deltalake::datafusion::catalog::TableProvider> = Arc::new(table);
 
         let ctx = deltalake::datafusion::prelude::SessionContext::new();
-        ctx.register_table("t", Arc::new(table))
+        ctx.register_table("t", table_provider)
             .map_err(|e| LakehouseError::DataFusion(e.to_string()))?;
 
         let sql = format!("SELECT * FROM t WHERE {sql_where}");
@@ -287,9 +289,10 @@ impl DeltaStore {
     pub async fn sql(&self, table_name: &str, full_sql: &str) -> Result<Vec<RecordBatch>> {
         let url = self.table_url(table_name)?;
         let table = open_table(url).await?;
+        let table_provider: Arc<dyn deltalake::datafusion::catalog::TableProvider> = Arc::new(table);
 
         let ctx = deltalake::datafusion::prelude::SessionContext::new();
-        ctx.register_table("t", Arc::new(table))
+        ctx.register_table("t", table_provider)
             .map_err(|e| LakehouseError::DataFusion(e.to_string()))?;
 
         let df = ctx
@@ -329,9 +332,10 @@ impl DeltaStore {
                     table: table_name.to_string(),
                     version,
                 })?;
+        let table_provider: Arc<dyn deltalake::datafusion::catalog::TableProvider> = Arc::new(table);
 
         let ctx = deltalake::datafusion::prelude::SessionContext::new();
-        ctx.register_table("t", Arc::new(table))
+        ctx.register_table("t", table_provider)
             .map_err(|e| LakehouseError::DataFusion(e.to_string()))?;
 
         let df = ctx
@@ -363,9 +367,10 @@ impl DeltaStore {
     ) -> Result<Vec<RecordBatch>> {
         let url = self.table_url(table_name)?;
         let table = open_table_with_ds(url, timestamp).await?;
+        let table_provider: Arc<dyn deltalake::datafusion::catalog::TableProvider> = Arc::new(table);
 
         let ctx = deltalake::datafusion::prelude::SessionContext::new();
-        ctx.register_table("t", Arc::new(table))
+        ctx.register_table("t", table_provider)
             .map_err(|e| LakehouseError::DataFusion(e.to_string()))?;
 
         let df = ctx
@@ -551,7 +556,7 @@ impl DeltaStore {
                 ),
                 Err(e) => warn!(
                     table = table_name,
-                    error = %e,
+                    error = ?e,
                     "GDPR: delete failed (may be empty)"
                 ),
             }
@@ -561,7 +566,7 @@ impl DeltaStore {
         for table_name in &tables_with_user {
             match self.vacuum(table_name, 0, false).await {
                 Ok(_) => {}
-                Err(e) => warn!(table = table_name, error = %e, "GDPR: vacuum failed"),
+                Err(e) => warn!(table = table_name, error = ?e, "GDPR: vacuum failed"),
             }
         }
 

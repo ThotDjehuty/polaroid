@@ -12,6 +12,7 @@ pub struct MmapParquetReader {
     path: std::path::PathBuf,
     mmap: Arc<Mmap>,
     schema: Arc<Schema>,
+    #[allow(dead_code)]
     num_rows: Option<usize>,
 }
 

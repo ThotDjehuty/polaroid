@@ -64,7 +64,7 @@ impl MaintenanceScheduler {
                             info!(deleted = m.num_deleted_rows, "Cleaned expired sessions");
                         }
                     }
-                    Err(e) => error!(error = %e, "Session cleanup failed"),
+                    Err(e) => error!(error = ?e, "Session cleanup failed"),
                 }
             }
         });
@@ -92,7 +92,7 @@ impl MaintenanceScheduler {
                         }
                         Err(e) => error!(
                             table = table_def.name,
-                            error = %e,
+                            error = ?e,
                             "Compaction failed"
                         ),
                     }
@@ -112,7 +112,7 @@ impl MaintenanceScheduler {
 
                 // Z-order sessions by user_id for fast lookups
                 if let Err(e) = store.z_order(schema::TABLE_SESSIONS, &["user_id"]).await {
-                    error!(error = %e, "Z-order sessions failed");
+                    error!(error = ?e, "Z-order sessions failed");
                 }
 
                 // Z-order audit_log by user_id + action
@@ -120,7 +120,7 @@ impl MaintenanceScheduler {
                     .z_order(schema::TABLE_AUDIT_LOG, &["user_id", "action"])
                     .await
                 {
-                    error!(error = %e, "Z-order audit_log failed");
+                    error!(error = ?e, "Z-order audit_log failed");
                 }
 
                 // Z-order user_actions by user_id + action_type
@@ -128,7 +128,7 @@ impl MaintenanceScheduler {
                     .z_order(schema::TABLE_USER_ACTIONS, &["user_id", "action_type"])
                     .await
                 {
-                    error!(error = %e, "Z-order user_actions failed");
+                    error!(error = ?e, "Z-order user_actions failed");
                 }
 
                 info!("Z-order optimization cycle complete");
@@ -158,7 +158,7 @@ impl MaintenanceScheduler {
                         }
                         Err(e) => error!(
                             table = table_def.name,
-                            error = %e,
+                            error = ?e,
                             "Vacuum failed"
                         ),
                     }
