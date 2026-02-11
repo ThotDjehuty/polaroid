@@ -6,6 +6,7 @@ members = [
   "polarway-grpc",
   "polarway-sources",
   "polarway-distributed",
+  "polarway-lakehouse",
   "py-polars/runtime/polars-runtime-32",
   "py-polars/runtime/polars-runtime-64",
   "py-polars/runtime/polars-runtime-compat",
@@ -20,6 +21,7 @@ default-members = [
   "polarway-grpc",
   "polarway-sources",
   "polarway-distributed",
+  "polarway-lakehouse",
 ]
 
 # Note: crates/* already includes:

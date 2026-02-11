@@ -54,3 +54,51 @@ class OperationError(PolarwayError):
 class TimeoutError(PolarwayError):
     """Operation timed out."""
     pass
+
+
+# ─── Lakehouse Exceptions ───
+
+
+class LakehouseError(PolarwayError):
+    """Base exception for Lakehouse operations."""
+    pass
+
+
+class AuthenticationError(LakehouseError):
+    """Authentication failed (invalid credentials, expired token, etc.)."""
+    pass
+
+
+class AuthorizationError(LakehouseError):
+    """Insufficient permissions for the requested operation."""
+    pass
+
+
+class UserNotFoundError(LakehouseError):
+    """User not found in the lakehouse."""
+    pass
+
+
+class UserAlreadyExistsError(LakehouseError):
+    """User with this email already exists."""
+    pass
+
+
+class TokenExpiredError(AuthenticationError):
+    """JWT token has expired."""
+    pass
+
+
+class VersionNotFoundError(LakehouseError):
+    """Requested table version does not exist."""
+    pass
+
+
+class TableNotFoundError(LakehouseError):
+    """Delta table not found."""
+    pass
+
+
+class AuditError(LakehouseError):
+    """Error writing or querying audit logs."""
+    pass

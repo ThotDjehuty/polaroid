@@ -101,6 +101,35 @@ Three-tier architecture optimized for cost and performance:
 
 📚 **[Storage Architecture →](https://polarway.readthedocs.io/en/latest/storage.html)**
 
+### 🏗️ Lakehouse (polarway-lakehouse)
+
+Delta Lake storage layer for ACID transactions, time-travel, and user management:
+
+```rust
+use polarway_lakehouse::{DeltaStore, LakehouseConfig};
+
+let store = DeltaStore::new(LakehouseConfig::new("/data/lakehouse")).await?;
+
+// ACID write
+store.append("users", user_batch).await?;
+
+// Time-travel: read at version 5
+let old = store.read_version("users", 5).await?;
+
+// Time-travel: read at timestamp
+let snapshot = store.read_timestamp("users", "2026-02-01T12:00:00Z").await?;
+
+// SQL query with DataFusion
+let admins = store.query("users", "role = 'admin'").await?;
+
+// GDPR: permanent deletion + vacuum
+store.gdpr_delete_user("user_123").await?;
+```
+
+**Features:** Authentication (Argon2 + JWT), audit logging, compaction, Z-ordering, GDPR compliance
+
+📚 **[Lakehouse Guide →](https://polarway.readthedocs.io/en/latest/lakehouse.html)**
+
 ### 🌐 Client-Server via gRPC
 
 Handle-based architecture for memory efficiency and multi-client scenarios:
@@ -323,19 +352,24 @@ polarway/
 │   │   ├── handles.rs    # Handle lifecycle
 │   │   └── storage/      # Storage backends
 │   └── Cargo.toml
+├── polarway-lakehouse/    # Delta Lake storage layer
+│   ├── src/
+│   │   ├── store.rs      # DeltaStore (ACID, time-travel, SQL)
+│   │   ├── auth/         # Authentication (Argon2, JWT)
+│   │   ├── audit/        # Audit logging (append-only)
+│   │   └── maintenance.rs # Background optimization
+│   └── Cargo.toml
 ├── polarway-python/       # Python client
 │   ├── polarway/
 │   │   ├── __init__.py
 │   │   ├── dataframe.py  # DataFrame API
+│   │   ├── lakehouse.py  # Lakehouse client
 │   │   └── storage.py    # Storage client
 │   └── pyproject.toml
-├── docs/                  # Documentation (Sphinx)
-│   ├── source/
-│   │   ├── quickstart.rst
-│   │   ├── functional.md
-│   │   ├── storage.md
-│   │   └── architecture.md
-│   └── requirements.txt
+├── docs/                  # Documentation (MkDocs)
+│   ├── index.md
+│   ├── lakehouse.md      # Lakehouse guide
+│   └── ...
 └── proto/                 # Protocol buffers
     └── polarway.proto
 ```

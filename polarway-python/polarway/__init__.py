@@ -8,8 +8,29 @@ streaming-first architecture, and native time-series support.
 from .client import connect, DataFrame
 from .config import config
 
+# Lakehouse client (Delta Lake storage layer)
+try:
+    from .lakehouse import (
+        LakehouseClient,
+        SubscriptionTier,
+        UserRole,
+    )
+    _HAS_LAKEHOUSE = True
+except ImportError:
+    _HAS_LAKEHOUSE = False
+
 __version__ = "0.1.0"
-__all__ = ["connect", "DataFrame", "config", "read_parquet", "read_rest_api"]
+__all__ = [
+    "connect",
+    "DataFrame",
+    "config",
+    "read_parquet",
+    "read_rest_api",
+    # Lakehouse
+    "LakehouseClient",
+    "SubscriptionTier",
+    "UserRole",
+]
 
 
 # Convenience functions

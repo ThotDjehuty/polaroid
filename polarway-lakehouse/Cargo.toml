@@ -1,0 +1,57 @@
+[package]
+name = "polarway-lakehouse"
+version = "0.1.0"
+edition = "2021"
+authors = ["Polarway Contributors"]
+license = "MIT"
+description = "Delta Lake storage layer for Polarway — ACID transactions, time-travel, audit logging, and user management"
+repository = "https://github.com/ThotDjehuty/polarway"
+keywords = ["delta-lake", "lakehouse", "time-travel", "audit", "arrow"]
+readme = "README.md"
+
+[dependencies]
+# Delta Lake core (re-exports arrow, datafusion, parquet)
+deltalake = { version = "0.30", features = ["datafusion"] }
+
+# Authentication
+argon2 = { version = "0.5", features = ["std"] }
+jsonwebtoken = "9"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# URL handling (for Delta table paths)
+url = "2"
+
+# Time and identifiers
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Crypto
+sha2 = "0.10"
+
+# Error handling (railway programming)
+thiserror = "1.0"
+
+# Observability
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full", "test-util"] }
+tempfile = "3"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[features]
+default = ["auth", "audit"]
+auth = []
+audit = []
+full = ["auth", "audit"]
+
+[lib]
+name = "polarway_lakehouse"
+path = "src/lib.rs"
