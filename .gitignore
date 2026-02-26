@@ -8,6 +8,9 @@
 !notebooks/polarway_advanced.ipynb
 !notebooks/polarway_cloud_integrations.ipynb
 !notebooks/polarway_functional_programming.ipynb
+!notebooks/phase5_streaming_test.ipynb
+!notebooks/environment_check.ipynb
+!notebooks/storage_demo.ipynb
 .ENV
 .env
 .ipynb_checkpoints/

@@ -6,10 +6,12 @@
 
 **Railway-Oriented Data Processing: Safe, Fast, and Composable**
 
+[![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](https://github.com/ThotDjehuty/polarway/releases/tag/v1.0.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Documentation](https://readthedocs.org/projects/polarway/badge/?version=latest)](https://polarway.readthedocs.io/en/latest/?badge=latest)
+[![Notebooks](https://img.shields.io/badge/notebooks-7%20verified-blueviolet.svg)](notebooks/)
 
 [Quick Start](#-quick-start) | [Architecture](#-architecture) | [Documentation](https://polarway.readthedocs.io/) | [Contributing](#-contributing)
 
@@ -239,22 +241,42 @@ returns = ohlcv_5m.pct_change(periods=1)
 
 📚 **[Time-Series Guide →](https://polarway.readthedocs.io/en/latest/timeseries.html)**
 
-### Streaming from WebSocket
+### Python-Native Streaming (No Server Required)
+
+Polarway's streaming patterns work entirely with **Polars' native engine** and Python async primitives:
 
 ```python
-# Connect to live crypto feed
-stream = pw.from_websocket(
-    url="wss://stream.binance.com:9443/ws/btcusdt@trade",
-    schema={"symbol": pw.Utf8, "price": pw.Float64, "timestamp": pw.Datetime("ms")},
-    format="json"
+import polars as pl
+from pathlib import Path
+
+# 1. Larger-than-RAM VWAP on 5M ticks — constant memory
+vwap = (
+    pl.scan_parquet("ticks/*.parquet")       # lazy — nothing loaded yet
+    .filter(pl.col("side") == "BUY")
+    .group_by("symbol")
+    .agg(
+        (pl.col("price") * pl.col("volume")).sum() / pl.col("volume").sum(),
+    )
+    .collect(engine="streaming")             # chunk-by-chunk, bounded RAM
 )
 
-# Process in real-time batches
-async for batch in stream.batches(size=1000):
-    processed = batch.filter(pw.col("price") > 50000)
-    processed.write_parquet("btc_trades.parquet", mode="append")
+# 2. Per-batch callbacks (spike detection, alerting, forwarding)
+def on_batch(batch: pl.DataFrame):
+    spikes = batch.filter(pl.col("price").pct_change().abs() > 0.03)
+    if len(spikes): alert(spikes)
+
+pl.scan_parquet("ticks/*.parquet").sink_batches(on_batch, chunk_size=200_000)
+
+# 3. Streaming ETL: transform then write without loading into RAM
+(
+    pl.scan_parquet("raw/*.parquet")
+    .with_columns((pl.col("price") * pl.col("volume")).alias("notional"))
+    .filter(pl.col("notional") > 5_000)
+    .sink_parquet("enriched/output.parquet")  # streaming write
+)
 ```
 
+📓 **[11 streaming patterns → `notebooks/phase5_streaming_test.ipynb`](notebooks/phase5_streaming_test.ipynb)**  
 📚 **[Streaming Guide →](https://polarway.readthedocs.io/en/latest/streaming.html)**
 
 ## ✨ Key Features
@@ -284,12 +306,15 @@ async for batch in stream.batches(size=1000):
 - ✅ As-of joins for time-aligned data
 - ✅ Financial indicators (VWAP, RSI, MACD)
 
-### Streaming & Network Sources
-- ✅ WebSocket with automatic reconnection
-- ✅ REST API pagination (cursor, offset, link headers)
-- ✅ Kafka, NATS, Redis Streams
-- ✅ Real-time pipelines with backpressure
-- ✅ Sub-millisecond latency
+### Streaming & Real-Time Processing
+- ✅ `collect(engine='streaming')` — larger-than-RAM datasets, constant memory
+- ✅ `sink_batches(fn, chunk_size)` — per-batch callbacks (alerting, forwarding)
+- ✅ `sink_parquet / sink_csv / sink_ndjson` — streaming file writes
+- ✅ `collect_async()` — concurrent background execution
+- ✅ WebSocket ingestion (`websockets`), HTTP polling (`httpx`), `asyncio.Queue`
+- ✅ Multi-file partition pruning with predicate pushdown
+- ✅ VWAP / OFI / Realized Volatility on sliding windows
+- ✅ Sub-millisecond latency via gRPC streaming bridge
 
 ## 📊 Performance
 
