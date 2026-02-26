@@ -7,27 +7,13 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
-  jobs:
-    post_create_environment:
-      # Install Rust toolchain for building storage modules
-      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      # Install protoc (Protocol Buffers compiler) for gRPC
-      - curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protoc-25.1-linux-x86_64.zip
-      - unzip -q protoc-25.1-linux-x86_64.zip -d $HOME/.local
-      - rm protoc-25.1-linux-x86_64.zip
-    # Temporarily disable cargo doc to isolate Sphinx build issues
-    # post_install:
-    #   - export PATH="$HOME/.local/bin:$PATH" && . $HOME/.cargo/env && cd polarway-grpc && cargo doc --no-deps
 
-sphinx:
-  configuration: docs/source/conf.py
-  fail_on_warning: false
-
-formats:
-  - pdf
-  - epub
+mkdocs:
+  configuration: mkdocs.yml
 
 python:
+  install:
+    - requirements: docs/requirements.txt
   install:
     - requirements: docs/requirements.txt
 

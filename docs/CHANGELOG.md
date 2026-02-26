@@ -5,6 +5,81 @@ All notable changes to Polarway will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-02-26
+
+### 🎉 First Stable Release
+
+Polarway v1.0.0 establishes the first stable, production-ready API for the Railway-Oriented DataFrame engine.
+
+### ✨ New in 1.0.0
+
+#### Lakehouse (Delta Lake support)
+- ACID transactions with time-travel queries (`read_version`, `read_timestamp`)
+- User management with Argon2 password hashing and JWT authentication
+- Role-based access control (RBAC) for table-level permissions
+- Audit logging for compliance (configurable retention)
+- Delta Lake maintenance operations (vacuum, optimize, z-order clustering)
+- DataFusion SQL engine integration for complex analytics queries
+
+#### Python Package (`polarway` on PyPI)
+- gRPC client library: `from polarway import PolarwayClient, TimeSeriesClient`
+- `LakehouseClient` for Delta Lake operations with optional dependencies
+- Async iterator streaming API: `async for batch in client.stream_query(...)`
+- Arrow IPC zero-copy deserialization
+- Automatic proto stub generation at install time
+- Full type annotations throughout
+
+#### Functional Programming Enhancements
+- Railway-Oriented Programming (ROP) monad: `Result<T, E>`, `Option<T>`
+- `Maybe` monad for optional chaining
+- `pipe()`, `compose()`, `curry()` higher-order utilities
+- Lens-based immutable update patterns
+- `validate_dataframe()` with typed schema contracts
+
+#### Notebooks (verified, all cells pass)
+- `environment_check.ipynb` — dependency verification (✅ pass)
+- `polarway_showcase.ipynb` — full feature tour (✅ pass)
+- `polarway_functional_programming.ipynb` — ROP / monad patterns (✅ pass)
+- `polarway_functional_programming_v2.ipynb` — advanced composition patterns (✅ pass)
+- `storage_demo.ipynb` — LRU cache + Parquet + DuckDB hot/cold storage (✅ pass)
+- `polarway_advanced.ipynb` — streaming joins, ETL, partitioning (✅ pass)
+- `polarway_cloud_integrations.ipynb` — CSV/JSON/Parquet + SQLite + Pandas (✅ pass)
+- `adaptive_streaming_benchmarks.ipynb` — requires private `polars_streaming_adaptive` build (⚠️ internal only)
+- Notebooks requiring a running Polarway gRPC server (⚠️ server required):
+  `phase2_operations_test.ipynb`, `phase5_streaming_test.ipynb`, `rest_exec_api_demo.ipynb`
+
+#### Documentation
+- Switched ReadTheDocs build to MkDocs Material
+- Cleaned `mkdocs.yml`: removed Polars-upstream nav (polars-cloud, polars-on-premises)
+- Fixed repo URL to `ThotDjehuty/polarway`
+- Added 25 reference docs to nav
+
+### 🔧 Changed
+- `polarway-grpc` crate: version bumped `0.1.0` → `1.0.0`
+- `polarway` Python package: version bumped `0.1.1` → `1.0.0`
+- Package description updated to reflect production-ready status
+- Development Status classifier: Alpha → Beta
+- `docs/source/conf.py`: release `0.53.0` → `1.0.0`
+
+### ✅ Test Results
+- Python tests: **27/27 pass** (`pytest polarway-python/tests/`)
+- Dependencies: `deltalake==1.4.2`, `pyarrow==18.1.0`, `argon2-cffi`, `PyJWT` installed in rhftlab
+- Standalone notebooks: 7 notebooks pass `nbconvert --execute --inplace`
+- Rust compilation: known `arrow-arith@53.4.0` × `chrono@0.4.39+` conflict (see ⚠️ Known Issues)
+
+### ⚠️ Known Issues
+- **Rust build conflict**: `arrow-arith 53.4.0` introduced a `quarter()` ambiguity with `chrono >= 0.4.39` (chrono added `Datelike::quarter()` which conflicts with `ChronoDateExt::quarter()`). Fix: upgrade arrow to 54+ or use a workspace-level `[patch.crates-io]`. This affects compilation but not the Python package (which uses grpcio, not the Rust gRPC binary).
+- **crates.io publication deferred**: `polarway-grpc` uses path dependencies on local Polars fork crates (`path = "../crates/polars"`). crates.io requires all dependencies to come from crates.io. Architecture change required in v1.1.0.
+- **pyarrow compatibility**: `pyarrow >= 21` has a binary incompatibility with `_azurefs` when `deltalake` is installed. Use `pyarrow == 18.1.0` for the Lakehouse optional dependency.
+
+### 🔗 Links
+- PyPI: https://pypi.org/project/polarway/ (release pending)
+- crates.io: deferred to v1.1.0 (path dependency architecture change required)
+- ReadTheDocs: https://polarway.readthedocs.io
+- Repository: https://github.com/ThotDjehuty/polarway
+
+---
+
 ## [0.1.1] - 2026-02-11
 
 ### 🐛 Bug Fixes

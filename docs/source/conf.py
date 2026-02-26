@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'Polarway'
 copyright = '2026, Polarway Contributors'
 author = 'Polarway Contributors'
-release = '0.53.0'
-version = '0.53'
+release = '1.0.0'
+version = '1.0'
 
 # Extensions
 extensions = [
