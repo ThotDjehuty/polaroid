@@ -596,30 +596,27 @@ for batch in df.stream_batches(batch_size=1000):
 
 ### Project Structure
 
-```
-polarway/
-├── crates/                      # Original Polars crates
-│   ├── polars/                  # Core Polars
-│   ├── polars-arrow/            # Arrow integration
-│   ├── polars-lazy/             # Lazy evaluation
-│   └── ...
-├── polarway-grpc/               # NEW: gRPC server
-│   ├── src/
-│   │   ├── main.rs             # Server entry point
-│   │   ├── service.rs          # gRPC service impl
-│   │   ├── handles.rs          # Handle management
-│   │   └── proto/              # Generated proto code
-│   └── Cargo.toml
-├── polarway-python/             # NEW: Python client
-│   ├── polarway/
-│   │   ├── __init__.py
-│   │   ├── dataframe.py        # DataFrame class
-│   │   └── proto/              # Generated Python stubs
-│   └── pyproject.toml
-├── proto/                       # Protocol buffers
-│   └── polarway.proto          # Main service definition
-└── docs/                        # Documentation
-```
+- **crates/** — Original Polars crates
+  - **polars/** — Core Polars
+  - **polars-arrow/** — Arrow integration
+  - **polars-lazy/** — Lazy evaluation
+  - ...
+- **polarway-grpc/** — NEW: gRPC server
+  - **src/**
+    - **main.rs** — Server entry point
+    - **service.rs** — gRPC service impl
+    - **handles.rs** — Handle management
+    - **proto/** — Generated proto code
+  - Cargo.toml
+- **polarway-python/** — NEW: Python client
+  - **polarway/**
+    - **\_\_init\_\_.py**
+    - **dataframe.py** — DataFrame class
+    - **proto/** — Generated Python stubs
+  - pyproject.toml
+- **proto/** — Protocol buffers
+  - **polarway.proto** — Main service definition
+- **docs/** — Documentation
 
 ### Build & Test
 

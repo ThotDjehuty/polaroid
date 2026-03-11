@@ -30,25 +30,9 @@ The notebook will connect to the Dockerized server at `localhost:50051`.
 
 ## Architecture
 
-```
-┌──────────────────────┐
-│  Jupyter Notebook    │
-│  (Your Machine)      │
-│                      │
-│  import polarway     │
-│  pld.connect()       │
-└──────────┬───────────┘
-           │ gRPC :50051
-           │ Arrow IPC
-           ▼
-┌──────────────────────┐
-│  Docker Container    │
-│  polarway-grpc       │
-│                      │
-│  Rust + Polars       │
-│  gRPC Server         │
-└──────────────────────┘
-```
+1. **Jupyter Notebook** (Your Machine) — `import polarway` / `pld.connect()`
+2. → gRPC `:50051` / Arrow IPC →
+3. **Docker Container** (`polarway-grpc`) — Rust + Polars gRPC Server
 
 ## Environment Variables
 

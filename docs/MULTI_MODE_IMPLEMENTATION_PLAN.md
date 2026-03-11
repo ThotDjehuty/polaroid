@@ -14,16 +14,13 @@ Reorganize Polarway to support 3 deployment modes:
 
 ## 🏗️ Current Polarway Architecture
 
-```
-polarway/
-├── src/
-│   ├── lib.rs              # Main library
-│   ├── dataframe/          # DataFrame engine
-│   ├── grpc_service/       # gRPC server (distributed mode)
-│   └── lazy/               # Lazy evaluation
-├── Cargo.toml              # Rust dependencies
-└── docker-compose.yml      # gRPC deployment
-```
+- **src/**
+  - **lib.rs** — Main library
+  - **dataframe/** — DataFrame engine
+  - **grpc_service/** — gRPC server (distributed mode)
+  - **lazy/** — Lazy evaluation
+- **Cargo.toml** — Rust dependencies
+- **docker-compose.yml** — gRPC deployment
 
 **Current Mode**: Distributed only (gRPC)
 
@@ -31,50 +28,30 @@ polarway/
 
 ## 🔄 New Architecture
 
-```
-polarway/
-├── crates/
-│   ├── polarway-core/      # Core DataFrame engine (shared)
-│   │   ├── src/
-│   │   │   ├── dataframe.rs
-│   │   │   ├── lazy.rs
-│   │   │   ├── arrow_ops.rs
-│   │   │   └── lib.rs
-│   │   └── Cargo.toml
-│   │
-│   ├── polarway-py/        # 🆕 Standalone: PyO3 bindings
-│   │   ├── src/
-│   │   │   ├── lib.rs      # PyO3 wrapper
-│   │   │   ├── dataframe.rs
-│   │   │   └── conversions.rs
-│   │   ├── Cargo.toml      # dependencies: pyo3, polarway-core
-│   │   └── pyproject.toml  # Python wheel config
-│   │
-│   ├── polarway-connect/   # Distributed: gRPC server
-│   │   ├── src/
-│   │   │   ├── server.rs
-│   │   │   ├── service.rs
-│   │   │   └── main.rs
-│   │   └── Cargo.toml      # dependencies: tonic, polarway-core
-│   │
-│   └── polarway-wasm/      # 🆕 Portable: WASM module
-│       ├── src/
-│       │   ├── lib.rs      # wasm-bindgen exports
-│       │   └── ops.rs
-│       └── Cargo.toml      # dependencies: wasm-bindgen, polarway-core
-│
-├── python/                  # Python client library
-│   ├── polarway/
-│   │   ├── __init__.py     # Unified API
-│   │   ├── standalone.py   # PyO3 import
-│   │   ├── distributed.py  # gRPC client
-│   │   └── portable.py     # WASM/PyArrow fallback
-│   └── setup.py
-│
-├── Cargo.toml              # Workspace config
-├── pyproject.toml          # Python package config
-└── docker-compose.yml      # Distributed deployment
-```
+- **crates/**
+  - **polarway-core/** — Core DataFrame engine (shared)
+    - **src/** — dataframe.rs, lazy.rs, arrow_ops.rs, lib.rs
+    - Cargo.toml
+  - **polarway-py/** — 🆕 Standalone: PyO3 bindings
+    - **src/** — lib.rs (PyO3 wrapper), dataframe.rs, conversions.rs
+    - Cargo.toml (dependencies: pyo3, polarway-core)
+    - pyproject.toml (Python wheel config)
+  - **polarway-connect/** — Distributed: gRPC server
+    - **src/** — server.rs, service.rs, main.rs
+    - Cargo.toml (dependencies: tonic, polarway-core)
+  - **polarway-wasm/** — 🆕 Portable: WASM module
+    - **src/** — lib.rs (wasm-bindgen exports), ops.rs
+    - Cargo.toml (dependencies: wasm-bindgen, polarway-core)
+- **python/** — Python client library
+  - **polarway/**
+    - **\_\_init\_\_.py** — Unified API
+    - **standalone.py** — PyO3 import
+    - **distributed.py** — gRPC client
+    - **portable.py** — WASM/PyArrow fallback
+  - setup.py
+- **Cargo.toml** — Workspace config
+- **pyproject.toml** — Python package config
+- **docker-compose.yml** — Distributed deployment
 
 ---
 

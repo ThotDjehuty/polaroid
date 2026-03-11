@@ -127,23 +127,15 @@ Polarway v0.53.0 introduces a revolutionary **three-tier hybrid storage system**
 
 ### Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Application Layer                     │
-│                  (Python/Rust Client)                    │
-└─────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────┐
-│                   HybridStorage Router                   │
-│              (smart_load / smart_store)                  │
-└─────────────────────────────────────────────────────────┘
-           ↓                 ↓                 ↓
-┌──────────────────┐ ┌──────────────┐ ┌─────────────────┐
-│  CacheBackend    │ │ ParquetBackend│ │ DuckDBBackend   │
-│  (LRU, 2GB RAM)  │ │(18× compress) │ │ (SQL Analytics) │
-│  < 1ms           │ │ ~50ms         │ │ ~45ms           │
-└──────────────────┘ └──────────────┘ └─────────────────┘
-```
+| Layer | Component | Details |
+|-------|-----------|--------|
+| **Application Layer** | Python/Rust Client | |
+| ↓ | | |
+| **HybridStorage Router** | smart_load / smart_store | |
+| ↓ | ↓ | ↓ |
+| **CacheBackend** | LRU, 2GB RAM | < 1ms |
+| **ParquetBackend** | 18× compression | ~50ms |
+| **DuckDBBackend** | SQL Analytics | ~45ms |
 
 ### Tier 1: CacheBackend (Hot Data)
 

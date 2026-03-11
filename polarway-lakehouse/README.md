@@ -29,7 +29,7 @@ async fn main() -> polarway_lakehouse::Result<()> {
     let store = DeltaStore::new(config).await?;
 
     // Append data (ACID transaction)
-    let batch = create_user_batch("alice", "alice@example.com");
+    let batch = create_user_batch("bob", "bob@example.com");
     let version = store.append("users", batch).await?;
     println!("Written at version {version}");
 
@@ -97,10 +97,10 @@ use polarway_lakehouse::auth::AuthActor;
 let (auth, handle) = AuthActor::new(store.clone(), config.clone()).await?;
 
 // Register a new user
-let user = auth.register("alice", "alice@example.com", "StrongP@ss123!", SubscriptionTier::Pro).await?;
+let user = auth.register("bob", "bob@example.com", "StrongP@ss123!", SubscriptionTier::Pro).await?;
 
 // Login (returns JWT token)
-let token = auth.login("alice@example.com", "StrongP@ss123!").await?;
+let token = auth.login("bob@example.com", "StrongP@ss123!").await?;
 
 // Verify token
 let claims = auth.verify(&token).await?;
@@ -220,13 +220,10 @@ store.gdpr_delete_user("user_id_to_delete").await?;
 
 The lakehouse creates 4 Delta tables:
 
-```
-{base_path}/
-├── users/           # User accounts (user_id, username, email, role, tier, ...)
-├── sessions/        # Auth sessions (session_id, user_id, token, expires_at, ...)  
-├── audit_log/       # Partitioned by date_partition
-└── user_actions/    # Partitioned by date_partition
-```
+- **users/** — User accounts (user_id, username, email, role, tier, ...)
+- **sessions/** — Auth sessions (session_id, user_id, token, expires_at, ...)
+- **audit_log/** — Partitioned by date_partition
+- **user_actions/** — Partitioned by date_partition
 
 ## Python Client
 
@@ -238,8 +235,8 @@ from polarway.lakehouse import LakehouseClient
 client = LakehouseClient(base_url="http://localhost:8080")
 
 # Register + login
-client.register("alice", "alice@example.com", "StrongP@ss!", tier="pro")
-token = client.login("alice@example.com", "StrongP@ss!")
+client.register("bob", "bob@example.com", "StrongP@ss!", tier="pro")
+token = client.login("bob@example.com", "StrongP@ss!")
 
 # Time-travel
 current_users = client.scan("users")

@@ -353,31 +353,12 @@ for r in results:
 
 ### Speed Comparison
 
-```
-Polars:    ████░░░░░░ (40/100)
-Polarway:  ██████████ (100/100)
-```
-
-### Memory Efficiency
-
-```
-Polars:    ███░░░░░░░ (30/100) - Grows with data
-Polarway:  ██████████ (100/100) - Constant O(1)
-```
-
-### Concurrency
-
-```
-Polars:    ██░░░░░░░░ (20/100) - GIL limited
-Polarway:  ██████████ (100/100) - True parallelism
-```
-
-### Real-Time Streaming
-
-```
-Polars:    ░░░░░░░░░░ (0/100) - Not supported
-Polarway:  ██████████ (100/100) - Native support
-```
+| Metric | Polars | Polarway |
+|--------|--------|----------|
+| **Speed** | 40/100 | **100/100** |
+| **Memory Efficiency** | 30/100 (grows with data) | **100/100** (constant O(1)) |
+| **Concurrency** | 20/100 (GIL limited) | **100/100** (true parallelism) |
+| **Real-Time Streaming** | 0/100 (not supported) | **100/100** (native support) |
 
 ### Overall Score
 

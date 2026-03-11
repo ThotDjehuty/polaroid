@@ -15,32 +15,15 @@
 
 ### Architecture
 
-```text
-┌──────────────────────────────────────────────┐
-│              Application Layer               │
-│     (Streamlit / FastAPI / gRPC / CLI)       │
-└──────────────┬───────────────────────────────┘
-               │
-┌──────────────▼───────────────────────────────┐
-│            AuthActor + AuditActor            │
-│     (tokio actors, mpsc channels)            │
-│     register / login / verify / approve      │
-│     log / billing_summary / activity         │
-└──────────────┬───────────────────────────────┘
-               │
-┌──────────────▼───────────────────────────────┐
-│              DeltaStore (core)               │
-│     append / delete / scan / query / sql     │
-│     read_version / read_timestamp / history  │
-│     compact / z_order / vacuum               │
-└──────────────┬───────────────────────────────┘
-               │
-┌──────────────▼───────────────────────────────┐
-│           Delta Lake (delta-rs 0.30)         │
-│     Transaction log + Parquet files          │
-│     Apache Arrow columnar format             │
-└──────────────────────────────────────────────┘
-```
+| Layer | Component | Details |
+|-------|-----------|--------|
+| **Application Layer** | Streamlit / FastAPI / gRPC / CLI | Client applications |
+| ↓ | | |
+| **AuthActor + AuditActor** | tokio actors, mpsc channels | register / login / verify / approve / log / billing_summary / activity |
+| ↓ | | |
+| **DeltaStore (core)** | Data operations | append / delete / scan / query / sql / read_version / read_timestamp / history / compact / z_order / vacuum |
+| ↓ | | |
+| **Delta Lake** | delta-rs 0.30 | Transaction log + Parquet files, Apache Arrow columnar format |
 
 ## Getting Started
 
@@ -153,25 +136,12 @@ The `auth` feature provides a complete user management system built on Delta Lak
 
 ### User Registration Flow
 
-```text
-  User                AuthActor              DeltaStore
-   │                     │                      │
-   │  register(...)      │                      │
-   │────────────────────►│                      │
-   │                     │  check_existing      │
-   │                     │─────────────────────►│
-   │                     │                      │
-   │                     │  hash_password       │
-   │                     │  (Argon2)            │
-   │                     │                      │
-   │                     │  append(users, ...)  │
-   │                     │─────────────────────►│
-   │                     │                      │  ACID commit
-   │                     │  audit_log(Register) │
-   │                     │─────────────────────►│
-   │  Ok(UserRecord)     │                      │
-   │◄────────────────────│                      │
-```
+1. **User** → calls `register(...)` on **AuthActor**
+2. **AuthActor** → `check_existing` on **DeltaStore**
+3. **AuthActor** → `hash_password` (Argon2)
+4. **AuthActor** → `append(users, ...)` on **DeltaStore** → ACID commit
+5. **AuthActor** → `audit_log(Register)` on **DeltaStore**
+6. **AuthActor** → returns `Ok(UserRecord)` to **User**
 
 ### JWT Token Authentication
 
@@ -182,11 +152,11 @@ let (auth, _handle) = AuthActor::new(store.clone(), config.clone()).await?;
 
 // Register
 let user = auth
-    .register("alice", "alice@example.com", "StrongP@ss123!", SubscriptionTier::Pro)
+    .register("bob", "bob@example.com", "StrongP@ss123!", SubscriptionTier::Pro)
     .await?;
 
 // Login → JWT token
-let token = auth.login("alice@example.com", "StrongP@ss123!").await?;
+let token = auth.login("bob@example.com", "StrongP@ss123!").await?;
 
 // Verify token (on every request)
 let claims = auth.verify(&token).await?;
@@ -296,14 +266,13 @@ use polarway_lakehouse::maintenance::MaintenanceScheduler;
 let scheduler = MaintenanceScheduler::new(store.clone(), config.clone());
 scheduler.start().await; // Background tasks:
 
-// ┌─────────────────────┬────────────────┐
-// │ Task                │ Frequency      │
-// ├─────────────────────┼────────────────┤
-// │ Session cleanup     │ Every hour     │
-// │ Compaction          │ Every 6 hours  │
-// │ Z-ordering          │ Daily          │
-// │ Vacuum              │ Weekly         │
-// └─────────────────────┴────────────────┘
+// Maintenance Schedule:
+// | Task              | Frequency      |
+// |-------------------|----------------|
+// | Session cleanup   | Every hour     |
+// | Compaction        | Every 6 hours  |
+// | Z-ordering        | Daily          |
+// | Vacuum            | Weekly         |
 ```
 
 ## GDPR Compliance

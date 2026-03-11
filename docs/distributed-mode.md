@@ -14,27 +14,17 @@ Polarway's **distributed mode** uses gRPC to provide:
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                      Clients                             │
-│         (Python, Rust, Go, TypeScript)                   │
-└─────────────────────────────────────────────────────────┘
-                          ↓ gRPC (HTTP/2)
-┌─────────────────────────────────────────────────────────┐
-│                   Load Balancer                          │
-│              (nginx, Envoy, HAProxy)                     │
-└─────────────────────────────────────────────────────────┘
-           ↓                ↓                ↓
-┌────────────────┐ ┌────────────────┐ ┌────────────────┐
-│ Polarway Worker│ │ Polarway Worker│ │ Polarway Worker│
-│   (gRPC Server)│ │   (gRPC Server)│ │   (gRPC Server)│
-└────────────────┘ └────────────────┘ └────────────────┘
-           ↓                ↓                ↓
-┌─────────────────────────────────────────────────────────┐
-│              Shared Storage / State Store                │
-│         (Parquet + DuckDB + Cache + Handles)             │
-└─────────────────────────────────────────────────────────┘
-```
+| Layer | Component | Description |
+|-------|-----------|-------------|
+| **Clients** | Python, Rust, Go, TypeScript | |
+| ↓ | gRPC (HTTP/2) | |
+| **Load Balancer** | nginx, Envoy, HAProxy | |
+| ↓ | ↓ | ↓ |
+| **Polarway Worker 1** | gRPC Server | Independent worker |
+| **Polarway Worker 2** | gRPC Server | Independent worker |
+| **Polarway Worker 3** | gRPC Server | Independent worker |
+| ↓ | ↓ | ↓ |
+| **Shared Storage / State Store** | Parquet + DuckDB + Cache + Handles | |
 
 ## Server Setup
 

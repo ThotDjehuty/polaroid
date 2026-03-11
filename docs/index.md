@@ -124,33 +124,17 @@ async fn main() -> Result<()> {
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Application Layer                     │
-│              (Python / Rust / Go / TypeScript)           │
-└─────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────┐
-│               Polarway Client (Railway-Oriented)         │
-│         Result<T, E> · Option<T> · Composable Ops        │
-└─────────────────────────────────────────────────────────┘
-           ↓                                    ↓
-┌──────────────────────┐           ┌──────────────────────┐
-│   Standalone Mode    │           │  Distributed Mode    │
-│  (Local Storage)     │           │   (gRPC Server)      │
-└──────────────────────┘           └──────────────────────┘
-           ↓                                    ↓
-┌─────────────────────────────────────────────────────────┐
-│                   HybridStorage Router                   │
-│              (smart_load / smart_store)                  │
-└─────────────────────────────────────────────────────────┘
-           ↓                 ↓                 ↓
-┌──────────────────┐ ┌──────────────┐ ┌─────────────────┐
-│  CacheBackend    │ │ ParquetBackend│ │ DuckDBBackend   │
-│  (LRU, 2GB RAM)  │ │(18× compress) │ │ (SQL Analytics) │
-│  < 1ms           │ │ ~50ms         │ │ ~45ms           │
-└──────────────────┘ └──────────────┘ └─────────────────┘
-```
+| Layer | Component | Details |
+|-------|-----------|--------|
+| **Application Layer** | Python / Rust / Go / TypeScript | Client applications |
+| ↓ | | |
+| **Polarway Client** | Railway-Oriented | `Result<T, E>` · `Option<T>` · Composable Ops |
+| ↓ | | ↓ |
+| **Standalone Mode** | Local Storage | | **Distributed Mode** | gRPC Server |
+| ↓ | | ↓ |
+| **HybridStorage Router** | smart_load / smart_store | |
+| ↓ | ↓ | ↓ |
+| **CacheBackend** (LRU, 2GB RAM, < 1ms) | **ParquetBackend** (18× compress, ~50ms) | **DuckDBBackend** (SQL Analytics, ~45ms) |
 
 ## Why Choose Polarway?
 

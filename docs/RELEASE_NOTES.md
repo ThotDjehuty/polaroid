@@ -77,15 +77,12 @@ Scalable distributed query execution for large-scale data processing.
 - Cross-node result aggregation
 
 **Architecture:**
-```
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│  Coordinator│◄────►│   Worker 1   │      │   Worker N   │
-│   (etcd)    │      │  (Executor)  │  ... │  (Executor)  │
-└─────────────┘      └─────────────┘      └─────────────┘
-       │                    │                     │
-       └────────────────────┴─────────────────────┘
-                     Cache Layer
-```
+
+| Component | Role | Details |
+|-----------|------|---------|
+| **Coordinator** (etcd) | Node management | Health monitoring, scheduling |
+| **Worker 1..N** | Executors | Run partitions of the plan, exchange shuffle data |
+| **Cache Layer** | Shared state | Distributed caching with configurable TTL and size limits |
 
 #### 4. **Enterprise Data Sources** (`polarway-sources`)
 Production-ready integrations for enterprise data systems.

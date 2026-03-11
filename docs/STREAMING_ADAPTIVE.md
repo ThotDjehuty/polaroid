@@ -132,55 +132,29 @@ fn main() -> PolarsResult<()> {
 
 ### Components
 
-```
-polars-streaming-adaptive
-├── adaptive_reader.rs      # Main streaming reader with adaptive batching
-├── parallel_stream.rs      # Multi-file parallel processing
-├── mmap_reader.rs          # Memory-mapped Parquet reader
-├── memory_manager.rs       # Memory tracking and management
-├── chunk_strategy.rs       # Adaptive chunk sizing algorithms
-├── predicate_pushdown.rs   # Filter optimization
-└── error.rs                # Error types
-```
+- **adaptive_reader.rs** — Main streaming reader with adaptive batching
+- **parallel_stream.rs** — Multi-file parallel processing
+- **mmap_reader.rs** — Memory-mapped Parquet reader
+- **memory_manager.rs** — Memory tracking and management
+- **chunk_strategy.rs** — Adaptive chunk sizing algorithms
+- **predicate_pushdown.rs** — Filter optimization
+- **error.rs** — Error types
 
 ### Dataflow
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    User Application                         │
-└─────────────────────┬───────────────────────────────────────┘
-                      │
-        ┌─────────────┴──────────────┐
-        │  AdaptiveStreamingReader   │
-        │  - Adaptive batch sizing   │
-        │  - Memory pressure tracking│
-        └─────────────┬──────────────┘
-                      │
-        ┌─────────────┴──────────────┐
-        │     MmapParquetReader      │
-        │  - Memory-mapped I/O       │
-        │  - Zero-copy access        │
-        └─────────────┬──────────────┘
-                      │
-        ┌─────────────┴──────────────┐
-        │       MemoryManager        │
-        │  - System memory tracking  │
-        │  - Usage monitoring        │
-        └────────────────────────────┘
-```
+1. **User Application** → calls AdaptiveStreamingReader
+2. **AdaptiveStreamingReader** — Adaptive batch sizing, memory pressure tracking
+3. → **MmapParquetReader** — Memory-mapped I/O, zero-copy access
+4. → **MemoryManager** — System memory tracking, usage monitoring
 
 ### Parallel Processing
 
-```
-ParallelStreamReader
-        │
-        ├─> File 1 ──> MmapParquetReader ──> DataFrame
-        ├─> File 2 ──> MmapParquetReader ──> DataFrame
-        ├─> File 3 ──> MmapParquetReader ──> DataFrame
-        └─> File N ──> MmapParquetReader ──> DataFrame
-                                │
-                                └──> Concatenate ──> Final DataFrame
-```
+1. **ParallelStreamReader** distributes work across files:
+   - File 1 → MmapParquetReader → DataFrame
+   - File 2 → MmapParquetReader → DataFrame
+   - File 3 → MmapParquetReader → DataFrame
+   - File N → MmapParquetReader → DataFrame
+2. All DataFrames → **Concatenate** → Final DataFrame
 
 ---
 

@@ -90,7 +90,7 @@ import polars as pl
 from expression_lib import language
 
 df = pl.DataFrame({
-    "names": ["Richard", "Alice", "Bob"],
+    "names": ["Richard", "bob", "Bob"],
 })
 
 
@@ -125,26 +125,19 @@ beyond that the latest definitions should work for the latest version of Polars.
 
 This will output:
 
-```
-shape: (2, 2)
-┌───────────┬───────────────┐
-│ list_a    ┆ list_b        │
-│ ---       ┆ ---           │
-│ list[i64] ┆ list[i64]     │
-╞═══════════╪═══════════════╡
-│ [1, 2, 3] ┆ [1, 2, ... 8] │
-│ [5, 5]    ┆ [5, 1, 1]     │
-└───────────┴───────────────┘
-shape: (2, 1)
-┌─────────┐
-│ jaccard │
-│ ---     │
-│ f64     │
-╞═════════╡
-│ 0.75    │
-│ 0.5     │
-└─────────┘
-```
+**shape: (2, 2)**
+
+| list_a (list[i64]) | list_b (list[i64]) |
+|--------------------|--------------------|
+| [1, 2, 3] | [1, 2, ... 8] |
+| [5, 5] | [5, 1, 1] |
+
+**shape: (2, 1)**
+
+| jaccard (f64) |
+|---------------|
+| 0.75 |
+| 0.5 |
 
 ## Compile for release
 

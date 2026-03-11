@@ -282,27 +282,11 @@ For balance, here's when Polarway is the right tool:
 
 ## 🎯 Decision Tree
 
-```
-Do you have < 1GB of data?
-├─ YES → Use Polars or Pandas ❌ Not Polarway
-└─ NO → Continue
-
-Is this a single-user/single-process application?
-├─ YES → Use Polars (PyO3) ❌ Not Polarway
-└─ NO → Continue
-
-Do you have 10+ concurrent users?
-├─ NO → Use Polars (PyO3) ❌ Not Polarway
-└─ YES → Continue
-
-Do you need streaming or time-series operations?
-├─ NO → Consider DuckDB or PostgreSQL
-└─ YES → Use Polarway ✅
-
-Do you value functional programming patterns?
-├─ NO → Consider DuckDB or PostgreSQL
-└─ YES → Use Polarway ✅
-```
+1. **< 1GB of data?** → YES: Use Polars or Pandas ❌ · NO: Continue
+2. **Single-user / single-process?** → YES: Use Polars (PyO3) ❌ · NO: Continue
+3. **10+ concurrent users?** → NO: Use Polars (PyO3) ❌ · YES: Continue
+4. **Need streaming or time-series?** → NO: Consider DuckDB or PostgreSQL · YES: **Use Polarway ✅**
+5. **Value functional programming?** → NO: Consider DuckDB or PostgreSQL · YES: **Use Polarway ✅**
 
 ## 📚 Alternatives Comparison
 

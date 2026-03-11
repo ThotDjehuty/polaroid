@@ -76,28 +76,10 @@ match pipeline:
 
 Three-tier architecture optimized for cost and performance:
 
-```text
-┌─────────────┐
-│   Request   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐  Cache Hit (>85%)
-│  LRU Cache  │──────────────► Return (~1ms)
-│   (2GB RAM) │
-└──────┬──────┘
-       │ Cache Miss
-       ▼
-┌─────────────┐  Load + Warm
-│   Parquet   │──────────────► Return (~50ms)
-│ (zstd lvl19)│  18× compression
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐  SQL Analytics
-│   DuckDB    │──────────────► Complex queries (~45ms)
-└─────────────┘
-```
+1. **Request** arrives
+2. → **LRU Cache** (2GB RAM) — Cache Hit (>85%) → Return (~1ms)
+3. → Cache Miss → **Parquet** (zstd lvl19, 18× compression) — Load + Warm → Return (~50ms)
+4. → **DuckDB** — SQL Analytics → Complex queries (~45ms)
 
 **Results:** -20% cost (24 CHF vs 30 CHF), 18× compression, 85%+ cache hit rate
 
@@ -369,35 +351,32 @@ Complete documentation available at **[polarway.readthedocs.io](https://polarway
 
 ### Project Structure
 
-```
-polarway/
-├── polarway-grpc/         # Rust gRPC server
-│   ├── src/
-│   │   ├── service.rs    # gRPC service
-│   │   ├── handles.rs    # Handle lifecycle
-│   │   └── storage/      # Storage backends
-│   └── Cargo.toml
-├── polarway-lakehouse/    # Delta Lake storage layer
-│   ├── src/
-│   │   ├── store.rs      # DeltaStore (ACID, time-travel, SQL)
-│   │   ├── auth/         # Authentication (Argon2, JWT)
-│   │   ├── audit/        # Audit logging (append-only)
-│   │   └── maintenance.rs # Background optimization
-│   └── Cargo.toml
-├── polarway-python/       # Python client
-│   ├── polarway/
-│   │   ├── __init__.py
-│   │   ├── dataframe.py  # DataFrame API
-│   │   ├── lakehouse.py  # Lakehouse client
-│   │   └── storage.py    # Storage client
-│   └── pyproject.toml
-├── docs/                  # Documentation (MkDocs)
-│   ├── index.md
-│   ├── lakehouse.md      # Lakehouse guide
-│   └── ...
-└── proto/                 # Protocol buffers
-    └── polarway.proto
-```
+- **polarway-grpc/** — Rust gRPC server
+  - **src/**
+    - **service.rs** — gRPC service
+    - **handles.rs** — Handle lifecycle
+    - **storage/** — Storage backends
+  - Cargo.toml
+- **polarway-lakehouse/** — Delta Lake storage layer
+  - **src/**
+    - **store.rs** — DeltaStore (ACID, time-travel, SQL)
+    - **auth/** — Authentication (Argon2, JWT)
+    - **audit/** — Audit logging (append-only)
+    - **maintenance.rs** — Background optimization
+  - Cargo.toml
+- **polarway-python/** — Python client
+  - **polarway/**
+    - **\_\_init\_\_.py**
+    - **dataframe.py** — DataFrame API
+    - **lakehouse.py** — Lakehouse client
+    - **storage.py** — Storage client
+  - pyproject.toml
+- **docs/** — Documentation (MkDocs)
+  - index.md
+  - lakehouse.md — Lakehouse guide
+  - ...
+- **proto/** — Protocol buffers
+  - polarway.proto
 
 ### Build & Test
 

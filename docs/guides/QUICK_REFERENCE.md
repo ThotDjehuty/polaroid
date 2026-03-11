@@ -2,29 +2,13 @@
 
 ## Architecture at a Glance
 
-```
-┌─────────────────────────────────────────────────┐
-│   Python Client (polarway-python)              │
-│   - Thin gRPC client                            │
-│   - Handle management                           │
-│   - Arrow IPC deserialization                   │
-└────────────────────┬────────────────────────────┘
-                     │ gRPC (Arrow Flight)
-┌────────────────────▼────────────────────────────┐
-│   Polarway gRPC Server (Rust)                  │
-│   - Request routing                             │
-│   - Authentication                              │
-│   - Handle lifecycle management                 │
-└────────────────────┬────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────┐
-│   Functional Core (Rust)                       │
-│   - Immutable DataFrame operations              │
-│   - Monadic error handling (Result<T, E>)      │
-│   - Streaming execution engine                  │
-│   - DataFusion integration                      │
-└─────────────────────────────────────────────────┘
-```
+| Layer | Component | Details |
+|-------|-----------|--------|
+| **Python Client** | polarway-python | Thin gRPC client, handle management, Arrow IPC deserialization |
+| ↓ | gRPC (Arrow Flight) | |
+| **gRPC Server** | Polarway (Rust) | Request routing, authentication, handle lifecycle management |
+| ↓ | | |
+| **Functional Core** | Rust engine | Immutable DataFrame operations, monadic error handling (`Result<T, E>`), streaming execution, DataFusion integration |
 
 ## Key Concepts
 
